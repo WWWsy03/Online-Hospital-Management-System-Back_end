@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace back_end.Models
 {
@@ -27,6 +28,7 @@ namespace back_end.Models
         public virtual ICollection<ConsultationInfo> ConsultationInfos { get; set; }
         public virtual ICollection<Prescription> Prescriptions { get; set; }
         public virtual ICollection<Referral> Referrals { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Registration> Registrations { get; set; }
         public virtual ICollection<TreatmentFeedback> TreatmentFeedbacks { get; set; }
         public virtual ICollection<TreatmentRecord> TreatmentRecords { get; set; }

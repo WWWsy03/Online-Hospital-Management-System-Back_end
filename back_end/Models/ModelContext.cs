@@ -686,13 +686,8 @@ namespace back_end.Models
                     .HasColumnName("DOCTOR_ID");
 
                 entity.Property(e => e.AppointmentTime)
-                    .HasPrecision(6)
+                    .HasColumnType("DATE")
                     .HasColumnName("APPOINTMENT_TIME");
-
-                entity.Property(e => e.Description)
-                    .HasMaxLength(200)
-                    .IsUnicode(false)
-                    .HasColumnName("DESCRIPTION");
 
                 entity.Property(e => e.Period)
                     .HasColumnType("NUMBER(38)")
