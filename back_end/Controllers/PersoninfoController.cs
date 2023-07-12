@@ -23,23 +23,23 @@ namespace back_end.Controllers
 
             return Content(json, "application/json");
         }
-
         [HttpPut("update")]
-        public async Task<IActionResult> UpdatePatient(string id, Patient patient)//给定学号和要修改的信息修改个人信息
+        public async Task<IActionResult> UpdatePatient(Patient patient)
         {
-            if (id != patient.PatientId){//首先检查传入的病人ID是否与Patient对象中的ID匹配
-                return BadRequest();
-            }
-
-            _context.Entry(patient).State = EntityState.Modified;//标记已修改
-
-            try{
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)//如果在保存更改时发生了并发冲突（例如，另一个用户同时修改了同一条记录）
-                                                //，那么EF Core会抛出一个DbUpdateConcurrencyException异常。
+            if (!PatientExists(patient.PatientId))//先检查一下要修改的信息存不存在
             {
-                if (!PatientExists(id))
+                return NotFound();
+            }
+
+            _context.Entry(patient).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();//实现修改
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!PatientExists(patient.PatientId))
                 {
                     return NotFound();
                 }
@@ -51,10 +51,11 @@ namespace back_end.Controllers
 
             return NoContent();
         }
-
         private bool PatientExists(string id)
         {
             return _context.Patients.Any(e => e.PatientId == id);
         }
+
+
     }
 }
