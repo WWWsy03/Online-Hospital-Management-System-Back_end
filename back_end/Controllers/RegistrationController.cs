@@ -80,6 +80,23 @@ namespace back_end.Controllers
         }
 
 
+        [HttpDelete("{registrationPK}")]
+        public async Task<IActionResult> DeleteRegistrations(string registrationPK)
+        {
+            // 查找所有匹配的注册记录
+            var registrations = _context.Registrations.Where(d => d.PatientId == registrationPK).ToList();
+            if (registrations == null || registrations.Count == 0)
+            {            
+                return NotFound();
+            }
+
+            // 从数据库中删除找到的所有记录
+            _context.Registrations.RemoveRange(registrations);
+            await _context.SaveChangesAsync();
+
+            return Ok(registrations);
+        }
+
     }
 
 }
