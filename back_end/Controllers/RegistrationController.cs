@@ -40,34 +40,15 @@ namespace back_end.Controllers
             return Content(json, "application/json");
         }
 
-        /*
-        [HttpGet("name")]
-        public async Task<ActionResult<IEnumerable<object>>> GetRegistrationinfo(DateTime date)//查询每个给定日期各个时间段都有多少人挂号，学号是多少
+        [HttpPost("regist")]
+        public async Task<ActionResult<Registration>> CreateRegistration(string patientId, string doctorId, DateTime time, int period)//挂号API
         {
-            var registrations = await _context.Registrations.Where(r => r.AppointmentTime.Date == date.Date).ToListAsync();
-
-            var result = registrations.GroupBy(r => r.Period)
-              .Select(g => new { Period = g.Key, Count = g.Count(), PatientIds = g.Select(r => r.PatientId).ToList() })
-              .OrderBy(r => r.Period)
-              .ToList();
-
-
-            var json = JsonSerializer.Serialize(result);
-
-            return Content(json, "application/json");
-        }
-        */
-        [HttpPost]
-        public async Task<ActionResult<Registration>> CreateRegistration(JsonElement data)//挂号API
-        {
-            string patientId = data.GetProperty("PatientId").GetString();
-            string doctorId = data.GetProperty("DoctorId").GetString();
             var registration = new Registration
             {
-                PatientId = data.GetProperty("PatientId").GetString(),
-                DoctorId = data.GetProperty("DoctorId").GetString(),
-                AppointmentTime = data.GetProperty("AppointmentTime").GetDateTime(),
-                Period = data.GetProperty("Period").GetDecimal()
+                PatientId = patientId,
+                DoctorId = doctorId,
+                AppointmentTime = time,
+                Period = period
             };
 
             registration.Doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == doctorId);
@@ -78,8 +59,30 @@ namespace back_end.Controllers
 
             return Ok(registration);
         }
+            /*
+            [HttpPost]
+            public async Task<ActionResult<Registration>> CreateRegistration(JsonElement data)//挂号API
+            {
+                string patientId = data.GetProperty("PatientId").GetString();
+                string doctorId = data.GetProperty("DoctorId").GetString();
+                var registration = new Registration
+                {
+                    PatientId = data.GetProperty("PatientId").GetString(),
+                    DoctorId = data.GetProperty("DoctorId").GetString(),
+                    AppointmentTime = data.GetProperty("AppointmentTime").GetDateTime(),
+                    Period = data.GetProperty("Period").GetDecimal()
+                };
+
+                registration.Doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == doctorId);
+                registration.Patient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientId == patientId);
+
+                _context.Registrations.Add(registration);//向挂号表中插入一行
+                await _context.SaveChangesAsync();
+
+                return Ok(registration);
+            }*/
 
 
-    }
+        }
 
 }
