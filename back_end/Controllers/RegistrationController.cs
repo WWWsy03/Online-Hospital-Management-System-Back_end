@@ -40,8 +40,8 @@ namespace back_end.Controllers
             return Content(json, "application/json");
         }
 
-        [HttpPost("regist")]
-        public async Task<ActionResult<Registration>> CreateRegistration(string patientId, string doctorId, DateTime time, int period)//挂号API
+        [HttpGet("regist")]//用post方法就是不通，不知道为什么，但是用get修改数据库不符合规范，不知道有什么隐患
+        public async Task<ActionResult<Registration>> CreateRegistration(string patientId, string doctorId, DateTime time, int period)
         {
             var registration = new Registration
             {
@@ -54,33 +54,11 @@ namespace back_end.Controllers
             registration.Doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == doctorId);
             registration.Patient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientId == patientId);
 
-            _context.Registrations.Add(registration);//向挂号表中插入一行
+            _context.Registrations.Add(registration);
             await _context.SaveChangesAsync();
 
             return Ok(registration);
         }
-            /*
-            [HttpPost]
-            public async Task<ActionResult<Registration>> CreateRegistration(JsonElement data)//挂号API
-            {
-                string patientId = data.GetProperty("PatientId").GetString();
-                string doctorId = data.GetProperty("DoctorId").GetString();
-                var registration = new Registration
-                {
-                    PatientId = data.GetProperty("PatientId").GetString(),
-                    DoctorId = data.GetProperty("DoctorId").GetString(),
-                    AppointmentTime = data.GetProperty("AppointmentTime").GetDateTime(),
-                    Period = data.GetProperty("Period").GetDecimal()
-                };
-
-                registration.Doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == doctorId);
-                registration.Patient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientId == patientId);
-
-                _context.Registrations.Add(registration);//向挂号表中插入一行
-                await _context.SaveChangesAsync();
-
-                return Ok(registration);
-            }*/
 
 
     }
