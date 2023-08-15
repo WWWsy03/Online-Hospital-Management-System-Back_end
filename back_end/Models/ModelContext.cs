@@ -217,11 +217,6 @@ namespace back_end.Models
                     .HasColumnType("DATE")
                     .HasColumnName("BIRTHDATE");
 
-                entity.Property(e => e.CertificateId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("CERTIFICATE_ID");
-
                 entity.Property(e => e.Contact)
                     .HasMaxLength(20)
                     .IsUnicode(false)
@@ -235,6 +230,11 @@ namespace back_end.Models
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("NAME");
+
+                entity.Property(e => e.Photourl)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasColumnName("PHOTOURL");
 
                 entity.Property(e => e.SecondaryDepartment)
                     .HasMaxLength(10)

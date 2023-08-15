@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace back_end.Models
 {
@@ -23,12 +22,11 @@ namespace back_end.Models
         public string? Title { get; set; }
         public string? Contact { get; set; }
         public string? SecondaryDepartment { get; set; }
-        public string CertificateId { get; set; } = null!;
+        public string? Photourl { get; set; }
 
         public virtual ICollection<ConsultationInfo> ConsultationInfos { get; set; }
         public virtual ICollection<Prescription> Prescriptions { get; set; }
         public virtual ICollection<Referral> Referrals { get; set; }
-        [JsonIgnore]
         public virtual ICollection<Registration> Registrations { get; set; }
         public virtual ICollection<TreatmentFeedback> TreatmentFeedbacks { get; set; }
         public virtual ICollection<TreatmentRecord> TreatmentRecords { get; set; }
