@@ -59,7 +59,7 @@ namespace back_end.Controllers
 
 
         //插入医生信息
-        [HttpPost("adddoctor")]
+        [HttpPost("add")]
         public async Task<ActionResult<Doctor>> PostDoctor(Doctor doctor)
         {
             _context.Doctors.Add(doctor);

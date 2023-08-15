@@ -237,12 +237,12 @@ namespace back_end.Models
                     .HasColumnName("PHOTOURL");
 
                 entity.Property(e => e.SecondaryDepartment)
-                    .HasMaxLength(10)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("SECONDARY_DEPARTMENT");
 
                 entity.Property(e => e.Title)
-                    .HasMaxLength(10)
+                    .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("TITLE");
             });
