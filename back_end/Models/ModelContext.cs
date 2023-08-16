@@ -19,7 +19,6 @@ namespace back_end.Models
         public virtual DbSet<Administrator> Administrators { get; set; } = null!;
         public virtual DbSet<ConsultationInfo> ConsultationInfos { get; set; } = null!;
         public virtual DbSet<ConsultingRoom> ConsultingRooms { get; set; } = null!;
-        public virtual DbSet<Department1> Department1s { get; set; } = null!;
         public virtual DbSet<Department2> Department2s { get; set; } = null!;
         public virtual DbSet<Disease> Diseases { get; set; } = null!;
         public virtual DbSet<Doctor> Doctors { get; set; } = null!;
@@ -132,24 +131,6 @@ namespace back_end.Models
                 entity.Property(e => e.ConsultantCapacity)
                     .HasColumnType("NUMBER(38)")
                     .HasColumnName("CONSULTANT_CAPACITY");
-            });
-
-            modelBuilder.Entity<Department1>(entity =>
-            {
-                entity.HasKey(e => e.DepartmentName)
-                    .HasName("DEPARTMENT1_PK");
-
-                entity.ToTable("DEPARTMENT1");
-
-                entity.Property(e => e.DepartmentName)
-                    .HasMaxLength(10)
-                    .IsUnicode(false)
-                    .HasColumnName("DEPARTMENT_NAME");
-
-                entity.Property(e => e.Description)
-                    .HasMaxLength(200)
-                    .IsUnicode(false)
-                    .HasColumnName("DESCRIPTION");
             });
 
             modelBuilder.Entity<Department2>(entity =>
