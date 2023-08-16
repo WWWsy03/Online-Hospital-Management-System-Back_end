@@ -71,5 +71,39 @@ namespace back_end.Controllers
             return CreatedAtAction("GetAdministrator", new { id = administrator.AdministratorId }, administrator);
         }
 
+        //修改管理员信息
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateAdministrator(Administrator administrator)
+        {
+            if (!AdministratorExists(administrator.AdministratorId))//先检查一下要修改的信息存不存在
+            {
+                return NotFound();
+            }
+
+            _context.Entry(administrator).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();//实现修改
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AdministratorExists(administrator.AdministratorId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+        private bool AdministratorExists(string id)
+        {
+            return _context.Administrators.Any(e => e.AdministratorId == id);
+        }
+
     }
 }

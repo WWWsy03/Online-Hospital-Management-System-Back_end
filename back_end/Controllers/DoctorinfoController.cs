@@ -68,5 +68,40 @@ namespace back_end.Controllers
             return CreatedAtAction("GetDoctor", new { id = doctor.DoctorId }, doctor);
         }
 
+        //修改医生信息
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateDoctor(Doctor doctor)
+        {
+            if (!DoctorExists(doctor.DoctorId))//先检查一下要修改的信息存不存在
+            {
+                return NotFound();
+            }
+
+            _context.Entry(doctor).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();//实现修改
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!DoctorExists(doctor.DoctorId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+        private bool DoctorExists(string id)
+        {
+            return _context.Doctors.Any(e => e.DoctorId == id);
+        }
+
+
     }
 }
