@@ -40,7 +40,7 @@ namespace back_end.Controllers
             return Content(json, "application/json");
         }
 
-        [HttpGet("regist")]//用post方法就是不通，不知道为什么，但是用get修改数据库不符合规范，不知道有什么隐患
+        [HttpPost("regist")]//用post方法就是不通，不知道为什么，但是用get修改数据库不符合规范，不知道有什么隐患
         public async Task<ActionResult<Registration>> CreateRegistration(string patientId, string doctorId, DateTime time, int period)
         {
             var registration = new Registration
