@@ -40,19 +40,18 @@ namespace back_end.Controllers
             return Content(json, "application/json");
         }
 
-        [HttpPost("regist")]//用post方法就是不通，不知道为什么，但是用get修改数据库不符合规范，不知道有什么隐患
-        public async Task<ActionResult<Registration>> CreateRegistration(string patientId, string doctorId, DateTime time, int period)
-        {
+        [HttpPost("regist")]
+        public async Task<ActionResult<Registration>> CreateRegistration([FromBody] RegistrationInputModel input) { 
             var registration = new Registration
             {
-                PatientId = patientId,
-                DoctorId = doctorId,
-                AppointmentTime = time,
-                Period = period
+                PatientId = input.PatientId,
+                DoctorId = input.DoctorId,
+                AppointmentTime = input.Time,
+                Period = input.Period
             };
 
-            registration.Doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == doctorId);
-            registration.Patient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientId == patientId);
+            registration.Doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == input.DoctorId);
+            registration.Patient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientId == input.PatientId);
 
             _context.Registrations.Add(registration);
             await _context.SaveChangesAsync();
@@ -62,5 +61,13 @@ namespace back_end.Controllers
 
 
     }
+    public class RegistrationInputModel
+    {
+        public string PatientId { get; set; }
+        public string DoctorId { get; set; }
+        public DateTime Time { get; set; }
+        public int Period { get; set; }
+    }
+
 
 }
