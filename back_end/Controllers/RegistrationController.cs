@@ -59,9 +59,33 @@ namespace back_end.Controllers
             return Ok(registration);
         }
 
+        [HttpDelete("cancel")]
+        public async Task<IActionResult> DeleteRegistration([FromBody] RegistrationInputModel inputModel)
+        {
 
+            // 查找匹配的挂号记录
+            var registration = await _context.Registrations.FirstOrDefaultAsync(r =>
+                r.PatientId == inputModel.PatientId &&
+                r.DoctorId == inputModel.DoctorId &&
+                r.AppointmentTime.Date == inputModel.Time.Date &&
+                r.Period == inputModel.Period);
+
+            // 如果找不到匹配的挂号记录，返回错误信息
+            if (registration == null)
+            {
+                return NotFound("No registration found.");
+            }
+
+            // 从数据库中删除找到的挂号记录
+            _context.Registrations.Remove(registration);
+            await _context.SaveChangesAsync();
+
+            // 返回成功信息
+            return Ok("successful.");
+        }
     }
-    public class RegistrationInputModel
+
+    public class RegistrationInputModel//用于传输数据
     {
         public string PatientId { get; set; }
         public string DoctorId { get; set; }
