@@ -24,7 +24,7 @@ namespace back_end.Controllers
             return Content(json, "application/json");
         }
         [HttpPut("update")]
-        public async Task<IActionResult> UpdatePatient(Patient patient)
+        public async Task<IActionResult> UpdatePatient(Models.Patient patient)
         {
             if (!PatientExists(patient.PatientId))//先检查一下要修改的信息存不存在
             {
