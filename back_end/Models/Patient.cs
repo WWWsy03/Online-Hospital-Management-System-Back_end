@@ -28,7 +28,7 @@ namespace back_end.Models
         public virtual ICollection<MedicineOut> MedicineOuts { get; set; }
         public virtual ICollection<OutpatientOrder> OutpatientOrders { get; set; }
         public virtual ICollection<Referral> Referrals { get; set; }
-        [JsonIgnore]//防止序列化器尝试序列化这个集合，从而避免了循环引用的问题。
+        [JsonIgnore]
         public virtual ICollection<Registration> Registrations { get; set; }
         public virtual ICollection<TreatmentFeedback> TreatmentFeedbacks { get; set; }
         public virtual ICollection<TreatmentRecord> TreatmentRecords { get; set; }

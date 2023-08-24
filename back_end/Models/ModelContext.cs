@@ -38,7 +38,6 @@ namespace back_end.Models
         public virtual DbSet<TreatmentFeedback> TreatmentFeedbacks { get; set; } = null!;
         public virtual DbSet<TreatmentRecord> TreatmentRecords { get; set; } = null!;
         public virtual DbSet<TreatmentRecord2> TreatmentRecord2s { get; set; } = null!;
-        public object Department2 { get; internal set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -83,7 +82,7 @@ namespace back_end.Models
 
             modelBuilder.Entity<ConsultationInfo>(entity =>
             {
-                entity.HasKey(e => new { e.DoctorId, e.ClinicName })
+                entity.HasKey(e => new { e.DoctorId, e.ClinicName, e.DateTime, e.Period })
                     .HasName("CONSULTATION_INFO_PK");
 
                 entity.ToTable("CONSULTATION_INFO");
@@ -98,13 +97,13 @@ namespace back_end.Models
                     .IsUnicode(false)
                     .HasColumnName("CLINIC_NAME");
 
-                entity.Property(e => e.EndTime)
-                    .HasPrecision(6)
-                    .HasColumnName("END_TIME");
+                entity.Property(e => e.DateTime)
+                    .HasColumnType("DATE")
+                    .HasColumnName("DATE_TIME");
 
-                entity.Property(e => e.StartTime)
-                    .HasPrecision(6)
-                    .HasColumnName("START_TIME");
+                entity.Property(e => e.Period)
+                    .HasColumnType("NUMBER(38)")
+                    .HasColumnName("PERIOD");
 
                 entity.HasOne(d => d.ClinicNameNavigation)
                     .WithMany(p => p.ConsultationInfos)
@@ -125,7 +124,7 @@ namespace back_end.Models
                 entity.ToTable("CONSULTING_ROOM");
 
                 entity.Property(e => e.ConsultingRoomName)
-                    .HasMaxLength(8)
+                    .HasMaxLength(30)
                     .IsUnicode(false)
                     .HasColumnName("CONSULTING_ROOM_NAME");
 
@@ -142,7 +141,7 @@ namespace back_end.Models
                 entity.ToTable("DEPARTMENT2");
 
                 entity.Property(e => e.DepartmentName)
-                    .HasMaxLength(8)
+                    .HasMaxLength(80)
                     .IsUnicode(false)
                     .HasColumnName("DEPARTMENT_NAME");
 

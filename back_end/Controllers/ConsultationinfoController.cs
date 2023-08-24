@@ -16,47 +16,45 @@ namespace back_end.Controllers
         {
             _context = context;
         }
-        [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<ConsultationInfo>>> GetConsultations(string id)
-        {
-            var consultations = await _context.ConsultationInfos
-                .Where(c => c.DoctorId == id)
-                .ToListAsync();
-
-            if (consultations == null)
-            {
-                return NotFound();
-            }
-
-            return consultations;
-        }
-        // 通过医生姓名查找其坐诊时间
+    
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<object>>> GetConsultationInfoByName(string name)
+        public async Task<ActionResult<IEnumerable<object>>> GetConsultationInfoByDepartmentAndKeyword(string department, string keyword)
         {
-            var doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.Name == name);
+            var doctors = await _context.Doctors
+                .Where(d => d.SecondaryDepartment == department && d.Name.Contains(keyword))
+                .ToListAsync();
 
-            if (doctor == null)
+            if (doctors == null || doctors.Count == 0)
             {
                 return NotFound();
             }
 
-            var consultationInfos = await _context.ConsultationInfos
-                .Where(c => c.DoctorId == doctor.DoctorId)
-                .Include(c => c.ClinicNameNavigation) // 使用Include方法来包含该导航属性获取诊室的名称
-                .ToListAsync();
+            var result = new List<object>();
 
-            var result = consultationInfos.GroupBy(c => c.DoctorId) // 按照医生ID分组
-                .Select(g => new
-                {
-                    DoctorId = g.Key,
-                    Count = g.Count(),
-                    ConsultationInfos = g.Select(c => new { ClinicName = c.ClinicName, StartTime = c.StartTime, EndTime = c.EndTime }).ToList() // Select the clinic's name and consultation times
-                })
-                .OrderBy(r => r.DoctorId)
-                .ToList();
+            foreach (var doctor in doctors)
+            {
+                var consultationInfos = await _context.ConsultationInfos
+                    .Where(c => c.DoctorId == doctor.DoctorId)
+                    .Include(c => c.ClinicNameNavigation) // 使用Include方法来包含该导航属性获取诊室的名称
+                    .ToListAsync();
+
+                var doctorResult = consultationInfos.GroupBy(c => c.DoctorId) // 按照医生ID分组
+                    .Select(g => new
+                    {
+                        DoctorId = g.Key,
+                        DoctorName = doctor.Name, // 添加医生姓名
+                        Count = g.Count(),
+                        ConsultationInfos = g.Select(c => new { ClinicName = c.ClinicName, StartTime = c.DateTime, EndTime = c.Period }).ToList() // Select the clinic's name and consultation times
+                    })
+                    .OrderBy(r => r.DoctorId)
+                    .ToList();
+
+                result.AddRange(doctorResult);
+            }
 
             return result;
         }
+
+
     }
 }
