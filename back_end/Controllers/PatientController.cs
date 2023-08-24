@@ -6,10 +6,10 @@ namespace back_end.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class Patient : Controller
+    public class PatientController : Controller
     {
         private readonly ModelContext _context;
-        public Patient(ModelContext context)
+        public PatientController(ModelContext context)
         {
             _context = context;
         }
