@@ -15,7 +15,7 @@ namespace back_end.Controllers
         }
 
         //插入医生信息
-        [HttpPost("add1")]
+        [HttpPost("PostTreatmentRord1")]
         public async Task<ActionResult<TreatmentRecord>> PostTreatmentRecord(TreatmentRecord row)
         {
             _context.TreatmentRecords.Add(row);
@@ -24,7 +24,7 @@ namespace back_end.Controllers
             return CreatedAtAction("PostTreatmentRecord", new { id = row.DoctorId }, row);
         }
 
-        [HttpGet("get1")]
+        [HttpGet("GetAllTreatmentRord1")]
         public async Task<ActionResult<IEnumerable<TreatmentRecord>>> GetTreatmentRecords()
         {
             return await _context.TreatmentRecords.ToListAsync();
