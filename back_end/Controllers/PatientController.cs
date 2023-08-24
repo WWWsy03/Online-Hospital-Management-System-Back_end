@@ -30,10 +30,11 @@ namespace back_end.Controllers
             return await _context.TreatmentRecords.ToListAsync();
         }
 
-        [HttpGet("AllPatients")]
-        public async Task<ActionResult<IEnumerable<object>>> GetAllPatients()
+        [HttpGet("PatientDetails/{patientId}")]
+        public async Task<ActionResult<object>> GetPatientDetails(string patientId)
         {
             var result = await _context.Patients
+                .Where(p => p.PatientId == patientId) // 添加这一行来过滤结果
                 .Join(
                     _context.TreatmentRecords,
                     patient => patient.PatientId,
@@ -51,15 +52,16 @@ namespace back_end.Controllers
                         DiagnosisTime = record2.DiagnoseTime
                     }
                 )
-                .ToListAsync();
+                .FirstOrDefaultAsync(); // 改为FirstOrDefaultAsync，因为我们只寻找一个特定的病人的详情
 
-            if (!result.Any())
+            if (result == null)
             {
                 return NotFound();
             }
 
             return Ok(result);
         }
+
 
 
         [HttpGet("WenhaoYan_test")]
