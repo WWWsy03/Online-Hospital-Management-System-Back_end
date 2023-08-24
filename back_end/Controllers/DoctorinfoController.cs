@@ -81,7 +81,7 @@ namespace back_end.Controllers
             _context.Doctors.Add(doctor);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetDoctor", new { id = doctor.DoctorId }, doctor);
+            return CreatedAtAction("PostDoctor", new { id = doctor.DoctorId }, doctor);
         }
 
         //修改医生信息
