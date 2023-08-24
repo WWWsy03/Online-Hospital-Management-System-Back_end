@@ -38,6 +38,7 @@ namespace back_end.Models
         public virtual DbSet<TreatmentFeedback> TreatmentFeedbacks { get; set; } = null!;
         public virtual DbSet<TreatmentRecord> TreatmentRecords { get; set; } = null!;
         public virtual DbSet<TreatmentRecord2> TreatmentRecord2s { get; set; } = null!;
+        public object Department2 { get; internal set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
