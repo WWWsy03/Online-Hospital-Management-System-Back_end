@@ -57,6 +57,22 @@ namespace back_end.Controllers
             return doctors;
         }
 
+        // 查找指定科室下所有医生信息
+        [HttpGet("dept")]
+        public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctorbyDept(string dept)
+        {
+            var doctors = await _context.Doctors
+                .Where(d => d.SecondaryDepartment == dept)
+                .ToListAsync();
+
+            if (doctors == null || doctors.Count == 0)
+            {
+                return NotFound("No doctor in this department");
+            }
+
+            return doctors;
+        }
+
 
         //插入医生信息
         [HttpPost("add")]
