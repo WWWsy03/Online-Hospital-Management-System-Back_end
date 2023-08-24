@@ -83,6 +83,20 @@ namespace back_end.Controllers
             // 返回成功信息
             return Ok("successful.");
         }
+
+
+        [HttpGet("commit")]
+        public IActionResult GetRegistrationsByDoctorId(string doctorId)
+        {
+            var currentDate = DateTime.Now.Date;
+            var registrations = _context.Registrations
+                .Include(r => r.Patient)
+                .Where(r => r.DoctorId == doctorId && r.AppointmentTime.Date == currentDate)
+                .ToList();
+
+            return Ok(registrations);
+        }
+
     }
 
     public class RegistrationInputModel//用于传输数据

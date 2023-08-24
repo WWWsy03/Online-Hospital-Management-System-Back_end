@@ -113,6 +113,7 @@ namespace back_end.Controllers
 
             return NoContent();
         }
+
         private bool DoctorExists(string id)
         {
             return _context.Doctors.Any(e => e.DoctorId == id);
