@@ -50,10 +50,10 @@ namespace back_end.Controllers
                         r.DoctorId == doctorId &&
                         r.AppointmentTime.Date == DateTime.Now.Date);
 
-                    // 如果找到匹配的挂号记录，从数据库中删除
                     if (registration != null)
                     {
-                        _context.Registrations.Remove(registration);
+                        registration.State = -1;
+                        _context.SaveChanges();
                     }
                     _context.TreatmentRecords.Add(treatmentRecord);
                     _context.TreatmentRecord2s.Add(treatmentRecord2);
