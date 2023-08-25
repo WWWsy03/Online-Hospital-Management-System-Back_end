@@ -63,7 +63,7 @@ namespace back_end.Controllers
                 {
                     Period = g.Key, // 这是每个分组的 Period 值
                     Count = g.Count(),
-                    Patients = g.Select(r => new { Id = r.PatientId, Name = r.Patient.Name }).ToList()
+                    Patients = g.Select(r => new { Id = r.PatientId, Name = r.Patient.Name ,State=r.State}).ToList()
                 })
                 .ToList();
 
@@ -123,6 +123,7 @@ namespace back_end.Controllers
                     Patient = reg.Patient,
                     Date = reg.AppointmentTime.Date,
                     Period = reg.Period,
+                    State=reg.State,
                     QueueCount = queueCount
                 };
             }).ToList();
@@ -131,36 +132,65 @@ namespace back_end.Controllers
         }
 
 
-        [HttpPut("ReorderRegistByPatientId")]
-        public IActionResult UpdateRegistOrder()
-        {
-            // 之前的功能代码：
-            var registrations = _context.Registrations
-                            .OrderBy(r => r.AppointmentTime)
-                            .ThenBy(r => r.PatientId)
-                            .ToList();
+        //[HttpPut("ReorderRegistByPatientId")]
+        //public IActionResult UpdateRegistOrder()
+        //{
+        //    // 之前的功能代码：
+        //    var registrations = _context.Registrations
+        //                    .OrderBy(r => r.AppointmentTime)
+        //                    .ThenBy(r => r.PatientId)
+        //                    .ToList();
 
-            var groupedRecords = registrations.GroupBy(r => new
-            {
-                Date = r.AppointmentTime.Date,
-                r.Period,
-                r.DoctorId
-            }).ToList();
+        //    var groupedRecords = registrations.GroupBy(r => new
+        //    {
+        //        Date = r.AppointmentTime.Date,
+        //        r.Period,
+        //        r.DoctorId
+        //    }).ToList();
 
-            foreach (var group in groupedRecords)
-            {
-                int order = 1;
-                foreach (var record in group)
-                {
-                    record.Registorder = order;
-                    order++;
-                }
-            }
+        //    foreach (var group in groupedRecords)
+        //    {
+        //        int order = 1;
+        //        foreach (var record in group)
+        //        {
+        //            record.Registorder = order;
+        //            order++;
+        //        }
+        //    }
 
-            _context.SaveChanges();
+        //    _context.SaveChanges();
 
-            return Ok("Records updated successfully!");
-        }
+        //    return Ok("Records updated successfully!");
+        //}
+
+        //[HttpPut("JieChu_update-state")]
+        //public async Task<IActionResult> UpdateAllRegistState()
+        //{
+        //    var regists = _context.Registrations.ToList();
+
+        //    foreach (var regist in regists)
+        //    {
+        //        regist.State = GenerateState();
+        //    }
+
+        //    await _context.SaveChangesAsync();
+
+        //    return Ok("States updated successfully.");
+        //}
+
+        //// 生成随机state的辅助方法
+        //private int GenerateState()
+        //{
+        //    var random = new Random();
+        //    int totalWeight = 4;
+        //    int randomVal = random.Next(totalWeight);
+        //    if (randomVal < 1)
+        //        return -1;
+        //    else if (randomVal < 3)
+        //        return 0;
+        //    else
+        //        return 1;
+        //}
 
 
         [HttpPost("regist")]
@@ -177,6 +207,7 @@ namespace back_end.Controllers
                 DoctorId = input.DoctorId,
                 AppointmentTime = input.Time,
                 Period = input.Period,
+
                 State = 0,
                 Registorder = maxOrder + 1  // 设置 Registorder 为当前最大值加1
             };
@@ -190,8 +221,8 @@ namespace back_end.Controllers
             return Ok("successful.");
         }
 
-        [HttpDelete("cancel")]
-        public async Task<IActionResult> DeleteRegistration([FromBody] RegistrationInputModel inputModel)
+        [HttpPut("cancel")]
+        public async Task<IActionResult> CancelRegistration([FromBody] RegistrationInputModel inputModel)
         {
             // 查找匹配的挂号记录
             var registration = await _context.Registrations.FirstOrDefaultAsync(r =>
@@ -207,11 +238,34 @@ namespace back_end.Controllers
             }
 
             // 从数据库中删除找到的挂号记录
-            _context.Registrations.Remove(registration);
+            registration.State = -1;
             await _context.SaveChangesAsync();
 
             // 返回成功信息
-            return Ok("successful.");
+            return Ok("cancel successfully.");
+        }
+
+        [HttpPut("complete")]
+        public async Task<IActionResult> CompleteRegistration([FromBody] RegistrationInputModel inputModel)
+        {
+            // 查找匹配的挂号记录
+            var registration = await _context.Registrations.FirstOrDefaultAsync(r =>
+                r.PatientId == inputModel.PatientId &&
+                r.DoctorId == inputModel.DoctorId &&
+                r.AppointmentTime.Date == inputModel.Time.Date &&
+                r.Period == inputModel.Period);
+
+            // 如果找不到匹配的挂号记录，返回错误信息
+            if (registration == null)
+            {
+                return NotFound("No registration found.");
+            }
+
+            registration.State = 1;
+            await _context.SaveChangesAsync();
+
+            // 返回成功信息
+            return Ok("complete successfully.");
         }
     }
 
