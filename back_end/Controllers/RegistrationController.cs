@@ -17,12 +17,19 @@ namespace back_end.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<object>>> GetRegistrations(DateTime date)
+        [HttpGet("GetAllRegist")]
+        public async Task<ActionResult<IEnumerable<object>>> GetAllRegist()
+        {
+            return await _context.Registrations.ToListAsync();
+        }
+
+        [HttpGet("GetFromDate")]
+        public async Task<ActionResult<IEnumerable<object>>> GetRegistFromDate(DateTime date)
         {
             var registrations = await _context.Registrations
                 .Where(r => r.AppointmentTime.Date == date.Date)
                 .Include(r => r.Patient) //使用Include方法来包含该导航属性获取病人的姓名
+                .Include(r => r.Doctor)
                 .ToListAsync();
 
             var result = registrations.GroupBy(r => r.Period)//按照挂号时间分组
@@ -40,11 +47,112 @@ namespace back_end.Controllers
             return Content(json, "application/json");
         }
 
-        [HttpPost("regist")]
-        public async Task<ActionResult<Registration>> CreateRegistration([FromBody] RegistrationInputModel input) {
-            // 获取当前最大的 Registorder 值
-            var maxOrder = _context.Registrations.Max(r => (int?)r.Registorder) ?? 0;
+        [HttpGet("GetFromDate&Period")]
+        public async Task<ActionResult<IEnumerable<object>>> GetRegistFromDatePeriod(DateTime date, decimal period)
+        {
+            var registrations = await _context.Registrations
+                .Where(r => r.AppointmentTime.Date == date.Date)
+                .Where(r => r.Period == period)
+                .Include(r => r.Patient) //使用Include方法来包含该导航属性获取病人的姓名
+                .Include(r => r.Doctor)
+                .ToListAsync();
 
+            var result = registrations
+                .GroupBy(r => r.Period)  // 根据 Period 属性进行分组
+                .Select(g => new
+                {
+                    Period = g.Key, // 这是每个分组的 Period 值
+                    Count = g.Count(),
+                    Patients = g.Select(r => new { Id = r.PatientId, Name = r.Patient.Name }).ToList()
+                })
+                .ToList();
+
+            var json = JsonSerializer.Serialize(result);
+
+            return Content(json, "application/json");
+        }
+
+        [HttpGet("Doctor/{ID}")]
+        public IActionResult GetRegistFromDoctorId(string ID)
+        {
+            var registrations = _context.Registrations
+                .Include(r => r.Patient)
+                .Include(r => r.Doctor)
+                .Where(r => r.DoctorId == ID)
+                .ToList();
+
+            return Ok(registrations);
+        }
+
+        [HttpGet("Patient/{ID}")]
+        public async Task<IActionResult> GetRegistByPatientId(string ID)
+        {
+            var registrations = await _context.Registrations
+                                        .Include(r => r.Doctor)
+                                        .Include(r => r.Patient)
+                                        .Where(r => r.PatientId == ID)
+                                        .ToListAsync();
+
+            if (!registrations.Any())
+                return NotFound();
+
+            var results = registrations.Select(reg =>
+            {
+                var queueCount = _context.Registrations
+                                   .Where(r => r.AppointmentTime.Date == reg.AppointmentTime.Date &&
+                                   r.Period == reg.Period &&
+                                   r.DoctorId == reg.DoctorId&&
+                                   r.Registorder < reg.Registorder)
+                                   .Count();
+
+                return new
+                {
+                    Doctor = reg.Doctor,
+                    Patient = reg.Patient,
+                    Date = reg.AppointmentTime.Date,
+                    Period = reg.Period,
+                    QueueCount = queueCount
+                };
+            }).ToList();
+
+            return Ok(results);
+        }
+
+
+        [HttpPut("ReorderRegistByPatientId")]
+        public IActionResult UpdateRegistOrder()
+        {
+            // 之前的功能代码：
+            var registrations = _context.Registrations
+                            .OrderBy(r => r.AppointmentTime)
+                            .ThenBy(r => r.PatientId)
+                            .ToList();
+
+            var groupedRecords = registrations.GroupBy(r => new
+            {
+                Date = r.AppointmentTime.Date,
+                r.Period,
+                r.DoctorId
+            }).ToList();
+
+            foreach (var group in groupedRecords)
+            {
+                int order = 1;
+                foreach (var record in group)
+                {
+                    record.Registorder = order;
+                    order++;
+                }
+            }
+
+            _context.SaveChanges();
+
+            return Ok("Records updated successfully!");
+        }
+
+        [HttpPost("regist")]
+        public async Task<ActionResult<Registration>> CreateRegistration([FromBody] RegistrationInputModel input)
+        {
             var registration = new Registration
             {
                 PatientId = input.PatientId,
@@ -66,7 +174,6 @@ namespace back_end.Controllers
         [HttpDelete("cancel")]
         public async Task<IActionResult> DeleteRegistration([FromBody] RegistrationInputModel inputModel)
         {
-
             // 查找匹配的挂号记录
             var registration = await _context.Registrations.FirstOrDefaultAsync(r =>
                 r.PatientId == inputModel.PatientId &&
@@ -87,20 +194,6 @@ namespace back_end.Controllers
             // 返回成功信息
             return Ok("successful.");
         }
-
-
-        [HttpGet("commit")]
-        public IActionResult GetRegistrationsByDoctorId(string doctorId)
-        {
-            var currentDate = DateTime.Now.Date;
-            var registrations = _context.Registrations
-                .Include(r => r.Patient)
-                .Where(r => r.DoctorId == doctorId && r.AppointmentTime.Date == currentDate)
-                .ToList();
-
-            return Ok(registrations);
-        }
-
     }
 
     public class RegistrationInputModel//用于传输数据
