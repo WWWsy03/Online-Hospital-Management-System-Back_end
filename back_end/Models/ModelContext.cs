@@ -661,23 +661,24 @@ namespace back_end.Models
 
             modelBuilder.Entity<Registration>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => new { e.PatientId, e.DoctorId, e.AppointmentTime })
+                    .HasName("REGISTRATION_PK");
 
                 entity.ToTable("REGISTRATION");
 
-                entity.Property(e => e.AppointmentTime)
-                    .HasColumnType("DATE")
-                    .HasColumnName("APPOINTMENT_TIME");
+                entity.Property(e => e.PatientId)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("PATIENT_ID");
 
                 entity.Property(e => e.DoctorId)
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("DOCTOR_ID");
 
-                entity.Property(e => e.PatientId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("PATIENT_ID");
+                entity.Property(e => e.AppointmentTime)
+                    .HasColumnType("DATE")
+                    .HasColumnName("APPOINTMENT_TIME");
 
                 entity.Property(e => e.Period)
                     .HasColumnType("NUMBER(38)")
@@ -689,12 +690,12 @@ namespace back_end.Models
                     .HasColumnName("REGISTORDER");
 
                 entity.HasOne(d => d.Doctor)
-                    .WithMany()
+                    .WithMany(p => p.Registrations)
                     .HasForeignKey(d => d.DoctorId)
                     .HasConstraintName("REGISTRATION_DOCTOR_FK1");
 
                 entity.HasOne(d => d.Patient)
-                    .WithMany()
+                    .WithMany(p => p.Registrations)
                     .HasForeignKey(d => d.PatientId)
                     .HasConstraintName("REGISTRATION_PATIENT_FK1");
             });
