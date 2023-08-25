@@ -16,6 +16,7 @@ namespace back_end.Models
         public bool? Gender { get; set; }
         public DateTime? Birthdate { get; set; }
         public string? Contact { get; set; }
+        public string? Password { get; set; }
 
         public virtual ICollection<MedicinePurchase> MedicinePurchases { get; set; }
         public virtual ICollection<MedicineStock> MedicineStocks { get; set; }

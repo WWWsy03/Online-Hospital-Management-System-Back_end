@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace back_end.Models
 {
@@ -11,7 +10,6 @@ namespace back_end.Models
             MedicineOuts = new HashSet<MedicineOut>();
             OutpatientOrders = new HashSet<OutpatientOrder>();
             Referrals = new HashSet<Referral>();
-            Registrations = new HashSet<Registration>();
             TreatmentFeedbacks = new HashSet<TreatmentFeedback>();
             TreatmentRecords = new HashSet<TreatmentRecord>();
         }
@@ -28,8 +26,6 @@ namespace back_end.Models
         public virtual ICollection<MedicineOut> MedicineOuts { get; set; }
         public virtual ICollection<OutpatientOrder> OutpatientOrders { get; set; }
         public virtual ICollection<Referral> Referrals { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<Registration> Registrations { get; set; }
         public virtual ICollection<TreatmentFeedback> TreatmentFeedbacks { get; set; }
         public virtual ICollection<TreatmentRecord> TreatmentRecords { get; set; }
     }

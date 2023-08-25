@@ -78,6 +78,11 @@ namespace back_end.Models
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("NAME");
+
+                entity.Property(e => e.Password)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasColumnName("PASSWORD");
             });
 
             modelBuilder.Entity<ConsultationInfo>(entity =>
@@ -212,6 +217,11 @@ namespace back_end.Models
                     .IsUnicode(false)
                     .HasColumnName("NAME");
 
+                entity.Property(e => e.Password)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasColumnName("PASSWORD");
+
                 entity.Property(e => e.Photourl)
                     .HasMaxLength(200)
                     .IsUnicode(false)
@@ -264,7 +274,7 @@ namespace back_end.Models
                 entity.ToTable("LEAVE_APPLICATION");
 
                 entity.Property(e => e.LeaveNoteId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .IsUnicode(false)
                     .HasColumnName("LEAVE_NOTE_ID");
 
@@ -539,7 +549,7 @@ namespace back_end.Models
                     .HasColumnName("NAME");
 
                 entity.Property(e => e.Password)
-                    .HasMaxLength(20)
+                    .HasMaxLength(200)
                     .IsUnicode(false)
                     .HasColumnName("PASSWORD");
             });
@@ -651,36 +661,40 @@ namespace back_end.Models
 
             modelBuilder.Entity<Registration>(entity =>
             {
-                entity.HasKey(e => new { e.PatientId, e.DoctorId, e.AppointmentTime })
-                    .HasName("REGISTRATION_PK");
+                entity.HasNoKey();
 
                 entity.ToTable("REGISTRATION");
 
-                entity.Property(e => e.PatientId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("PATIENT_ID");
+                entity.Property(e => e.AppointmentTime)
+                    .HasColumnType("DATE")
+                    .HasColumnName("APPOINTMENT_TIME");
 
                 entity.Property(e => e.DoctorId)
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("DOCTOR_ID");
 
-                entity.Property(e => e.AppointmentTime)
-                    .HasColumnType("DATE")
-                    .HasColumnName("APPOINTMENT_TIME");
+                entity.Property(e => e.PatientId)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("PATIENT_ID");
 
                 entity.Property(e => e.Period)
                     .HasColumnType("NUMBER(38)")
                     .HasColumnName("PERIOD");
 
+                entity.Property(e => e.Registorder)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasColumnName("REGISTORDER");
+
                 entity.HasOne(d => d.Doctor)
-                    .WithMany(p => p.Registrations)
+                    .WithMany()
                     .HasForeignKey(d => d.DoctorId)
                     .HasConstraintName("REGISTRATION_DOCTOR_FK1");
 
                 entity.HasOne(d => d.Patient)
-                    .WithMany(p => p.Registrations)
+                    .WithMany()
                     .HasForeignKey(d => d.PatientId)
                     .HasConstraintName("REGISTRATION_PATIENT_FK1");
             });
@@ -737,7 +751,7 @@ namespace back_end.Models
                 entity.ToTable("TREATMENT_RECORD");
 
                 entity.Property(e => e.DiagnosisRecordId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .IsUnicode(false)
                     .HasColumnName("DIAGNOSIS_RECORD_ID");
 
@@ -747,7 +761,7 @@ namespace back_end.Models
                     .HasColumnName("DOCTOR_ID");
 
                 entity.Property(e => e.LeaveNoteId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .IsUnicode(false)
                     .HasColumnName("LEAVE_NOTE_ID");
 
