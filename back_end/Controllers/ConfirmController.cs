@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace back_end.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class TreatmentController : ControllerBase
     {
         private readonly ModelContext _context;
