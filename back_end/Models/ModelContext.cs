@@ -685,8 +685,7 @@ namespace back_end.Models
                     .HasColumnName("PERIOD");
 
                 entity.Property(e => e.Registorder)
-                    .HasMaxLength(200)
-                    .IsUnicode(false)
+                    .HasColumnType("NUMBER(38)")
                     .HasColumnName("REGISTORDER");
 
                 entity.HasOne(d => d.Doctor)

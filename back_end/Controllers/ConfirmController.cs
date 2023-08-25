@@ -44,6 +44,17 @@ namespace back_end.Controllers
 
                 try
                 {
+                    // 查找匹配的挂号记录
+                    var registration = _context.Registrations.FirstOrDefault(r =>
+                        r.PatientId == patientId &&
+                        r.DoctorId == doctorId &&
+                        r.AppointmentTime.Date == DateTime.Now.Date);
+
+                    // 如果找到匹配的挂号记录，从数据库中删除
+                    if (registration != null)
+                    {
+                        _context.Registrations.Remove(registration);
+                    }
                     _context.TreatmentRecords.Add(treatmentRecord);
                     _context.TreatmentRecord2s.Add(treatmentRecord2);
                     _context.SaveChanges();

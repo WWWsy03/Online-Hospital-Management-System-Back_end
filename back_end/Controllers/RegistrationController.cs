@@ -41,13 +41,17 @@ namespace back_end.Controllers
         }
 
         [HttpPost("regist")]
-        public async Task<ActionResult<Registration>> CreateRegistration([FromBody] RegistrationInputModel input) { 
+        public async Task<ActionResult<Registration>> CreateRegistration([FromBody] RegistrationInputModel input) {
+            // 获取当前最大的 Registorder 值
+            var maxOrder = _context.Registrations.Max(r => (int?)r.Registorder) ?? 0;
+
             var registration = new Registration
             {
                 PatientId = input.PatientId,
                 DoctorId = input.DoctorId,
                 AppointmentTime = input.Time,
-                Period = input.Period
+                Period = input.Period,
+                 Registorder = maxOrder + 1  // 设置 Registorder 为当前最大值加1
             };
 
             registration.Doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == input.DoctorId);
