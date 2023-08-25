@@ -51,7 +51,7 @@ namespace back_end.Controllers
                 DoctorId = input.DoctorId,
                 AppointmentTime = input.Time,
                 Period = input.Period,
-                 Registorder = maxOrder + 1  // 设置 Registorder 为当前最大值加1
+                Registorder = maxOrder + 1  // 设置 Registorder 为当前最大值加1
             };
 
             registration.Doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == input.DoctorId);
