@@ -150,6 +150,7 @@ namespace back_end.Controllers
             return Ok("Records updated successfully!");
         }
 
+
         [HttpPost("regist")]
         public async Task<ActionResult<Registration>> CreateRegistration([FromBody] RegistrationInputModel input)
         {
