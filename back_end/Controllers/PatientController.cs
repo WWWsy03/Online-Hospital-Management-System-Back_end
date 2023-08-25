@@ -14,20 +14,54 @@ namespace back_end.Controllers
             _context = context;
         }
 
-        [HttpGet("AllPatients")]
-        public async Task<ActionResult<IEnumerable<object>>> GetAllPatients()
+        //插入医生信息
+        [HttpPost("PostTreatmentRord1")]
+        public async Task<ActionResult<TreatmentRecord>> PostTreatmentRecord(TreatmentRecord row)
         {
-            var administrators = await _context.Patients
-                .Select(a => new { a.PatientId, a.Name, a.Gender, a.BirthDate,a.Contact,a.Password,a.College,a.Counsellor })
-                .ToListAsync();
+            _context.TreatmentRecords.Add(row);
+            await _context.SaveChangesAsync();
 
-            if (!administrators.Any())
+            return CreatedAtAction("PostTreatmentRecord", new { id = row.DoctorId }, row);
+        }
+
+        [HttpGet("GetAllTreatmentRord1")]
+        public async Task<ActionResult<IEnumerable<TreatmentRecord>>> GetTreatmentRecords()
+        {
+            return await _context.TreatmentRecords.ToListAsync();
+        }
+
+        [HttpGet("PatientDetails/{patientId}")]
+        public async Task<ActionResult<object>> GetPatientDetails(string patientId)
+        {
+            var result = await _context.Patients
+                .Where(p => p.PatientId == patientId) // 添加这一行来过滤结果
+                .Join(
+                    _context.TreatmentRecords,
+                    patient => patient.PatientId,
+                    record1 => record1.PatientId,
+                    (patient, record1) => new { patient, record1 }
+                )
+                .Join(
+                    _context.TreatmentRecord2s,
+                    combined => combined.record1.DiagnosisRecordId,
+                    record2 => record2.DiagnoseId,
+                    (combined, record2) => new
+                    {
+                        PatientId = combined.patient.PatientId,
+                        Name = combined.patient.Name,
+                        DiagnosisTime = record2.DiagnoseTime
+                    }
+                )
+                .FirstOrDefaultAsync(); // 改为FirstOrDefaultAsync，因为我们只寻找一个特定的病人的详情
+
+            if (result == null)
             {
                 return NotFound();
             }
 
-            return Ok(administrators);
+            return Ok(result);
         }
+
 
 
         [HttpGet("WenhaoYan_test")]

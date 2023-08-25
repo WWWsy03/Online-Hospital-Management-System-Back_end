@@ -1,0 +1,184 @@
+[33mcommit 5601736a483de8b9a66e817b8a42c85b83b8521b[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Author: 1491456253 <1491456253@qq.com>
+Date:   Thu Aug 24 21:01:57 2023 +0800
+
+    修正插入医生API的bug
+
+[33mcommit 2232b92b954b10b0602f8d7cd0c5af18461d1608[m
+Author: 1491456253 <1491456253@qq.com>
+Date:   Thu Aug 24 19:20:16 2023 +0800
+
+    改个参数名
+
+[33mcommit 17ccfbe1f86a53573e0cf5408451ef4a3f36417b[m
+Author: 1491456253 <1491456253@qq.com>
+Date:   Thu Aug 24 19:15:57 2023 +0800
+
+    添加科室+关键词查找坐诊信息API
+
+[33mcommit 87e9e5db20931aca24c6a952d3676b49550268c0[m
+Author: 1491456253 <1491456253@qq.com>
+Date:   Thu Aug 24 17:17:34 2023 +0800
+
+    增加指定医生id查询 当天挂号信息API
+
+[33mcommit 8ffb87b0a96adb25c7819820bd9681a0794a0154[m
+Author: 1491456253 <1491456253@qq.com>
+Date:   Thu Aug 24 15:41:14 2023 +0800
+
+    增加返回指定科室下所有医生API
+
+[33mcommit 44e919c99dbe3b19954ebfd2b4d4f7e40792ba06[m
+Author: 1491456253 <1491456253@qq.com>
+Date:   Thu Aug 24 15:36:08 2023 +0800
+
+    增加查询科室API
+
+[33mcommit c91cd973cf36a00150b61e8a86832bb626b2929e[m
+Author: Jie Chu <3325772489@qq.com>
+Date:   Thu Aug 24 09:58:58 2023 +0800
+
+    I rename the Controllers/Patient.cs as Controllers/PatientController.cs
+
+[33mcommit 00d3920581e0c79d50eac48ab1d51f327a3f678a[m
+Author: Jie Chu <3325772489@qq.com>
+Date:   Thu Aug 24 00:57:31 2023 +0800
+
+    I rename "WenhaoYan_test.cs" and add some new api in it
+
+[33mcommit 69e24534c4dce73b880f222ebd1c4401ace8980f[m
+Author: 1491456253 <1491456253@qq.com>
+Date:   Tue Aug 22 11:34:04 2023 +0800
+
+    增加取消挂号的API
+
+[33mcommit d04cac00b7ef95656221e24ccf613db1ab852d0e[m
+Author: 1491456253 <1491456253@qq.com>
+Date:   Fri Aug 18 12:48:09 2023 +0800
+
+    修正了POST方法的数据传入形式
+
+[33mcommit 3566b9bab5c3559351753420ebc315a575a23c80[m
+Author: 1491456253 <1491456253@qq.com>
+Date:   Fri Aug 18 12:10:01 2023 +0800
+
+    修改挂号API
+
+[33mcommit cfc7dd7fe42175df376e2dcd40aee8ddf470b170[m
+Author: 1491456253 <1491456253@qq.com>
+Date:   Thu Aug 17 15:18:44 2023 +0800
+
+    修正了挂号API
+
+[33mcommit 6f32267171318cba82905c5e7e95986320183e5c[m
+Author: 1491456253 <1491456253@qq.com>
+Date:   Wed Aug 16 20:32:28 2023 +0800
+
+    增加修改管理员、医生信息接口
+
+[33mcommit 132e561ac24ecd87ac2b57a6f8de7116d41686b5[m
+Author: 1491456253 <1491456253@qq.com>
+Date:   Wed Aug 16 20:05:19 2023 +0800
+
+    删除一级科室表
+
+[33mcommit be7650c781bfdae4e595b977ec7225d61e17cc55[m
+Author: 1491456253 <1491456253@qq.com>
+Date:   Tue Aug 15 21:28:54 2023 +0800
+
+    更改了API的路由，更简短一点
+
+[33mcommit 2305213be0a3b127829a13d5d109fc4a411846c5[m
+Author: 1491456253 <1491456253@qq.com>
+Date:   Tue Aug 15 16:03:22 2023 +0800
+
+    增加查询、插入医生管理员信息接口
+
+[33mcommit d76e2eef895ce7f511ef630f68ae289591c30a1a[m
+Author: 1491456253 <1491456253@qq.com>
+Date:   Tue Aug 1 12:39:30 2023 +0800
+
+    把加入挂号信息的API改成了get方法
+
+[33mcommit 940d3561b67249213cdbebcbab2b0adae0aaf47d[m
+Merge: d5add18 e5bb244
+Author: Shuyu Wang <1491456253@qq.com>
+Date:   Thu Jul 13 21:37:53 2023 +0800
+
+    修改了挂号API的数据接收方式
+
+[33mcommit d5add18201970a0e8c68c51b1fc21f11cb75ccd9[m
+Author: Shuyu Wang <1491456253@qq.com>
+Date:   Thu Jul 13 21:33:44 2023 +0800
+
+    更改了挂号API的参数传入方式
+
+[33mcommit e5bb2443ced3ea4a69389fc006caf6ba35a7fe06[m
+Author: Jie Chu <3325772489@qq.com>
+Date:   Wed Jul 12 23:31:47 2023 +0800
+
+    现在是2023-7-12-23-31，我完成了严文昊要求的删除Register表中指定PatientID的行的API
+
+[33mcommit d2a264e19c4cd48b2742811d168cf9931cc6d1ae[m
+Author: Shuyu Wang <1491456253@qq.com>
+Date:   Wed Jul 12 09:21:46 2023 +0800
+
+    获取挂号数据API返回增加了姓名，改了一下修改个人信息的API，不需要单独输入ID
+
+[33mcommit 827a25562b62e0e2efd6d998fc4723a9232237f3[m
+Author: Shuyu Wang <1491456253@qq.com>
+Date:   Tue Jul 11 21:14:56 2023 +0800
+
+    增加了修改个人信息的API
+
+[33mcommit 8881a0928d53a7f3d9f99cdea83fc7090372922e[m
+Merge: 9241255 2f435be
+Author: Shuyu Wang <1491456253@qq.com>
+Date:   Tue Jul 11 19:55:16 2023 +0800
+
+    Merge branch 'master' of https://github.com/1491456253/Online-Hospital-Management-System-Back_end
+
+[33mcommit 92412551e6160dc60e790806a7647f5a3663dc37[m
+Author: Shuyu Wang <1491456253@qq.com>
+Date:   Tue Jul 11 18:45:34 2023 +0800
+
+    增加了挂号插入数据API和返回个人信息API
+
+[33mcommit 2f435be702b28b682b49a3e1a0213f8548525f3e[m
+Author: Jie Chu <105377443+BXZZcj@users.noreply.github.com>
+Date:   Tue Jul 11 17:08:20 2023 +0800
+
+    我为严文昊新添加了一个测试用API。具体内容是我修改了Models_temp的内容以及新加了一个WenhaoYan_temp.cs (#2)
+
+[33mcommit b926bf16c3488bc33bb3cf4ed6360e8601c41704[m
+Merge: 3efe6e8 8fe8d98
+Author: Jie Chu <105377443+BXZZcj@users.noreply.github.com>
+Date:   Tue Jul 11 14:32:54 2023 +0800
+
+    Merge pull request #1 from 1491456253/CJ-feature
+    
+    这是张梓涵想要的一个临时功能，我添加进了代码。我只是添加了一个Models_temp和一个ZhihanZhang_temp.cs
+
+[33mcommit 8fe8d98f1cd2c93b7220e602bd3c7cb8a8cfc94a[m
+Author: Jie Chu <3325772489@qq.com>
+Date:   Tue Jul 11 14:29:35 2023 +0800
+
+    这是张梓涵想要的一个临时功能，我添加进了代码。我只是添加了一个Models_temp和一个ZhihanZhang_temp.cs
+
+[33mcommit f6c627da3cd2600bab4493493b966f27f622ca04[m
+Author: Shuyu Wang <1491456253@qq.com>
+Date:   Tue Jul 11 14:28:57 2023 +0800
+
+    增加了挂号插入数据API和返回个人信息API
+
+[33mcommit 3efe6e8e7429355d9e6083e40ce0a61badee9f24[m
+Author: Shuyu Wang <1491456253@qq.com>
+Date:   Mon Jul 10 17:15:30 2023 +0800
+
+    添加项目文件。
+
+[33mcommit 5f18ddf7550624be043123fd1925e337b7c5be65[m
+Author: Shuyu Wang <1491456253@qq.com>
+Date:   Mon Jul 10 17:15:27 2023 +0800
+
+    添加 .gitattributes 和 .gitignore。
