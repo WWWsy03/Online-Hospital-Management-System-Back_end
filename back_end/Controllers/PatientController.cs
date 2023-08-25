@@ -82,33 +82,33 @@ namespace back_end.Controllers
         }
 
 
-        [HttpPut("update-passwords")]
-        public async Task<IActionResult> UpdateAllDoctorPasswords()
-        {
-            // 获取所有的Doctor记录
-            var doctors = _context.Doctors.ToList();
-            var administs = _context.Administrators.ToList();
-            var patients = _context.Patients.ToList();
+        //[HttpPut("update-passwords")]
+        //public async Task<IActionResult> UpdateAllDoctorPasswords()
+        //{
+        //    // 获取所有的Doctor记录
+        //    var doctors = _context.Doctors.ToList();
+        //    var administs = _context.Administrators.ToList();
+        //    var patients = _context.Patients.ToList();
 
-            // 遍历所有医生并为他们设置新的随机密码
-            foreach (var doctor in doctors)
-            {
-                doctor.Password = GenerateRandomPassword(6);
-            }
-            foreach (var administ in administs)
-            {
-                administ.Password = GenerateRandomPassword(6);
-            }
-            foreach (var patient in patients)
-            {
-                patient.Password = GenerateRandomPassword(6);
-            }
+        //    // 遍历所有医生并为他们设置新的随机密码
+        //    foreach (var doctor in doctors)
+        //    {
+        //        doctor.Password = GenerateRandomPassword(6);
+        //    }
+        //    foreach (var administ in administs)
+        //    {
+        //        administ.Password = GenerateRandomPassword(6);
+        //    }
+        //    foreach (var patient in patients)
+        //    {
+        //        patient.Password = GenerateRandomPassword(6);
+        //    }
 
-            // 保存更改
-            await _context.SaveChangesAsync();
+        //    // 保存更改
+        //    await _context.SaveChangesAsync();
 
-            return Ok("Passwords updated successfully.");
-        }
+        //    return Ok("Passwords updated successfully.");
+        //}
 
         // 生成随机密码的辅助方法
         private string GenerateRandomPassword(int length)

@@ -23,7 +23,7 @@ namespace back_end.Controllers
             return await _context.Registrations.ToListAsync();
         }
 
-        [HttpGet("GetFromDate")]
+        [HttpGet("GetRegist/{date}")]
         public async Task<ActionResult<IEnumerable<object>>> GetRegistFromDate(DateTime date)
         {
             var registrations = await _context.Registrations
@@ -47,7 +47,7 @@ namespace back_end.Controllers
             return Content(json, "application/json");
         }
 
-        [HttpGet("GetFromDate&Period")]
+        [HttpGet("GetRegist/{date}/{period}")]
         public async Task<ActionResult<IEnumerable<object>>> GetRegistFromDatePeriod(DateTime date, decimal period)
         {
             var registrations = await _context.Registrations
