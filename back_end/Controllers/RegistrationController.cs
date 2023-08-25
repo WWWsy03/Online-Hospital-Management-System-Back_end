@@ -27,7 +27,7 @@ namespace back_end.Controllers
         public async Task<ActionResult<IEnumerable<object>>> GetRegistFromDate(DateTime date)
         {
             var registrations = await _context.Registrations
-                .Where(r => r.AppointmentTime.Date == date.Date)
+                .Where(r => r.AppointmentTime.Date == date.Date&&(r.State==1||r.State==0))
                 .Include(r => r.Patient) //使用Include方法来包含该导航属性获取病人的姓名
                 .Include(r => r.Doctor)
                 .ToListAsync();
@@ -177,6 +177,7 @@ namespace back_end.Controllers
                 DoctorId = input.DoctorId,
                 AppointmentTime = input.Time,
                 Period = input.Period,
+                State = 0,
                 Registorder = maxOrder + 1  // 设置 Registorder 为当前最大值加1
             };
 
@@ -186,7 +187,7 @@ namespace back_end.Controllers
             _context.Registrations.Add(registration);
             await _context.SaveChangesAsync();
 
-            return Ok(registration);
+            return Ok("successful.");
         }
 
         [HttpDelete("cancel")]
