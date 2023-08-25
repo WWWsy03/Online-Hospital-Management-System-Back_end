@@ -10,6 +10,7 @@ namespace back_end.Models
         public DateTime AppointmentTime { get; set; }
         public decimal? Period { get; set; }
         public decimal? Registorder { get; set; }
+        public decimal? State { get; set; }
 
         public virtual Doctor Doctor { get; set; } = null!;
         public virtual Patient Patient { get; set; } = null!;

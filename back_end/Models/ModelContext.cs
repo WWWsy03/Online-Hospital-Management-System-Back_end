@@ -688,6 +688,10 @@ namespace back_end.Models
                     .HasColumnType("NUMBER(38)")
                     .HasColumnName("REGISTORDER");
 
+                entity.Property(e => e.State)
+                    .HasColumnType("NUMBER(38)")
+                    .HasColumnName("STATE");
+
                 entity.HasOne(d => d.Doctor)
                     .WithMany(p => p.Registrations)
                     .HasForeignKey(d => d.DoctorId)
