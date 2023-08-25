@@ -23,7 +23,7 @@ namespace back_end.Controllers
             return await _context.Registrations.ToListAsync();
         }
 
-        [HttpGet("GetRegist/{date}")]
+        [HttpGet("GetRegist")]
         public async Task<ActionResult<IEnumerable<object>>> GetRegistFromDate(DateTime date)
         {
             var registrations = await _context.Registrations
@@ -71,6 +71,18 @@ namespace back_end.Controllers
 
             return Content(json, "application/json");
         }
+
+        [HttpGet("commit")]
+        public IActionResult GetRegistrationsByDoctorId(string doctorId)//传入医生ID获取当天该医生名下的挂号人
+        {
+            var currentDate = DateTime.Now.Date;
+            var registrations = _context.Registrations
+                .Include(r => r.Patient)
+                .Where(r => r.DoctorId == doctorId && r.AppointmentTime.Date == currentDate)
+                .ToList();
+            return Ok(registrations);
+        }
+
 
         [HttpGet("Doctor/{ID}")]
         public IActionResult GetRegistFromDoctorId(string ID)
