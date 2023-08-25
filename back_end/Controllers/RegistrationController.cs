@@ -153,6 +153,8 @@ namespace back_end.Controllers
         [HttpPost("regist")]
         public async Task<ActionResult<Registration>> CreateRegistration([FromBody] RegistrationInputModel input)
         {
+            // 获取当前最大的 Registorder 值
+            var maxOrder = _context.Registrations.Max(r => (int?)r.Registorder) ?? 0;
             var registration = new Registration
             {
                 PatientId = input.PatientId,
