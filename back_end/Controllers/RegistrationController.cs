@@ -79,7 +79,7 @@ namespace back_end.Controllers
             var currentDate = DateTime.Now.Date;
             var registrations = _context.Registrations
                 .Include(r => r.Patient)
-                .Where(r => r.DoctorId == doctorId && r.AppointmentTime.Date == currentDate&&r.State==0)
+                .Where(r => r.DoctorId == doctorId && r.AppointmentTime.Date == currentDate)
                 .ToList();
             return Ok(registrations);
         }
@@ -137,61 +137,44 @@ namespace back_end.Controllers
         public async Task<ActionResult<object>> GetMedicalHistory(string patientId)
         {
             var result = await _context.Registrations
-                .Where(p => p.PatientId == patientId)
-                .GroupJoin(
+                .Where(p => p.PatientId == patientId) // 添加这一行来过滤结果
+                .Join(
                     _context.Prescriptions,
                     regist => regist.Prescriptionid,
                     prescript => prescript.PrescriptionId,
-                    (regist, prescriptCollection) => new
+                    (regist, prescript) => new 
                     {
-                        regist,
-                        prescript = prescriptCollection.DefaultIfEmpty() // 返回空集合时使用默认值
+                        PatientId = regist.PatientId,
+                        DoctorId=regist.DoctorId,
+                        AppointmentDate=regist.AppointmentTime.Date,
+                        Period= regist.Period,
+                        State=regist.State,
+                        PrescriptionId=prescript.PrescriptionId,
+                        TotalPrice=prescript.TotalPrice,
+                        PayState=prescript.Paystate
                     }
                 )
-                .SelectMany(
-                    temp => temp.prescript,
-                    (temp, prescript) => new
-                    {
-                        PatientId = temp.regist.PatientId,
-                        DoctorId = temp.regist.DoctorId,
-                        AppointmentDate = temp.regist.AppointmentTime.Date,
-                        Period = temp.regist.Period,
-                        State = temp.regist.State,
-                        PrescriptionId = prescript == null ? "" : prescript.PrescriptionId,
-                        TotalPrice = prescript == null ? 0 : prescript.TotalPrice,
-                        PayState = prescript == null ? null : prescript.Paystate
-                    }
-                )
-                .GroupJoin(
+                .Join(
                     _context.PrescriptionMedicines,
                     combined => combined.PrescriptionId,
                     prescriptMedicine => prescriptMedicine.PrescriptionId,
-                    (combined, prescriptMedicineCollection) => new
+                    (combined, prescriptMedicine) => new
                     {
                         combined,
-                        prescriptMedicine = prescriptMedicineCollection.DefaultIfEmpty()
-                    }
-                )
-                .SelectMany(
-                    temp => temp.prescriptMedicine,
-                    (temp, prescriptMedicine) => new
-                    {
-                        temp.combined,
-                        MedicineName = prescriptMedicine == null ? "" : prescriptMedicine.MedicineName,
-                        MedicineDose = prescriptMedicine == null ? 114514 : prescriptMedicine.MedicineDose,
-                        MedicationInstruction = prescriptMedicine == null ? "" : prescriptMedicine.MedicationInstruction,
-                        MedicinePrice = prescriptMedicine == null ? 0 : prescriptMedicine.MedicinePrice
+                        MedicineName = prescriptMedicine.MedicineName,
+                        MedicineDose = prescriptMedicine.MedicineDose,
+                        MedicationInstruction = prescriptMedicine.MedicationInstruction,
+                        MedicinePrice = prescriptMedicine.MedicinePrice
                     }
                 ).ToArrayAsync();
 
-            if (result == null || !result.Any())
+            if (result == null)
             {
                 return NotFound();
             }
 
             return Ok(result);
         }
-
 
 
         //[HttpPut("ReorderRegistByPatientId")]
