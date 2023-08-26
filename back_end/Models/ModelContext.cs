@@ -305,17 +305,17 @@ namespace back_end.Models
                 entity.ToTable("MEDICINE_DESCRIPTION");
 
                 entity.Property(e => e.MedicineName)
-                    .HasMaxLength(40)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("MEDICINE_NAME");
 
                 entity.Property(e => e.ApplicableSymptom)
-                    .HasMaxLength(200)
+                    .HasMaxLength(600)
                     .IsUnicode(false)
                     .HasColumnName("APPLICABLE_SYMPTOM");
 
                 entity.Property(e => e.MedicineDescription1)
-                    .HasMaxLength(200)
+                    .HasMaxLength(600)
                     .IsUnicode(false)
                     .HasColumnName("MEDICINE_DESCRIPTION");
 
@@ -428,7 +428,7 @@ namespace back_end.Models
                     .HasColumnName("MEDICINE_NAME");
 
                 entity.Property(e => e.Manufacturer)
-                    .HasMaxLength(40)
+                    .HasMaxLength(80)
                     .IsUnicode(false)
                     .HasColumnName("MANUFACTURER");
 
@@ -604,10 +604,6 @@ namespace back_end.Models
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("MEDICATION_INSTRUCTION");
-
-                entity.Property(e => e.MedicineDose)
-                    .HasColumnType("NUMBER(38)")
-                    .HasColumnName("MEDICINE_DOSE");
 
                 entity.Property(e => e.MedicinePrice)
                     .HasColumnType("NUMBER(6,2)")
@@ -811,6 +807,11 @@ namespace back_end.Models
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("DIAGNOSE_ID");
+
+                entity.Property(e => e.Commentstate)
+                    .HasColumnType("NUMBER(38)")
+                    .HasColumnName("COMMENTSTATE")
+                    .HasDefaultValueSql("0 ");
 
                 entity.Property(e => e.DiagnoseTime)
                     .HasPrecision(6)

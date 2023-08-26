@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Generic;
+using System.Text.Json;
 using back_end.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -132,6 +133,67 @@ namespace back_end.Controllers
         }
 
 
+        [HttpGet("MedicalHistory/{patientId}")]
+        public async Task<ActionResult<object>> GetMedicalHistory(string patientId)
+        {
+            var result = await _context.Registrations
+                .Where(p => p.PatientId == patientId)
+                .GroupJoin(
+                    _context.Prescriptions,
+                    regist => regist.Prescriptionid,
+                    prescript => prescript.PrescriptionId,
+                    (regist, prescriptCollection) => new
+                    {
+                        regist,
+                        prescript = prescriptCollection.DefaultIfEmpty() // 返回空集合时使用默认值
+                    }
+                )
+                .SelectMany(
+                    temp => temp.prescript,
+                    (temp, prescript) => new
+                    {
+                        PatientId = temp.regist.PatientId,
+                        DoctorId = temp.regist.DoctorId,
+                        AppointmentDate = temp.regist.AppointmentTime.Date,
+                        Period = temp.regist.Period,
+                        State = temp.regist.State,
+                        PrescriptionId = prescript == null ? "" : prescript.PrescriptionId,
+                        TotalPrice = prescript == null ? 0 : prescript.TotalPrice,
+                        PayState = prescript == null ? null : prescript.Paystate
+                    }
+                )
+                .GroupJoin(
+                    _context.PrescriptionMedicines,
+                    combined => combined.PrescriptionId,
+                    prescriptMedicine => prescriptMedicine.PrescriptionId,
+                    (combined, prescriptMedicineCollection) => new
+                    {
+                        combined,
+                        prescriptMedicine = prescriptMedicineCollection.DefaultIfEmpty()
+                    }
+                )
+                .SelectMany(
+                    temp => temp.prescriptMedicine,
+                    (temp, prescriptMedicine) => new
+                    {
+                        temp.combined,
+                        MedicineName = prescriptMedicine == null ? "" : prescriptMedicine.MedicineName,
+                        MedicineDose = prescriptMedicine == null ? 114514 : prescriptMedicine.MedicineDose,
+                        MedicationInstruction = prescriptMedicine == null ? "" : prescriptMedicine.MedicationInstruction,
+                        MedicinePrice = prescriptMedicine == null ? 0 : prescriptMedicine.MedicinePrice
+                    }
+                ).ToArrayAsync();
+
+            if (result == null || !result.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
+        }
+
+
+
         //[HttpPut("ReorderRegistByPatientId")]
         //public IActionResult UpdateRegistOrder()
         //{
@@ -167,10 +229,11 @@ namespace back_end.Controllers
         //public async Task<IActionResult> UpdateAllRegistState()
         //{
         //    var regists = _context.Registrations.ToList();
+        //    Console.WriteLine(regists.GetType().Name);
 
         //    foreach (var regist in regists)
         //    {
-        //        regist.State = GenerateState();
+        //        regist.State = GenerateState(regist);
         //    }
 
         //    await _context.SaveChangesAsync();
@@ -179,11 +242,12 @@ namespace back_end.Controllers
         //}
 
         //// 生成随机state的辅助方法
-        //private int GenerateState()
+        //private int GenerateState(Registration regist)
         //{
         //    var random = new Random();
         //    int totalWeight = 4;
         //    int randomVal = random.Next(totalWeight);
+
         //    if (randomVal < 1)
         //        return -1;
         //    else if (randomVal < 3)

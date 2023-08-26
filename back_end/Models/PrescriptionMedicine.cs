@@ -7,7 +7,6 @@ namespace back_end.Models
     {
         public string PrescriptionId { get; set; } = null!;
         public string MedicineName { get; set; } = null!;
-        public decimal MedicineDose { get; set; }
         public string? MedicationInstruction { get; set; }
         public decimal MedicinePrice { get; set; }
 
