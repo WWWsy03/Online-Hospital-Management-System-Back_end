@@ -23,7 +23,7 @@ namespace back_end.Controllers
         public async Task<ActionResult<IEnumerable<object>>> GetAdministrators()
         {
             var administrators = await _context.Administrators
-                .Select(a => new { a.AdministratorId, a.Name, a.Gender, a.Contact })
+                .Select(a => new { a.AdministratorId, a.Name, a.Gender, a.Contact,a.Password })
                 .ToListAsync();
             return administrators;
         }
@@ -34,7 +34,7 @@ namespace back_end.Controllers
         {
             var administrator = await _context.Administrators
                 .Where(a => a.AdministratorId == id)
-                .Select(a => new { a.AdministratorId, a.Name, a.Gender, a.Contact })
+                .Select(a => new { a.AdministratorId, a.Name, a.Gender, a.Contact,a.Password })
                 .FirstOrDefaultAsync();
 
             if (administrator == null)
