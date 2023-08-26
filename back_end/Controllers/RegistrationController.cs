@@ -136,44 +136,51 @@ namespace back_end.Controllers
         [HttpGet("MedicalHistory/{patientId}")]
         public async Task<ActionResult<object>> GetMedicalHistory(string patientId)
         {
-            var result = await _context.Registrations
-                .Where(p => p.PatientId == patientId) // 添加这一行来过滤结果
-                .Join(
-                    _context.Prescriptions,
-                    regist => regist.Prescriptionid,
-                    prescript => prescript.PrescriptionId,
-                    (regist, prescript) => new 
-                    {
-                        PatientId = regist.PatientId,
-                        DoctorId=regist.DoctorId,
-                        AppointmentDate=regist.AppointmentTime.Date,
-                        Period= regist.Period,
-                        State=regist.State,
-                        PrescriptionId=prescript.PrescriptionId,
-                        TotalPrice=prescript.TotalPrice,
-                        PayState=prescript.Paystate
-                    }
-                )
-                .Join(
-                    _context.PrescriptionMedicines,
-                    combined => combined.PrescriptionId,
-                    prescriptMedicine => prescriptMedicine.PrescriptionId,
-                    (combined, prescriptMedicine) => new
-                    {
-                        combined,
-                        MedicineName = prescriptMedicine.MedicineName,
-                        MedicationInstruction = prescriptMedicine.MedicationInstruction,
-                        MedicinePrice = prescriptMedicine.MedicinePrice
-                    }
-                ).ToArrayAsync();
+            // 首先，获取Registrations与Prescriptions的左外连接数据
+            var registWithPrescripts = await (from r in _context.Registrations
+                                              where r.PatientId == patientId
+                                              join p in _context.Prescriptions on r.Prescriptionid equals p.PrescriptionId into grouping
+                                              from g in grouping.DefaultIfEmpty()
+                                              select new
+                                              {
+                                                  r.PatientId,
+                                                  r.DoctorId,
+                                                  AppointmentDate = r.AppointmentTime.Date,
+                                                  r.Period,
+                                                  r.State,
+                                                  TotalPrice = g == null ? default(decimal) : g.TotalPrice,
+                                                  PrescriptionId = g.PrescriptionId,
+                                                  PayState = g.Paystate
+                                              }).ToArrayAsync();
 
-            if (result == null)
+            // 然后，基于上述结果与PrescriptionMedicines进行左外连接
+            var result = from r in registWithPrescripts
+                         join pm in _context.PrescriptionMedicines on r.PrescriptionId equals pm.PrescriptionId into medicineGrouping
+                         from mg in medicineGrouping.DefaultIfEmpty()
+                         select new
+                         {
+                             r.PatientId,
+                             r.DoctorId,
+                             r.AppointmentDate,
+                             r.Period,
+                             r.State,
+                             r.PrescriptionId,
+                             r.TotalPrice,
+                             r.PayState,
+                             MedicineName = mg?.MedicineName,
+                             MedicationInstruction = mg?.MedicationInstruction,
+                             MedicinePrice = mg?.MedicinePrice ?? 0
+                         };
+
+            // 最后，返回结果
+            if (!result.Any())
             {
                 return NotFound();
             }
 
             return Ok(result);
         }
+
 
 
         //[HttpPut("ReorderRegistByPatientId")]
