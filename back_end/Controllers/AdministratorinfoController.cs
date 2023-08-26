@@ -61,6 +61,8 @@ namespace back_end.Controllers
             return administrator;
         }
 
+
+
         // 向数据库中插入一个管理员信息
         [HttpPost("add")]
         public async Task<ActionResult<Administrator>> PostAdministrator(Administrator administrator)

@@ -2,6 +2,7 @@
 using back_end.Models;
 using System.Web.Http.Cors;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.EntityFrameworkCore;
 
 namespace back_end.Controllers
 {
@@ -37,6 +38,33 @@ namespace back_end.Controllers
                 Console.WriteLine(error.ToString());
             }
             return message.ReturnJson();
+        }
+
+        [HttpGet("AdminLogin")]
+        public async Task<ActionResult<bool>> CheckAdminCredentials(string ID,string password)
+        {
+            bool exists = await _context.Administrators.AnyAsync(
+                admin => admin.AdministratorId == ID && admin.Password == password);
+
+            return Ok(exists);
+        }
+
+        [HttpGet("PatientLogin")]
+        public async Task<ActionResult<bool>> CheckPatientCredentials(string ID, string password)
+        {
+            bool exists = await _context.Patients.AnyAsync(
+                patient => patient.PatientId == ID && patient.Password == password);
+
+            return Ok(exists);
+        }
+
+        [HttpGet("DoctorLogin")]
+        public async Task<ActionResult<bool>> CheckDoctorCredentials(string ID, string password)
+        {
+            bool exists = await _context.Doctors.AnyAsync(
+                doctor => doctor.DoctorId== ID && doctor.Password == password);
+
+            return Ok(exists);
         }
     }
 
