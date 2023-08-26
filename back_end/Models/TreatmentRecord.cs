@@ -12,5 +12,6 @@ namespace back_end.Models
 
         public virtual Doctor? Doctor { get; set; }
         public virtual Patient? Patient { get; set; }
+        public virtual TreatmentRecord2? TreatmentRecord2 { get; set; }
     }
 }

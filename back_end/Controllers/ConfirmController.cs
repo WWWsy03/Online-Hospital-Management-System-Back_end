@@ -52,7 +52,7 @@ namespace back_end.Controllers
 
                     if (registration != null)
                     {
-                        registration.State = -1;
+                        registration.State = 1;
                         _context.SaveChanges();
                     }
                     _context.TreatmentRecords.Add(treatmentRecord);

@@ -7,5 +7,7 @@ namespace back_end.Models
     {
         public string DiagnoseId { get; set; } = null!;
         public DateTime? DiagnoseTime { get; set; }
+
+        public virtual TreatmentRecord Diagnose { get; set; } = null!;
     }
 }

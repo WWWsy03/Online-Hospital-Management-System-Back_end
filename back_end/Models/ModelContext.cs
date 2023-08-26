@@ -113,6 +113,7 @@ namespace back_end.Models
                 entity.HasOne(d => d.ClinicNameNavigation)
                     .WithMany(p => p.ConsultationInfos)
                     .HasForeignKey(d => d.ClinicName)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("CONSULTATION_INFO_CONSULT_FK1");
 
                 entity.HasOne(d => d.Doctor)
@@ -151,7 +152,7 @@ namespace back_end.Models
                     .HasColumnName("DEPARTMENT_NAME");
 
                 entity.Property(e => e.DepartmentDescription)
-                    .HasMaxLength(200)
+                    .HasMaxLength(800)
                     .IsUnicode(false)
                     .HasColumnName("DEPARTMENT_DESCRIPTION");
             });
@@ -568,6 +569,10 @@ namespace back_end.Models
                     .IsUnicode(false)
                     .HasColumnName("DOCTOR_ID");
 
+                entity.Property(e => e.Paystate)
+                    .HasColumnType("NUMBER(38)")
+                    .HasColumnName("PAYSTATE");
+
                 entity.Property(e => e.TotalPrice)
                     .HasColumnType("NUMBER(6,2)")
                     .HasColumnName("TOTAL_PRICE");
@@ -684,6 +689,11 @@ namespace back_end.Models
                     .HasColumnType("NUMBER(38)")
                     .HasColumnName("PERIOD");
 
+                entity.Property(e => e.Prescriptionid)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasColumnName("PRESCRIPTIONID");
+
                 entity.Property(e => e.Registorder)
                     .HasColumnType("NUMBER(38)")
                     .HasColumnName("REGISTORDER");
@@ -701,6 +711,11 @@ namespace back_end.Models
                     .WithMany(p => p.Registrations)
                     .HasForeignKey(d => d.PatientId)
                     .HasConstraintName("REGISTRATION_PATIENT_FK1");
+
+                entity.HasOne(d => d.Prescription)
+                    .WithMany(p => p.Registrations)
+                    .HasForeignKey(d => d.Prescriptionid)
+                    .HasConstraintName("REGISTRATION_PRESCRIPTION_FK1");
             });
 
             modelBuilder.Entity<TreatmentFeedback>(entity =>
@@ -800,6 +815,12 @@ namespace back_end.Models
                 entity.Property(e => e.DiagnoseTime)
                     .HasPrecision(6)
                     .HasColumnName("DIAGNOSE_TIME");
+
+                entity.HasOne(d => d.Diagnose)
+                    .WithOne(p => p.TreatmentRecord2)
+                    .HasForeignKey<TreatmentRecord2>(d => d.DiagnoseId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("TREATMENT_RECORD2_TREATME_FK1");
             });
 
             OnModelCreatingPartial(modelBuilder);
