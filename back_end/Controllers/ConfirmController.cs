@@ -7,18 +7,18 @@ namespace back_end.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TreatmentController : ControllerBase
+    public class ConfirmController : ControllerBase
     {
         private readonly ModelContext _context;
         private static readonly object _lock = new object();
 
-        public TreatmentController(ModelContext context)
+        public ConfirmController(ModelContext context)
         {
             _context = context;
         }
 
         [HttpPost]
-        public IActionResult CreateTreatment(string doctorId, string patientId, int leaveDays)
+        public IActionResult CreateTreatment(string doctorId, string patientId)
         {
             lock (_lock)//加锁，防止有多个用户同时向其中添加记录
             {
@@ -32,7 +32,7 @@ namespace back_end.Controllers
                     DiagnosisRecordId = diagnoseId,
                     DoctorId = doctorId,
                     PatientId = patientId,
-                    LeaveNoteId = leaveDays > 0 ? diagnoseId + "9" + leaveDays.ToString("D3") : null
+              
                 };
 
                 // 创建就诊记录时间
@@ -48,7 +48,9 @@ namespace back_end.Controllers
                     var registration = _context.Registrations.FirstOrDefault(r =>
                         r.PatientId == patientId &&
                         r.DoctorId == doctorId &&
-                        r.AppointmentTime.Date == DateTime.Now.Date);
+                        r.AppointmentTime.Date == DateTime.Now.Date &&
+                        r.State == 0
+                        ) ;
 
                     if (registration != null)
                     {

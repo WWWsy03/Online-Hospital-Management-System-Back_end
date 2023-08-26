@@ -78,7 +78,7 @@ namespace back_end.Controllers
             var currentDate = DateTime.Now.Date;
             var registrations = _context.Registrations
                 .Include(r => r.Patient)
-                .Where(r => r.DoctorId == doctorId && r.AppointmentTime.Date == currentDate)
+                .Where(r => r.DoctorId == doctorId && r.AppointmentTime.Date == currentDate&&r.State==0)
                 .ToList();
             return Ok(registrations);
         }
