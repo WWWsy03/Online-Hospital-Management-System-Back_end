@@ -254,7 +254,7 @@ namespace back_end.Controllers
                 .Where(r => r.DoctorId == input.DoctorId && r.AppointmentTime.Date == input.Time.Date && r.Period == input.Period)
                 .Max(r => (int?)r.Registorder) ?? 0;
 
-            var registration = new Registration
+            var registration = new Registration()
             {
                 PatientId = input.PatientId,
                 DoctorId = input.DoctorId,

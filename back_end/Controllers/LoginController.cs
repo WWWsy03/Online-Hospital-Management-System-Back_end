@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace back_end.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class LoginController : ControllerBase
     {
         private readonly ModelContext _context;
