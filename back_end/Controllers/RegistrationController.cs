@@ -162,7 +162,6 @@ namespace back_end.Controllers
                     {
                         combined,
                         MedicineName = prescriptMedicine.MedicineName,
-                        MedicineDose = prescriptMedicine.MedicineDose,
                         MedicationInstruction = prescriptMedicine.MedicationInstruction,
                         MedicinePrice = prescriptMedicine.MedicinePrice
                     }

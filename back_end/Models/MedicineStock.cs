@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace back_end.Models
 {
@@ -13,7 +14,7 @@ namespace back_end.Models
         public decimal ThresholdValue { get; set; }
         public DateTime? CleanDate { get; set; }
         public string? CleanAdministrator { get; set; }
-
+        [JsonIgnore]//防止序列化器尝试序列化这个集合，从而避免了循环引用的问题。
         public virtual Administrator? CleanAdministratorNavigation { get; set; }
     }
 }
