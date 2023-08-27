@@ -66,6 +66,89 @@ namespace back_end.Controllers
 
             return Ok(exists);
         }
+
+        public static class VerificationCodeGenerator
+        {
+            private static Random random = new Random();
+
+            public static string Generate()
+            {
+                return random.Next(100000, 999999).ToString(); // 生成一个6位数的验证码
+            }
+        }
+
+        //public interface ISmsService
+        //{
+        //    Task SendAsync(string phoneNumber, string message);
+        //}
+
+        public class MockSmsService //: ISmsService
+        {
+            public Task SendAsync(string phoneNumber, string message)
+            {
+                // 这里应该有一个实际发送短信的实现，例如使用Twilio或其他服务
+                Console.WriteLine($"Sending SMS to {phoneNumber}: {message}");
+                return Task.CompletedTask;
+            }
+        }
+
+
+        //存储验证码
+        private static readonly Dictionary<string, string> VerificationCodes = new Dictionary<string, string>();
+        //验证码计时器，实现“过期”功能
+        private static readonly Dictionary<string, DateTime> CodeGenerateTimes = new Dictionary<string, DateTime>();
+
+        [HttpPost("generate")]
+        public ActionResult<string> GenerateCode(string PhoneNumber)
+        {
+            var currentTime = DateTime.Now;
+
+            // Remove expired codes
+            foreach (var entry in CodeGenerateTimes.Where(entry => (currentTime - entry.Value).TotalSeconds > 60).ToList())
+            {
+                VerificationCodes.Remove(entry.Key);
+                CodeGenerateTimes.Remove(entry.Key);
+            }
+
+            var random = new Random();
+            var code = random.Next(100000, 999999).ToString();
+
+            // Store the code and generation time
+            VerificationCodes[PhoneNumber] = code;
+            CodeGenerateTimes[PhoneNumber] = currentTime;
+
+            return Ok(code);
+        }
+
+
+        [HttpPost("verify")]
+        public ActionResult<bool> VerifyCode([FromBody] VerificationCodeModel request)
+        {
+            if (VerificationCodes.TryGetValue(request.PhoneNumber, out var storedCode))
+            {
+                var generatedTime= CodeGenerateTimes.GetValueOrDefault(request.PhoneNumber);
+                if ((DateTime.Now - generatedTime).TotalSeconds <= 60)
+                {
+                    return Ok(storedCode == request.Code);
+                }
+                else
+                {
+                    // Remove expired code
+                    VerificationCodes.Remove(request.PhoneNumber);
+                    CodeGenerateTimes.Remove(request.PhoneNumber);
+                    return BadRequest("Code expired.");
+                }
+            }
+            return BadRequest("Phone number not found.");
+        }
+
+
+        public class VerificationCodeModel
+        {
+            public string PhoneNumber { get; set; }
+            public string Code { get; set; }
+        }
+
     }
 
 }
