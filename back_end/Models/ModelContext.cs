@@ -323,6 +323,11 @@ namespace back_end.Models
                     .HasMaxLength(40)
                     .IsUnicode(false)
                     .HasColumnName("MEDICINE_TYPE");
+
+                entity.Property(e => e.Vulgo)
+                    .HasMaxLength(920)
+                    .IsUnicode(false)
+                    .HasColumnName("VULGO");
             });
 
             modelBuilder.Entity<MedicineOut>(entity =>
@@ -808,6 +813,21 @@ namespace back_end.Models
                     .IsUnicode(false)
                     .HasColumnName("DIAGNOSE_ID");
 
+                entity.Property(e => e.Advice)
+                    .HasMaxLength(2000)
+                    .IsUnicode(false)
+                    .HasColumnName("ADVICE");
+
+                entity.Property(e => e.Anamnesis)
+                    .HasMaxLength(2000)
+                    .IsUnicode(false)
+                    .HasColumnName("ANAMNESIS");
+
+                entity.Property(e => e.Clinicdia)
+                    .HasMaxLength(2000)
+                    .IsUnicode(false)
+                    .HasColumnName("CLINICDIA");
+
                 entity.Property(e => e.Commentstate)
                     .HasColumnType("NUMBER(38)")
                     .HasColumnName("COMMENTSTATE")
@@ -816,6 +836,21 @@ namespace back_end.Models
                 entity.Property(e => e.DiagnoseTime)
                     .HasPrecision(6)
                     .HasColumnName("DIAGNOSE_TIME");
+
+                entity.Property(e => e.Presenthis)
+                    .HasMaxLength(2000)
+                    .IsUnicode(false)
+                    .HasColumnName("PRESENTHIS");
+
+                entity.Property(e => e.Selfreported)
+                    .HasMaxLength(2000)
+                    .IsUnicode(false)
+                    .HasColumnName("SELFREPORTED");
+
+                entity.Property(e => e.Sign)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasColumnName("SIGN");
 
                 entity.HasOne(d => d.Diagnose)
                     .WithOne(p => p.TreatmentRecord2)

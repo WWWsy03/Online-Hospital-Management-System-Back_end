@@ -14,6 +14,7 @@ namespace back_end.Models
         public string MedicineType { get; set; } = null!;
         public string? MedicineDescription1 { get; set; }
         public string? ApplicableSymptom { get; set; }
+        public string? Vulgo { get; set; }
 
         public virtual ICollection<PrescriptionMedicine> PrescriptionMedicines { get; set; }
     }

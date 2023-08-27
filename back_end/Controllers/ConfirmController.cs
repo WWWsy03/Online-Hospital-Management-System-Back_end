@@ -10,73 +10,143 @@ namespace back_end.Controllers
     public class ConfirmController : ControllerBase
     {
         private readonly ModelContext _context;
-        private static readonly object _lock = new object();
+        //private static readonly object _lock = new object();
 
         public ConfirmController(ModelContext context)
         {
             _context = context;
         }
 
+       
         [HttpPost]
-        public IActionResult CreateTreatment(string doctorId, string patientId)
+        public async Task<ActionResult<TreatmentRecord2>> PostTreatmentRecord2([FromBody]TreatmentRecordModel inputModel)
         {
-            lock (_lock)//加锁，防止有多个用户同时向其中添加记录
+            // 生成诊断记录ID
+            var diagnoseId = DateTime.Now.ToString("yyyyMMdd") + inputModel.patientId + inputModel.doctorId;
+
+            //生成处方订单号
+            var prescriptionId = DateTime.Now.ToString("yyyyMMdd") + "000"+inputModel.patientId + inputModel.doctorId;
+            var totalprice = 0.0M; //总药费
+
+            // 创建就诊记录
+            var treatmentRecord = new Models.TreatmentRecord
             {
-                // 生成诊断记录ID
-                var diagnoseId = DateTime.Now.ToString("yyyyMMdd") + patientId + doctorId;
+                DiagnosisRecordId = diagnoseId,
+                DoctorId = inputModel.doctorId,
+                PatientId = inputModel.patientId,
 
+            };
 
-                // 创建就诊记录
-                var treatmentRecord = new TreatmentRecord
+            var treatmentRecord2 = new TreatmentRecord2
+            {
+                DiagnoseId = diagnoseId, // 假设DiagnoseId是病人id
+                DiagnoseTime = DateTime.Now,
+                Commentstate = 0,
+                Selfreported = inputModel.selfReported,
+                Presenthis = inputModel.presentHis,
+                Anamnesis = inputModel.anamnesis,
+                Sign = inputModel.sign,
+                Clinicdia = inputModel.clinicDia,
+                Advice = inputModel.advice
+            };
+
+            try
+            {
+                // 查找匹配的挂号记录
+                var registration = _context.Registrations.FirstOrDefault(r =>
+                    r.PatientId == inputModel.patientId &&
+                    r.DoctorId == inputModel.doctorId &&
+                    r.AppointmentTime.Date == DateTime.Now.Date &&
+                    r.State == 0
+                    );
+
+                if (registration != null)
                 {
-                    DiagnosisRecordId = diagnoseId,
-                    DoctorId = doctorId,
-                    PatientId = patientId,
-              
-                };
+                    registration.State = 1;//挂号表中改成已就诊
+                    registration.Prescriptionid = prescriptionId;//加入处方编号
+                }
+                _context.TreatmentRecords.Add(treatmentRecord);
+                _context.TreatmentRecord2s.Add(treatmentRecord2);
 
-                // 创建就诊记录时间
-                var treatmentRecord2 = new TreatmentRecord2
+
+                // 解析药品信息
+                var medicines = inputModel.medicine.Split(';');
+                foreach (var medicine in medicines)
                 {
-                    DiagnoseId = diagnoseId,
-                    DiagnoseTime = DateTime.Now
-                };
+                    var medicineInfo = medicine.Split('+');
 
-                try
-                {
-                    // 查找匹配的挂号记录
-                    var registration = _context.Registrations.FirstOrDefault(r =>
-                        r.PatientId == patientId &&
-                        r.DoctorId == doctorId &&
-                        r.AppointmentTime.Date == DateTime.Now.Date &&
-                        r.State == 0
-                        ) ;
-
-                    if (registration != null)
+                    if (medicineInfo.Length != 2)
                     {
-                        registration.State = 1;
-                        _context.SaveChanges();
+                        continue;
                     }
-                    _context.TreatmentRecords.Add(treatmentRecord);
-                    _context.TreatmentRecord2s.Add(treatmentRecord2);
-                    _context.SaveChanges();
+
+                    var medicineName = medicineInfo[0];
+                    var medicationInstruction = medicineInfo[1];
+
+                    // 从MedicineSell表中获取药品价格
+                    var medicineSell = _context.MedicineSells.FirstOrDefault(m => m.MedicineName == medicineName);
+
+                    if (medicineSell == null)
+                    {
+                        continue;
+                    }
+
+                    var prescriptionMedicine = new PrescriptionMedicine
+                    {
+                        PrescriptionId = prescriptionId,
+                        MedicineName = medicineName,
+                        MedicationInstruction = medicationInstruction,
+                        MedicinePrice = medicineSell.SellingPrice
+                    };
+                    totalprice += medicineSell.SellingPrice;
+                    _context.PrescriptionMedicines.Add(prescriptionMedicine);
                 }
-                catch (Exception ex)
+                // 创建新的Prescription对象
+                var prescription = new Prescription
                 {
-                    //Console.WriteLine("An error occurred: " + ex.Message);
+                    PrescriptionId = prescriptionId,
+                    TotalPrice = totalprice, // 这里假设totalprice是计算出的总价
+                    DoctorId = inputModel.doctorId,
+                    Paystate = 0 // 初始值为0
+                };
 
-                    // 如果有内部异常，打印内部异常的信息
-                    // if (ex.InnerException != null)
-                   // {
-                        // Console.WriteLine("Inner exception: " + ex.InnerException.Message);
-                        //}
-                        return BadRequest(ex.Message);
-                     
-                }
+                // 将新的Prescription对象添加到数据库上下文中
+                _context.Prescriptions.Add(prescription);
 
-
-                return Ok("Treatment record created successfully.");
+                await _context.SaveChangesAsync();
             }
+            catch (Exception ex)
+            {
+                //Console.WriteLine("An error occurred: " + ex.Message);
+
+                // 如果有内部异常，打印内部异常的信息
+                // if (ex.InnerException != null)
+                // {
+                // Console.WriteLine("Inner exception: " + ex.InnerException.Message);
+                //}
+                return BadRequest(ex.Message);
+
+            }
+
+
+            return Ok("Treatment record created successfully.");
+
         }
+
     }
+
+    public class TreatmentRecordModel
+    {
+        public string patientId { get; set; }
+        public string doctorId { get; set; }
+        public string selfReported { get; set; }
+        public string presentHis { get; set; }
+        public string anamnesis { get; set; }
+        public string sign { get; set; }
+        public string clinicDia { get; set; }
+        public string advice { get; set; }
+        public string medicine { get; set; }
+    }
+
+
 }
