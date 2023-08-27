@@ -98,7 +98,7 @@ namespace back_end.Controllers
         //验证码计时器，实现“过期”功能
         private static readonly Dictionary<string, DateTime> CodeGenerateTimes = new Dictionary<string, DateTime>();
 
-        [HttpPost("generate/{PhoneNumber}")]
+        [HttpPost("G/{PhoneNumber}")]
         public ActionResult<string> GenerateCode(string PhoneNumber)
         {
             var currentTime = DateTime.Now;
