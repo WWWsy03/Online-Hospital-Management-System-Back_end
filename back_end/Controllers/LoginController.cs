@@ -41,7 +41,7 @@ namespace back_end.Controllers
         }
 
         [HttpGet("AdminLogin")]
-        public async Task<ActionResult<bool>> CheckAdminCredentials(string ID, string password)
+        public async Task<ActionResult<bool>> CheckAdminCredentials(string ID,string password)
         {
             bool exists = await _context.Administrators.AnyAsync(
                 admin => admin.AdministratorId == ID && admin.Password == password);
@@ -62,7 +62,7 @@ namespace back_end.Controllers
         public async Task<ActionResult<bool>> CheckDoctorCredentials(string ID, string password)
         {
             bool exists = await _context.Doctors.AnyAsync(
-                doctor => doctor.DoctorId == ID && doctor.Password == password);
+                doctor => doctor.DoctorId== ID && doctor.Password == password);
 
             return Ok(exists);
         }
@@ -98,7 +98,7 @@ namespace back_end.Controllers
         //验证码计时器，实现“过期”功能
         private static readonly Dictionary<string, DateTime> CodeGenerateTimes = new Dictionary<string, DateTime>();
 
-        [HttpGet("G/{PhoneNumber}")]
+        [HttpGet("generate")]
         public ActionResult<string> GenerateCode(string PhoneNumber)
         {
             var currentTime = DateTime.Now;
