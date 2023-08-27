@@ -282,7 +282,8 @@ namespace back_end.Controllers
                 r.PatientId == inputModel.PatientId &&
                 r.DoctorId == inputModel.DoctorId &&
                 r.AppointmentTime.Date == inputModel.Time.Date &&
-                r.Period == inputModel.Period);
+                r.Period == inputModel.Period &&
+                r.State == 0);
 
             // 如果找不到匹配的挂号记录，返回错误信息
             if (registration == null)
@@ -290,13 +291,56 @@ namespace back_end.Controllers
                 return NotFound("No registration found.");
             }
 
+            // 查找与指定挂号记录具有相同的PatientId，DoctorId，AppointmentTime.Date，Period的所有记录
+            var similarRegistrationsCount = await _context.Registrations.AsNoTracking().CountAsync(r =>
+                r.PatientId == inputModel.PatientId &&
+                r.DoctorId == inputModel.DoctorId &&
+                r.AppointmentTime.Date == inputModel.Time.Date &&
+                r.Period == inputModel.Period
+            );
+
             // 从数据库中更改找到的挂号记录
-            registration.State = -1;
+            var newRegistration = new Registration
+            {
+                PatientId = registration.PatientId,
+                DoctorId = registration.DoctorId,
+                AppointmentTime = registration.AppointmentTime,
+                Period = registration.Period,
+                Prescriptionid = registration.Prescriptionid,
+                Registorder=registration.Registorder,
+                State = -similarRegistrationsCount
+                
+            };
+            _context.Registrations.Remove(registration);//因为State是主键不能修改，不需要先删了再插入
             await _context.SaveChangesAsync();
+            _context.Registrations.Add(newRegistration);
+            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                foreach (var entry in ex.Entries)
+                {
+                    if (entry.Entity is Registration)
+                    {
+                        // 使用数据库中的值重新加载实体
+                        entry.Reload();
+
+                        // 应用你的更改
+                        ((Registration)entry.Entity).State = -1;
+
+                        // 再次尝试保存
+                        await _context.SaveChangesAsync();
+                    }
+                }
+            }
 
             // 返回成功信息
             return Ok("cancel successfully.");
         }
+
 
         [HttpPut("complete")]
         public async Task<IActionResult> CompleteRegistration([FromBody] RegistrationInputModel inputModel)

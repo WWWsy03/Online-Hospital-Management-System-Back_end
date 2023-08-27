@@ -667,7 +667,7 @@ namespace back_end.Models
 
             modelBuilder.Entity<Registration>(entity =>
             {
-                entity.HasKey(e => new { e.PatientId, e.DoctorId, e.AppointmentTime })
+                entity.HasKey(e => new { e.PatientId, e.DoctorId, e.AppointmentTime,e.Period,e.State })
                     .HasName("REGISTRATION_PK");
 
                 entity.ToTable("REGISTRATION");
