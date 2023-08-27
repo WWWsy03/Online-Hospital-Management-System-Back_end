@@ -290,7 +290,7 @@ namespace back_end.Controllers
                 return NotFound("No registration found.");
             }
 
-            // 从数据库中删除找到的挂号记录
+            // 从数据库中更改找到的挂号记录
             registration.State = -1;
             await _context.SaveChangesAsync();
 
@@ -320,6 +320,57 @@ namespace back_end.Controllers
             // 返回成功信息
             return Ok("complete successfully.");
         }
+
+        [HttpPut("ChangeAppoint")]
+        public async Task<IActionResult> ChangeAppointTime([FromBody] ChangeAppointmentInputModel Change)
+        {
+            DateTime currentTime = DateTime.Now;
+            if (Change.New.Time.Date < currentTime.Date)
+            {
+                return NotFound("The AppointTime of the New Registration is wrong, it should be later than now");
+            }
+
+            // 查找匹配的挂号记录
+            var OldRegistration = await _context.Registrations.FirstOrDefaultAsync(r =>
+                r.PatientId == Change.Old.PatientId &&
+                r.DoctorId == Change.Old.DoctorId &&
+                r.AppointmentTime.Date == Change.Old.Time.Date &&
+                r.Period == Change.Old.Period &&
+                r.State == 0
+                );
+
+            // 如果找不到匹配的挂号记录，返回错误信息
+            if (OldRegistration == null)
+            {
+                return NotFound("No Changable Registration found.");
+            }
+
+            OldRegistration.State = -1;
+
+            var maxOrder = _context.Registrations
+                .Where(r => r.DoctorId == Change.New.DoctorId && r.AppointmentTime.Date == Change.New.Time.Date && r.Period == Change.New.Period)
+                .Max(r => (int?)r.Registorder) ?? 0;
+
+            var NewRegistration = new Registration()
+            {
+                PatientId = Change.Old.PatientId,
+                DoctorId = Change.New.DoctorId,
+                AppointmentTime = Change.New.Time,
+                Period = Change.New.Period,
+
+                State = 0,
+                Registorder = maxOrder + 1  // 设置 Registorder 为当前最大值加1
+            };
+
+            NewRegistration.Doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == Change.New.DoctorId);
+            NewRegistration.Patient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientId == Change.Old.PatientId);
+
+            _context.Registrations.Add(NewRegistration);
+            await _context.SaveChangesAsync();
+
+            // 返回成功信息
+            return Ok("change appointTime successfully.");
+        }
     }
 
     public class RegistrationInputModel//用于传输数据
@@ -330,5 +381,17 @@ namespace back_end.Controllers
         public int Period { get; set; }
     }
 
+    public class NewRegistInputModel
+    {
+        public string DoctorId { get; set; }
+        public DateTime Time { get; set; }
+        public int Period { get; set; }
+    }
+
+    public class ChangeAppointmentInputModel
+    {
+        public RegistrationInputModel Old { get; set; }
+        public NewRegistInputModel New { get; set; }
+    }
 
 }

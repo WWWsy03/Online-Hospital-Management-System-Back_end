@@ -35,34 +35,34 @@ namespace back_end.Controllers
         {
             var result = await _context.Patients
                 .Where(p => p.PatientId == patientId) // 添加这一行来过滤结果
-                .Join(
-                    _context.TreatmentRecords,
-                    patient => patient.PatientId,
-                    record1 => record1.PatientId,
-                    (patient, record1) => new { patient, record1 }
-                )
-                .Join(
-                    _context.TreatmentRecord2s,
-                    combined => combined.record1.DiagnosisRecordId,
-                    record2 => record2.DiagnoseId,
-                    (combined, record2) => new
-                    {
-                        PatientId = combined.patient.PatientId,
-                        Name = combined.patient.Name,
-                        Gender= combined.patient.Gender,
-                        BirthDate= combined.patient.BirthDate,
-                        Contact= combined.patient.Contact,
-                        Password=combined.patient.Password,
-                        College= combined.patient.College,
-                        Counsellor= combined.patient.Counsellor,
-                        DiagnoseId=record2.DiagnoseId,
-                        DoctorId=combined.record1.DoctorId == null?null: combined.record1.DoctorId,
-                        LeaveNotedId=combined.record1.LeaveNoteId,
-                        CommentState=record2.Commentstate,
-                        DiagnosisTime = record2.DiagnoseTime
-                    }
-                ).ToArrayAsync();//JieChu觉得应该返回所有符合条件的病人的详情
-                //.FirstOrDefaultAsync(); // 改为FirstOrDefaultAsync，因为我们只寻找一个特定的病人的详情
+                //.Join(
+                //    _context.TreatmentRecords,
+                //    patient => patient.PatientId,
+                //    record1 => record1.PatientId,
+                //    (patient, record1) => new { patient, record1 }
+                //)
+                //.Join(
+                //    _context.TreatmentRecord2s,
+                //    combined => combined.record1.DiagnosisRecordId,
+                //    record2 => record2.DiagnoseId,
+                //    (combined, record2) => new
+                //    {
+                //        PatientId = combined.patient.PatientId,
+                //        Name = combined.patient.Name,
+                //        Gender= combined.patient.Gender,
+                //        BirthDate= combined.patient.BirthDate,
+                //        Contact= combined.patient.Contact,
+                //        Password=combined.patient.Password,
+                //        College= combined.patient.College,
+                //        Counsellor= combined.patient.Counsellor,
+                //        DiagnoseId=record2.DiagnoseId,
+                //        DoctorId=combined.record1.DoctorId == null?null: combined.record1.DoctorId,
+                //        LeaveNotedId=combined.record1.LeaveNoteId,
+                //        CommentState=record2.Commentstate,
+                //        DiagnosisTime = record2.DiagnoseTime
+                //    }
+                //)
+            .ToArrayAsync();//JieChu觉得应该返回所有符合条件的病人的详情
 
             if (result == null)
             {
