@@ -288,7 +288,7 @@ namespace back_end.Models
                     .HasColumnName("LEAVE_END_DATE");
 
                 entity.Property(e => e.LeaveNoteRemark)
-                    .HasMaxLength(1000)
+                    .HasMaxLength(10)
                     .IsUnicode(false)
                     .HasColumnName("LEAVE_NOTE_REMARK");
 
@@ -309,20 +309,40 @@ namespace back_end.Models
                     .IsUnicode(false)
                     .HasColumnName("MEDICINE_NAME");
 
+                entity.Property(e => e.Administration)
+                    .HasMaxLength(400)
+                    .IsUnicode(false)
+                    .HasColumnName("ADMINISTRATION");
+
                 entity.Property(e => e.ApplicableSymptom)
                     .HasMaxLength(600)
                     .IsUnicode(false)
                     .HasColumnName("APPLICABLE_SYMPTOM");
 
-                entity.Property(e => e.MedicineDescription1)
-                    .HasMaxLength(600)
+                entity.Property(e => e.Attention)
+                    .HasMaxLength(400)
                     .IsUnicode(false)
-                    .HasColumnName("MEDICINE_DESCRIPTION");
+                    .HasColumnName("ATTENTION");
+
+                entity.Property(e => e.Frequency)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasColumnName("FREQUENCY");
 
                 entity.Property(e => e.MedicineType)
                     .HasMaxLength(40)
                     .IsUnicode(false)
                     .HasColumnName("MEDICINE_TYPE");
+
+                entity.Property(e => e.Singledose)
+                    .HasMaxLength(300)
+                    .IsUnicode(false)
+                    .HasColumnName("SINGLEDOSE");
+
+                entity.Property(e => e.Specification)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasColumnName("SPECIFICATION");
 
                 entity.Property(e => e.Vulgo)
                     .HasMaxLength(920)
@@ -565,7 +585,7 @@ namespace back_end.Models
                 entity.ToTable("PRESCRIPTION");
 
                 entity.Property(e => e.PrescriptionId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(200)
                     .IsUnicode(false)
                     .HasColumnName("PRESCRIPTION_ID");
 
@@ -596,7 +616,7 @@ namespace back_end.Models
                 entity.ToTable("PRESCRIPTION_MEDICINE");
 
                 entity.Property(e => e.PrescriptionId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(40)
                     .IsUnicode(false)
                     .HasColumnName("PRESCRIPTION_ID");
 
@@ -606,7 +626,7 @@ namespace back_end.Models
                     .HasColumnName("MEDICINE_NAME");
 
                 entity.Property(e => e.MedicationInstruction)
-                    .HasMaxLength(20)
+                    .HasMaxLength(800)
                     .IsUnicode(false)
                     .HasColumnName("MEDICATION_INSTRUCTION");
 
@@ -667,7 +687,7 @@ namespace back_end.Models
 
             modelBuilder.Entity<Registration>(entity =>
             {
-                entity.HasKey(e => new { e.PatientId, e.DoctorId, e.AppointmentTime,e.Period,e.State })
+                entity.HasKey(e => new { e.PatientId, e.DoctorId, e.AppointmentTime, e.State, e.Period })
                     .HasName("REGISTRATION_PK");
 
                 entity.ToTable("REGISTRATION");
@@ -686,6 +706,10 @@ namespace back_end.Models
                     .HasColumnType("DATE")
                     .HasColumnName("APPOINTMENT_TIME");
 
+                entity.Property(e => e.State)
+                    .HasColumnType("NUMBER(38)")
+                    .HasColumnName("STATE");
+
                 entity.Property(e => e.Period)
                     .HasColumnType("NUMBER(38)")
                     .HasColumnName("PERIOD");
@@ -698,10 +722,6 @@ namespace back_end.Models
                 entity.Property(e => e.Registorder)
                     .HasColumnType("NUMBER(38)")
                     .HasColumnName("REGISTORDER");
-
-                entity.Property(e => e.State)
-                    .HasColumnType("NUMBER(38)")
-                    .HasColumnName("STATE");
 
                 entity.HasOne(d => d.Doctor)
                     .WithMany(p => p.Registrations)
