@@ -15,7 +15,7 @@ namespace back_end.Controllers
         {
             _context = context;
         }
-        [HttpGet]
+        [HttpGet("GetAllMedicinesInfo")]
         public async Task<ActionResult<IEnumerable<object>>> GetMedicines()
         {
             return await _context.MedicineDescriptions
