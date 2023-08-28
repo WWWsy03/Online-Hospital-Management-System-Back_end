@@ -249,6 +249,10 @@ namespace back_end.Controllers
         [HttpPost("regist")]
         public async Task<ActionResult<Registration>> CreateRegistration([FromBody] RegistrationInputModel input)
         {
+            if (input.Period < 1 || input.Period > 7)
+            {
+                return BadRequest("invalid period");
+            }
             // 获取当前最大的 Registorder 值
             var maxOrder = _context.Registrations
                 .Where(r => r.DoctorId == input.DoctorId && r.AppointmentTime.Date == input.Time.Date && r.Period == input.Period)
@@ -270,8 +274,35 @@ namespace back_end.Controllers
 
             _context.Registrations.Add(registration);
             await _context.SaveChangesAsync();
-
-            return Ok("successful.");
+            if (input.Period == 1)
+            {
+                return Ok("8:00-9:00");
+            }
+            else if(input.Period == 2)
+            {
+                return Ok("9:00-10:00");
+            }
+            else if(input.Period == 3)
+            {
+                return Ok("10:00-11:00");
+            }
+            else if(input.Period == 4)
+            {
+                return Ok("13:00-14:00");
+            }
+              else if (input.Period == 5)
+            {
+                return Ok("14:00-15:00");
+            }
+            else if (input.Period == 6)
+            {
+                return Ok("15:00-16:00");
+            }
+            else
+            {
+                return Ok("16:00-17:00");
+            }
+         //   return Ok("successful.");
         }
 
         [HttpPut("cancel")]
