@@ -122,31 +122,24 @@ namespace back_end.Controllers
 
 
         [HttpGet("verify")]
-        public ActionResult<bool> VerifyCode([FromBody] VerificationCodeModel request)
+        public ActionResult<bool> VerifyCode(string PhoneNumber,string Code)
         {
-            if (VerificationCodes.TryGetValue(request.PhoneNumber, out var storedCode))
+            if (VerificationCodes.TryGetValue(PhoneNumber, out var storedCode))
             {
-                var generatedTime= CodeGenerateTimes.GetValueOrDefault(request.PhoneNumber);
+                var generatedTime= CodeGenerateTimes.GetValueOrDefault(PhoneNumber);
                 if ((DateTime.Now - generatedTime).TotalSeconds <= 60)
                 {
-                    return Ok(storedCode == request.Code);
+                    return Ok(storedCode == Code);
                 }
                 else
                 {
                     // Remove expired code
-                    VerificationCodes.Remove(request.PhoneNumber);
-                    CodeGenerateTimes.Remove(request.PhoneNumber);
+                    VerificationCodes.Remove(PhoneNumber);
+                    CodeGenerateTimes.Remove(PhoneNumber);
                     return BadRequest("Code expired.");
                 }
             }
             return BadRequest("Phone number not found.");
-        }
-
-
-        public class VerificationCodeModel
-        {
-            public string PhoneNumber { get; set; }
-            public string Code { get; set; }
         }
 
     }
