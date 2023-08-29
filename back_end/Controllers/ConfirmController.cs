@@ -17,18 +17,14 @@ namespace back_end.Controllers
             _context = context;
         }
 
-       
+
         [HttpPost]
-        public async Task<ActionResult<TreatmentRecord2>> PostTreatmentRecord2([FromBody]TreatmentRecordModel inputModel)
+        public async Task<ActionResult<TreatmentRecord2>> PostTreatmentRecord2([FromBody] TreatmentRecordModel inputModel)
         {
             // 生成诊断记录ID
-            var diagnoseId = DateTime.Now.ToString("yyyyMMdd") + inputModel.patientId + inputModel.doctorId;
-
-            //生成处方订单号
-            var prescriptionId = DateTime.Now.ToString("yyyyMMdd") + "000"+inputModel.patientId + inputModel.doctorId;
+            var diagnoseId = DateTime.Now.ToString("yyyyMMdd") + inputModel.patientId + inputModel.doctorId + inputModel.period;
+            var prescriptionId = DateTime.Now.ToString("yyyyMMdd") + "000" + inputModel.patientId + inputModel.doctorId + inputModel.period;
             var totalprice = 0.0M; //总药费
-
-            // 创建就诊记录
             var treatmentRecord = new Models.TreatmentRecord
             {
                 DiagnosisRecordId = diagnoseId,
@@ -36,7 +32,6 @@ namespace back_end.Controllers
                 PatientId = inputModel.patientId,
 
             };
-
             var treatmentRecord2 = new TreatmentRecord2
             {
                 DiagnoseId = diagnoseId, // 假设DiagnoseId是病人id
@@ -49,7 +44,6 @@ namespace back_end.Controllers
                 Clinicdia = inputModel.clinicDia,
                 Advice = inputModel.advice
             };
-
             try
             {
                 // 查找匹配的挂号记录
@@ -57,17 +51,31 @@ namespace back_end.Controllers
                     r.PatientId == inputModel.patientId &&
                     r.DoctorId == inputModel.doctorId &&
                     r.AppointmentTime.Date == DateTime.Now.Date &&
+                    r.Period == inputModel.period &&
                     r.State == 0
                     );
-
                 if (registration != null)
                 {
-                    registration.State = 1;//挂号表中改成已就诊
-                    registration.Prescriptionid = prescriptionId;//加入处方编号
+                    // 删除旧的记录
+                    _context.Registrations.Remove(registration);
+
+                    // 添加新的记录
+                    var newRegistration = new Registration
+                    {
+                        PatientId= inputModel.patientId,
+                        DoctorId= inputModel.doctorId,
+                        AppointmentTime = DateTime.Now,
+                        Period = inputModel.period,
+                        Registorder=registration.Registorder,
+                        State = 1,//挂号表中改成已就诊
+                        Prescriptionid = prescriptionId,//加入处方编号
+                        
+                    };
+                    _context.Registrations.Add(newRegistration);
                 }
+
                 _context.TreatmentRecords.Add(treatmentRecord);
                 _context.TreatmentRecord2s.Add(treatmentRecord2);
-
 
                 // 解析药品信息
                 var medicines = inputModel.medicine.Split(';');
@@ -85,7 +93,6 @@ namespace back_end.Controllers
 
                     // 从MedicineSell表中获取药品价格
                     var medicineSell = _context.MedicineSells.FirstOrDefault(m => m.MedicineName == medicineName);
-
                     if (medicineSell == null)
                     {
                         continue;
@@ -98,9 +105,12 @@ namespace back_end.Controllers
                         MedicationInstruction = medicationInstruction,
                         MedicinePrice = medicineSell.SellingPrice
                     };
+
                     totalprice += medicineSell.SellingPrice;
+
                     _context.PrescriptionMedicines.Add(prescriptionMedicine);
                 }
+
                 // 创建新的Prescription对象
                 var prescription = new Prescription
                 {
@@ -110,28 +120,18 @@ namespace back_end.Controllers
                     Paystate = 0 // 初始值为0
                 };
 
-                // 将新的Prescription对象添加到数据库上下文中
                 _context.Prescriptions.Add(prescription);
 
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                //Console.WriteLine("An error occurred: " + ex.Message);
-
-                // 如果有内部异常，打印内部异常的信息
-                // if (ex.InnerException != null)
-                // {
-                // Console.WriteLine("Inner exception: " + ex.InnerException.Message);
-                //}
                 return BadRequest(ex.Message);
-
             }
 
-
             return Ok("Treatment record created successfully.");
-
         }
+
 
     }
 
@@ -139,6 +139,7 @@ namespace back_end.Controllers
     {
         public string patientId { get; set; }
         public string doctorId { get; set; }
+        public int period { get; set; }
         public string selfReported { get; set; }
         public string presentHis { get; set; }
         public string anamnesis { get; set; }
