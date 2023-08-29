@@ -16,13 +16,16 @@ namespace back_end.Controllers
         {
             _context = context;
         }
-    
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<object>>> GetConsultationInfoByDepartmentAndKeyword(string department, string keyword)
+        public async Task<ActionResult<IEnumerable<object>>> GetConsultationInfoByDepartmentAndKeyword(string department, string ?keyword)//加上问号表示这个参数可以为空
         {
-            var doctors = await _context.Doctors
-                .Where(d => d.SecondaryDepartment == department && d.Name.Contains(keyword))
-                .ToListAsync();
+            var doctors = keyword != null
+                ? await _context.Doctors
+                    .Where(d => d.SecondaryDepartment == department && d.Name.Contains(keyword))
+                    .ToListAsync()
+                : await _context.Doctors
+                    .Where(d => d.SecondaryDepartment == department)
+                    .ToListAsync();
 
             if (doctors == null || doctors.Count == 0)
             {
@@ -56,6 +59,7 @@ namespace back_end.Controllers
 
             return result;
         }
+
 
 
     }
