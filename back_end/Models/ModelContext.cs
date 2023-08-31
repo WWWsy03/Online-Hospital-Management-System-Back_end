@@ -862,6 +862,10 @@ namespace back_end.Models
                     .HasPrecision(6)
                     .HasColumnName("DIAGNOSE_TIME");
 
+                entity.Property(e => e.Kindquantity)
+                    .HasColumnType("NUMBER(38)")
+                    .HasColumnName("KINDQUANTITY");
+
                 entity.Property(e => e.Presenthis)
                     .HasMaxLength(2000)
                     .IsUnicode(false)

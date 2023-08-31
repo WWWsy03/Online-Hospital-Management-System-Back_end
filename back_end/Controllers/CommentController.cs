@@ -46,7 +46,7 @@ namespace back_end.Controllers
 
             if (record == null)
             {
-                return BadRequest("已经评价过");
+                return BadRequest("无法进行评价（无此条诊断记录或已经评价过）");
             }
             record.Commentstate = 1;
             await _context.SaveChangesAsync();

@@ -71,6 +71,22 @@ namespace back_end.Controllers
             return Ok(leaveApplications);
         }
 
+        [HttpGet("diagnosis")]
+        public async Task<IActionResult> GetDiagnosedId(string patientId)
+        {
+            var leaveApplications = await _context.LeaveApplications
+                .Where(l => l.LeaveNoteId.Substring(8, 7) == patientId)
+                .Select(l => l.LeaveNoteId.Substring(0, l.LeaveNoteId.Length - 1))
+                .ToListAsync();
+
+            if (leaveApplications.Count == 0)
+            {
+                return Ok("该病人未申请过假条");
+            }
+
+            return Ok(leaveApplications);
+        }
+
 
     }
 }

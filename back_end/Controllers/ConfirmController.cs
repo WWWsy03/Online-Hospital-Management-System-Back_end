@@ -42,7 +42,8 @@ namespace back_end.Controllers
                 Anamnesis = inputModel.anamnesis,
                 Sign = inputModel.sign,
                 Clinicdia = inputModel.clinicDia,
-                Advice = inputModel.advice
+                Advice = inputModel.advice,
+                Kindquantity = 0//初始等于0，后面解析药品的时候加
             };
             try
             {
@@ -116,6 +117,7 @@ namespace back_end.Controllers
                     };
 
                     totalprice += medicineSell.SellingPrice * quantity;
+                    treatmentRecord2.Kindquantity += 1;
 
                     _context.PrescriptionMedicines.Add(prescriptionMedicine);
                 }
