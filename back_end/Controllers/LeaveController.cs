@@ -2,6 +2,7 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace back_end.Controllers
 {
@@ -52,6 +53,24 @@ namespace back_end.Controllers
 
             return Ok("Leave application created successfully.");
         }
+
+
+        [HttpGet("leaveApplications")]//传入病人Id找到其申请过的假条
+        public async Task<IActionResult> GetLeaveApplications(string patientId)
+        {
+            var leaveApplications = await _context.LeaveApplications
+                .Where(l => l.LeaveNoteId.Substring(8, 7) == patientId)
+                .Select(l => l.LeaveNoteId)
+                .ToListAsync();
+
+            if (leaveApplications.Count == 0)
+            {
+                return Ok("该病人未申请过假条");
+            }
+
+            return Ok(leaveApplications);
+        }
+
 
     }
 }
