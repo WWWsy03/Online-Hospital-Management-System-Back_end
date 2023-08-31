@@ -55,25 +55,118 @@ namespace back_end.Controllers
             return Ok("Medicine stock updated successfully.");
         }
 
-        [HttpPost("AddStock")]
+        [HttpPost("AddStock")]//采购入库
         public async Task<IActionResult> AddStock(AddStockInputModel inputModel)
         {
-            var medicineStock = new MedicineStock
+            var existingMedicineStock = await _context.MedicineStocks.FirstOrDefaultAsync(m =>
+                m.MedicineName == inputModel.MedicineName &&
+                m.Manufacturer == inputModel.Manufacturer &&
+                m.ProductionDate == inputModel.ProductionDate &&
+                m.MedicineShelflife == inputModel.MedicineShelflife);
+
+            if (existingMedicineStock != null)
+            {
+                existingMedicineStock.MedicineAmount += inputModel.MedicineAmount;
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                var medicineStock = new MedicineStock//库存表
+                {
+                    MedicineName = inputModel.MedicineName,
+                    Manufacturer = inputModel.Manufacturer,
+                    ProductionDate = inputModel.ProductionDate,
+                    MedicineShelflife = inputModel.MedicineShelflife,
+                    MedicineAmount = inputModel.MedicineAmount,
+                    ThresholdValue = inputModel.ThresholdValue
+                };
+
+                _context.MedicineStocks.Add(medicineStock);
+            }
+
+            var medicinePurchase = new MedicinePurchase
             {
                 MedicineName = inputModel.MedicineName,
                 Manufacturer = inputModel.Manufacturer,
                 ProductionDate = inputModel.ProductionDate,
-                MedicineShelflife = inputModel.MedicineShelflife,
-                MedicineAmount = inputModel.MedicineAmount,
-                ThresholdValue = inputModel.ThresholdValue
+                PurchaseDate = DateTime.Now,
+                AdministratorId = inputModel.AdministratorId,
+                PurchaseAmount = inputModel.MedicineAmount,
+                PurchasePrice = inputModel.PurchasePrice
             };
 
-            _context.MedicineStocks.Add(medicineStock);
+            _context.MedicinePurchases.Add(medicinePurchase);
+            await _context.SaveChangesAsync();
 
+            var existingMedicineDescription = await _context.MedicineDescriptions.FirstOrDefaultAsync(m => m.MedicineName == inputModel.MedicineName);
+
+            if (existingMedicineDescription == null)
+            {
+                var medicineDescription = new MedicineDescription
+                {
+                    MedicineName = inputModel.MedicineName,
+                    MedicineType = inputModel.MedicineType,
+                    ApplicableSymptom = inputModel.ApplicableSymptom,
+                    Specification = inputModel.Specification,
+                    Singledose = inputModel.Singledose,
+                    Administration = inputModel.Administration,
+                    Attention = inputModel.Attention,
+                    Frequency = inputModel.Frequency
+                };
+
+                _context.MedicineDescriptions.Add(medicineDescription);
+                await _context.SaveChangesAsync();
+            }
+            var sellInfo = await _context.MedicineSells.FirstOrDefaultAsync(m => m.MedicineName == inputModel.MedicineName && m.Manufacturer == inputModel.Manufacturer);
+            if(sellInfo == null)
+            {
+                var medicineSell = new MedicineSell
+                {
+                    Manufacturer = inputModel.Manufacturer,
+                    MedicineName = inputModel.MedicineName,
+                    SellingPrice = (decimal)inputModel.Sellingprice
+                };
+                _context.MedicineSells.Add(medicineSell);
+            }
             await _context.SaveChangesAsync();
 
             return Ok("Medicine stock added successfully.");
         }
+
+        [HttpPut("CleanMedicine")]
+        public async Task<IActionResult> CleanMedicine(string medicineName, string manufacturer, DateTime productionDate, string administratorId)
+        {
+            var medicineStock = await _context.MedicineStocks.FirstOrDefaultAsync(m =>
+                m.MedicineName == medicineName &&
+                m.Manufacturer == manufacturer &&
+                m.ProductionDate.Date == productionDate.Date);
+
+
+            if (medicineStock == null)
+            {
+                return NotFound();
+            }
+
+            medicineStock.CleanDate = DateTime.Now;
+            medicineStock.CleanAdministrator = administratorId;
+            medicineStock.MedicineAmount = 0;
+
+            var allStocks = await _context.MedicineStocks.Where(m => m.MedicineName == medicineName && m.Manufacturer == manufacturer).ToListAsync();
+            if (allStocks.All(m => m.CleanDate != null))
+            {
+                var medicineSell = await _context.MedicineSells.FirstOrDefaultAsync(m => m.MedicineName == medicineName && m.Manufacturer == manufacturer);
+                if (medicineSell != null)
+                {
+                    _context.MedicineSells.Remove(medicineSell);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Medicine cleaned successfully.");
+        }
+
+
         [HttpGet("GetCleanedMedicines")]
         public IActionResult GetCleanedMedicines()
         {
@@ -98,13 +191,25 @@ namespace back_end.Controllers
 
     public class AddStockInputModel
     {
+
         public string MedicineName { get; set; }
         public string Manufacturer { get; set; }
         public DateTime ProductionDate { get; set; }
         public decimal MedicineShelflife { get; set; }
-        public decimal? MedicineAmount { get; set; }
+        public decimal MedicineAmount { get; set; }
         public decimal ThresholdValue { get; set; }
+        public string AdministratorId { get; set; }
+        public decimal PurchasePrice { get; set; }
+        public string MedicineType { get; set; }
+        public string ApplicableSymptom { get; set; }
+        public string Specification { get; set; }
+        public string Singledose { get; set; }
+        public string Administration { get; set; }
+        public string Attention { get; set; }
+        public string Frequency { get; set; }
+        public double Sellingprice { get; set; }
     }
+
 
 }
 
