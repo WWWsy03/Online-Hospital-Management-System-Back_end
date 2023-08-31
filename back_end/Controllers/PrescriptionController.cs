@@ -18,7 +18,7 @@ namespace back_end.Controllers
         }
 
         [HttpGet("GetPrescription")]
-        public async Task<IActionResult> GetDiagnoseAsync(string diagnoseId)
+        public async Task<IActionResult> GetPrescriptionById(string diagnoseId)
         {
             var prescriptionId = diagnoseId.Substring(0, 8) + "000" + diagnoseId.Substring(8);
             var prescription = await _context.Prescriptions.FirstOrDefaultAsync(p => p.PrescriptionId == prescriptionId);
@@ -61,5 +61,52 @@ namespace back_end.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAllPrescription()
+        {
+            var prescriptions = _context.Prescriptions.ToList();
+
+            var result = prescriptions.Select(p =>
+            {
+                var diagnoseId = p.PrescriptionId.Remove(8, 3);
+                var diagnose = _context.TreatmentRecords.FirstOrDefault(d => d.DiagnosisRecordId == diagnoseId);
+                var treatmentRecord = _context.TreatmentRecord2s.FirstOrDefault(d => d.DiagnoseId == diagnoseId);
+                return new
+                {
+                    PrescriptionId = p.PrescriptionId,
+                    DiagnoseTime = treatmentRecord.DiagnoseTime,
+                    PatientId = diagnose.PatientId,
+                    TotalPrice = p.TotalPrice,
+                    Paystate = p.Paystate,
+                    DoctorId = p.DoctorId
+                };
+            });
+
+            return Ok(result);
+        }
+
+
+        [HttpGet("GetDetail")]
+        public async Task<IActionResult> GetDetail(string prescriptionId)
+        {
+            var prescriptionMedicines = await _context.PrescriptionMedicines.Where(p => p.PrescriptionId == prescriptionId).ToListAsync();
+            if (prescriptionMedicines.Count == 0)
+            {
+                return NotFound();
+            }
+
+            var result = prescriptionMedicines.Select(pm => new
+            {
+                MedicineName = pm.MedicineName,
+                MedicationInstruction = pm.MedicationInstruction,
+                MedicinePrice = pm.MedicinePrice,
+                Quantity = pm.Quantity
+            });
+
+            return Ok(result);
+        }
+
+
     }
 }

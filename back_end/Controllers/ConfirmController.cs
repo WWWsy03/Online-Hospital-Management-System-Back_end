@@ -54,8 +54,7 @@ namespace back_end.Controllers
                     r.Period == inputModel.period &&
                     r.State == 0
                     );
-                if (registration != null)
-                {
+               
                     // 删除旧的记录
                     _context.Registrations.Remove(registration);
 
@@ -71,8 +70,7 @@ namespace back_end.Controllers
                         Prescriptionid = prescriptionId,//加入处方编号
                         
                     };
-                    _context.Registrations.Add(newRegistration);
-                }
+
 
                 _context.TreatmentRecords.Add(treatmentRecord);
                 _context.TreatmentRecord2s.Add(treatmentRecord2);
@@ -88,7 +86,17 @@ namespace back_end.Controllers
                         continue;
                     }
 
-                    var medicineName = medicineInfo[0];
+                    var medicineNameAndQuantity = medicineInfo[0].Split('*');
+                    if (medicineNameAndQuantity.Length != 2)
+                    {
+                        continue;
+                    }
+
+                    var medicineName = medicineNameAndQuantity[0];
+                    if (!int.TryParse(medicineNameAndQuantity[1], out int quantity))
+                    {
+                        continue;
+                    }
                     var medicationInstruction = medicineInfo[1];
 
                     // 从MedicineSell表中获取药品价格
@@ -103,13 +111,15 @@ namespace back_end.Controllers
                         PrescriptionId = prescriptionId,
                         MedicineName = medicineName,
                         MedicationInstruction = medicationInstruction,
-                        MedicinePrice = medicineSell.SellingPrice
+                        MedicinePrice = medicineSell.SellingPrice,
+                        Quantity = quantity
                     };
 
-                    totalprice += medicineSell.SellingPrice;
+                    totalprice += medicineSell.SellingPrice * quantity;
 
                     _context.PrescriptionMedicines.Add(prescriptionMedicine);
                 }
+
 
                 // 创建新的Prescription对象
                 var prescription = new Prescription
@@ -121,6 +131,8 @@ namespace back_end.Controllers
                 };
 
                 _context.Prescriptions.Add(prescription);
+                _context.Registrations.Add(newRegistration);
+
 
                 await _context.SaveChangesAsync();
             }

@@ -634,6 +634,11 @@ namespace back_end.Models
                     .HasColumnType("NUMBER(6,2)")
                     .HasColumnName("MEDICINE_PRICE");
 
+                entity.Property(e => e.Quantity)
+                    .HasColumnType("NUMBER(38)")
+                    .HasColumnName("QUANTITY")
+                    .HasDefaultValueSql("1 ");
+
                 entity.HasOne(d => d.MedicineNameNavigation)
                     .WithMany(p => p.PrescriptionMedicines)
                     .HasForeignKey(d => d.MedicineName)
@@ -829,7 +834,7 @@ namespace back_end.Models
                 entity.ToTable("TREATMENT_RECORD2");
 
                 entity.Property(e => e.DiagnoseId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .IsUnicode(false)
                     .HasColumnName("DIAGNOSE_ID");
 
@@ -875,7 +880,6 @@ namespace back_end.Models
                 entity.HasOne(d => d.Diagnose)
                     .WithOne(p => p.TreatmentRecord2)
                     .HasForeignKey<TreatmentRecord2>(d => d.DiagnoseId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("TREATMENT_RECORD2_TREATME_FK1");
             });
 

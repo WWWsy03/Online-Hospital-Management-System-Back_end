@@ -9,6 +9,7 @@ namespace back_end.Models
         public string MedicineName { get; set; } = null!;
         public string? MedicationInstruction { get; set; }
         public decimal MedicinePrice { get; set; }
+        public decimal? Quantity { get; set; }
 
         public virtual MedicineDescription MedicineNameNavigation { get; set; } = null!;
     }
