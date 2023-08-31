@@ -25,23 +25,25 @@ namespace back_end.Controllers
         }
 
         [HttpGet("GetRegist")]
-        public async Task<ActionResult<IEnumerable<object>>> GetRegistFromDate(DateTime date)
+        public async Task<ActionResult<IEnumerable<object>>> GetRegistFromDate(string doctorId,DateTime date)
         {
             var registrations = await _context.Registrations
-                .Where(r => r.AppointmentTime.Date == date.Date&&(r.State==1||r.State==0))
+                .Where(r => r.AppointmentTime.Date == date.Date&&
+                (r.State==1||r.State==0)&&r.DoctorId==doctorId
+                )
                 .Include(r => r.Patient) //使用Include方法来包含该导航属性获取病人的姓名
                 .Include(r => r.Doctor)
                 .ToListAsync();
 
-            var result = registrations.GroupBy(r => r.Period)//按照挂号时间分组
-                .Select(g => new
-                {
-                    Period = g.Key,
-                    Count = g.Count(),
-                    Patients = g.Select(r => new { Id = r.PatientId, Name = r.Patient.Name }).ToList() // Select the patient's ID and name
-                })
-                .OrderBy(r => r.Period)
-                .ToList();
+            var result = registrations.GroupBy(r => r.Period) // 按照挂号时间分组
+     .Select(g => new
+     {
+         Period = g.Key,
+         Count = g.Count() // 计算每组的人数
+     })
+     .OrderBy(r => r.Period)
+     .ToList();
+
 
             var json = JsonSerializer.Serialize(result);
 

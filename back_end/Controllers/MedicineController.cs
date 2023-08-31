@@ -19,7 +19,7 @@ namespace back_end.Controllers
         public async Task<ActionResult<IEnumerable<object>>> GetMedicines()
         {
             return await _context.MedicineDescriptions
-                .Join(_context.MedicineSells,
+                .Join(_context.MedicineSells,//只能查到在售的，有库存的药
                     desc => desc.MedicineName,
                     sell => sell.MedicineName,
                     (desc, sell) => new
