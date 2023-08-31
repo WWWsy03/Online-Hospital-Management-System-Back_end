@@ -61,8 +61,10 @@ namespace back_end.Controllers
             var existingMedicineStock = await _context.MedicineStocks.FirstOrDefaultAsync(m =>
                 m.MedicineName == inputModel.MedicineName &&
                 m.Manufacturer == inputModel.Manufacturer &&
-                m.ProductionDate == inputModel.ProductionDate &&
-                m.MedicineShelflife == inputModel.MedicineShelflife);
+                m.ProductionDate.Date == inputModel.ProductionDate.Date &&
+                m.MedicineShelflife == inputModel.MedicineShelflife&&
+                m.CleanDate==null
+                );
 
             if (existingMedicineStock != null)
             {
