@@ -56,13 +56,14 @@ namespace back_end.Controllers
                 PatientId = patientId,
                 DoctorId = doctorId,
                 TreatmentScore = treatmentScore,
-                Evaluation = evaluation
+                Evaluation = evaluation,
+                Diagnosedid = diagnoseId
             };
 
             try
             {
                 _context.TreatmentFeedbacks.Add(treatmentFeedback);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {

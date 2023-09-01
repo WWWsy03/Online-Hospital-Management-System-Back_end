@@ -746,7 +746,7 @@ namespace back_end.Models
 
             modelBuilder.Entity<TreatmentFeedback>(entity =>
             {
-                entity.HasKey(e => new { e.PatientId, e.DoctorId })
+                entity.HasKey(e => new { e.PatientId, e.DoctorId, e.Diagnosedid })
                     .HasName("TREATMENT_FEEDBACK_PK");
 
                 entity.ToTable("TREATMENT_FEEDBACK");
@@ -760,6 +760,11 @@ namespace back_end.Models
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("DOCTOR_ID");
+
+                entity.Property(e => e.Diagnosedid)
+                    .HasMaxLength(40)
+                    .IsUnicode(false)
+                    .HasColumnName("DIAGNOSEDID");
 
                 entity.Property(e => e.Evaluation)
                     .HasMaxLength(200)
