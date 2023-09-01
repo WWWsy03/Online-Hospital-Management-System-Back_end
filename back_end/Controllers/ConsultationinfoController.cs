@@ -233,8 +233,8 @@ namespace back_end.Controllers
 
         public class ChangeConsultInputModel
         {
-            public ConsultInputModel Old;
-            public ConsultInputModel New;
+            public ConsultInputModel Old { get; set; }
+            public ConsultInputModel New { get; set; }
         }
     }
 }
