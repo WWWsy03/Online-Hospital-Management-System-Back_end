@@ -21,7 +21,7 @@ namespace back_end.Controllers
         [HttpGet("GetAllRegist")]
         public async Task<ActionResult<IEnumerable<object>>> GetAllRegist()
         {
-            return await _context.Registrations.ToListAsync();
+            return await _context.Registrations.OrderBy(r => r.AppointmentTime).ToListAsync();
         }
 
         [HttpGet("GetRegist")]
