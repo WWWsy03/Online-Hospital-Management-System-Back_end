@@ -76,13 +76,14 @@ namespace back_end.Controllers
         }
 
         [HttpGet("commit")]
-        public IActionResult GetRegistrationsByDoctorId(string doctorId)//传入医生ID获取当天该医生名下的已报道的挂号人
+        public IActionResult GetRegistrationsByDoctorId(string doctorId)
         {
             var currentDate = DateTime.Now.Date;
             var registrations = _context.Registrations
                 .Include(r => r.Patient)
-                .Where(r => r.DoctorId == doctorId && r.AppointmentTime.Date == currentDate&&
-                r.Checkin==1)
+                .Where(r => r.DoctorId == doctorId && r.AppointmentTime.Date == currentDate && r.Checkin == 1&&r.State==0)//已报道的人按顺序显示
+                .OrderBy(r => r.Period)
+                .ThenBy(r => r.Registorder)
                 .ToList();
             return Ok(registrations);
         }
@@ -450,21 +451,42 @@ namespace back_end.Controllers
             return Ok("change appointTime successfully.");
         }
 
-        [HttpPut("Checkin")]//扫码报道
+        [HttpPut("Checkin")]
         public async Task<IActionResult> UpdateCheckin([FromBody] RegistrationInputModel inputModel)
         {
-            var registration = await _context.Registrations.FirstOrDefaultAsync(r => r.PatientId == inputModel.PatientId && 
-            r.DoctorId == inputModel.DoctorId && r.AppointmentTime == inputModel.Time && r.Period == inputModel.Period&&r.State==0);
+            var registration = await _context.Registrations.FirstOrDefaultAsync(r => r.PatientId == inputModel.PatientId &&
+            r.DoctorId == inputModel.DoctorId && r.AppointmentTime == inputModel.Time && r.Period == inputModel.Period && r.State == 0);
             if (registration == null)
             {
                 return NotFound();
             }
 
+            var currentTime = DateTime.Now.TimeOfDay;
+            var period = 0;
+            if (currentTime >= new TimeSpan(8, 0, 0) && currentTime < new TimeSpan(9, 0, 0))
+                period = 1;
+            else if (currentTime >= new TimeSpan(9, 0, 0) && currentTime < new TimeSpan(10, 0, 0))
+                period = 2;
+            else if (currentTime >= new TimeSpan(10, 0, 0) && currentTime < new TimeSpan(11, 0, 0))
+                period = 3;
+            else if (currentTime >= new TimeSpan(13, 0, 0) && currentTime < new TimeSpan(14, 0, 0))
+                period = 4;
+            else if (currentTime >= new TimeSpan(14, 0, 0) && currentTime < new TimeSpan(15, 0, 0))
+                period = 5;
+            else if (currentTime >= new TimeSpan(15, 0, 0) && currentTime < new TimeSpan(16, 0, 0))
+                period = 6;
+            else if (currentTime >= new TimeSpan(16, 0, 0) && currentTime < new TimeSpan(17, 0, 0))
+                period = 7;
+
+            if (inputModel.Period < period)
+                return Ok("已错过预约时间");
+
             registration.Checkin = 1;
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return Ok("报道成功");
         }
+
     }
 
     public class RegistrationInputModel//用于传输数据
