@@ -551,7 +551,7 @@ namespace back_end.Models
                     .HasColumnName("BIRTH_DATE");
 
                 entity.Property(e => e.College)
-                    .HasMaxLength(20)
+                    .HasMaxLength(40)
                     .IsUnicode(false)
                     .HasColumnName("COLLEGE");
 
@@ -719,6 +719,11 @@ namespace back_end.Models
                     .HasColumnType("NUMBER(38)")
                     .HasColumnName("PERIOD");
 
+                entity.Property(e => e.Checkin)
+                    .HasColumnType("NUMBER(38)")
+                    .HasColumnName("CHECKIN")
+                    .HasDefaultValueSql("0 ");
+
                 entity.Property(e => e.Prescriptionid)
                     .HasMaxLength(200)
                     .IsUnicode(false)
@@ -746,25 +751,20 @@ namespace back_end.Models
 
             modelBuilder.Entity<TreatmentFeedback>(entity =>
             {
-                entity.HasKey(e => new { e.PatientId, e.DoctorId, e.Diagnosedid })
+                entity.HasKey(e => e.Diagnosedid)
                     .HasName("TREATMENT_FEEDBACK_PK");
 
                 entity.ToTable("TREATMENT_FEEDBACK");
-
-                entity.Property(e => e.PatientId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("PATIENT_ID");
-
-                entity.Property(e => e.DoctorId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("DOCTOR_ID");
 
                 entity.Property(e => e.Diagnosedid)
                     .HasMaxLength(40)
                     .IsUnicode(false)
                     .HasColumnName("DIAGNOSEDID");
+
+                entity.Property(e => e.DoctorId)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("DOCTOR_ID");
 
                 entity.Property(e => e.Evaluation)
                     .HasMaxLength(200)
@@ -775,6 +775,11 @@ namespace back_end.Models
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("FOLLOW_UP_MATTERS");
+
+                entity.Property(e => e.PatientId)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("PATIENT_ID");
 
                 entity.Property(e => e.TreatmentScore)
                     .HasColumnType("NUMBER(38)")

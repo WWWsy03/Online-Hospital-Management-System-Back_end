@@ -12,6 +12,7 @@ namespace back_end.Models
         public decimal? Registorder { get; set; }
         public decimal State { get; set; }
         public string? Prescriptionid { get; set; }
+        public decimal Checkin { get; set; }
 
         public virtual Doctor Doctor { get; set; } = null!;
         public virtual Patient Patient { get; set; } = null!;

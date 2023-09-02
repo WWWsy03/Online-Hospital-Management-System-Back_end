@@ -76,12 +76,13 @@ namespace back_end.Controllers
         }
 
         [HttpGet("commit")]
-        public IActionResult GetRegistrationsByDoctorId(string doctorId)//传入医生ID获取当天该医生名下的挂号人
+        public IActionResult GetRegistrationsByDoctorId(string doctorId)//传入医生ID获取当天该医生名下的已报道的挂号人
         {
             var currentDate = DateTime.Now.Date;
             var registrations = _context.Registrations
                 .Include(r => r.Patient)
-                .Where(r => r.DoctorId == doctorId && r.AppointmentTime.Date == currentDate)
+                .Where(r => r.DoctorId == doctorId && r.AppointmentTime.Date == currentDate&&
+                r.Checkin==1)
                 .ToList();
             return Ok(registrations);
         }
@@ -447,6 +448,22 @@ namespace back_end.Controllers
 
             // 返回成功信息
             return Ok("change appointTime successfully.");
+        }
+
+        [HttpPut("Checkin")]//扫码报道
+        public async Task<IActionResult> UpdateCheckin([FromBody] RegistrationInputModel inputModel)
+        {
+            var registration = await _context.Registrations.FirstOrDefaultAsync(r => r.PatientId == inputModel.PatientId && 
+            r.DoctorId == inputModel.DoctorId && r.AppointmentTime == inputModel.Time && r.Period == inputModel.Period&&r.State==0);
+            if (registration == null)
+            {
+                return NotFound();
+            }
+
+            registration.Checkin = 1;
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
     }
 
