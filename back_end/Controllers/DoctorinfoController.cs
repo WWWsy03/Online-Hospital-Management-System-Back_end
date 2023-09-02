@@ -114,6 +114,52 @@ namespace back_end.Controllers
             return NoContent();
         }
 
+        [HttpGet("fee")]
+        public async Task<ActionResult<Doctor>> GetDoctor(string doctorId)
+        {
+            var doctor = await _context.Doctors.FindAsync(doctorId);
+
+            if (doctor == null)
+            {
+                return NotFound("The doctor could not be found");
+            }
+
+            int registrationFee = 0;
+            switch (doctor.Title)
+            {
+                case "主任医师":
+                    registrationFee = 9;
+                    break;
+                case "副主任医师":
+                    registrationFee = 7;
+                    break;
+                case "主治医师":
+                    registrationFee = 6;
+                    break;
+                case "住院医师":
+                    registrationFee = 4;
+                    break;
+                case "医师":
+                    registrationFee = 4;
+                    break;
+                default:
+                    registrationFee = 6;
+                    break;
+            }
+
+            var consultationInfos = _context.ConsultationInfos.Where(c => c.DoctorId == doctorId)
+       .Select(c => new
+       {
+           c.DoctorId,
+           c.ClinicName,
+           c.DateTime,
+           c.Period
+       })
+       .ToList();
+
+            return Ok(new { registrationFee, consultationInfos });
+        }
+
         private bool DoctorExists(string id)
         {
             return _context.Doctors.Any(e => e.DoctorId == id);
