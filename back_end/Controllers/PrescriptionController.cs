@@ -108,6 +108,23 @@ namespace back_end.Controllers
             return Ok(result);
         }
 
+        [HttpPut("UpdatePaystate")]//订单支付
+        public async Task<IActionResult> UpdatePaystate(string prescriptionId)
+        {
+            var prescription = await _context.Prescriptions.FirstOrDefaultAsync(p => p.PrescriptionId == prescriptionId);
+            if (prescription == null)
+            {
+                return NotFound();
+            }
+            if(prescription.Paystate == 1)
+            {
+                return BadRequest("该订单已支付");
+            }
+            prescription.Paystate = 1;
+            await _context.SaveChangesAsync();
+
+            return Ok("支付成功");
+        }
 
     }
 }

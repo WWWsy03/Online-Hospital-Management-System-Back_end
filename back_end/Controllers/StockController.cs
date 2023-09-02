@@ -15,11 +15,14 @@ namespace back_end.Controllers
             _context=context;
     }
 
-        [HttpGet("GetAllStocks")] 
+
+        [HttpGet("GetAllStocks")]//获取所有有库存的药的库存信息
         public async Task<IActionResult> GetMedicineStocks()
         {
-            var stocks = await _context.MedicineStocks.Include(m=>m.CleanAdministratorNavigation)
-        .ToListAsync();
+            var stocks = await _context.MedicineStocks
+                .Include(m => m.CleanAdministratorNavigation)
+                .Where(m => m.CleanDate == null)
+                .ToListAsync();
             return Ok(stocks);
         }
 

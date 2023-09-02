@@ -40,9 +40,9 @@ namespace back_end.Controllers
         }
 
         [HttpPut("UpdateStock")]//更新库存
-        public async Task<IActionResult> UpdateStock(string medicineName, decimal newAmount)
+        public async Task<IActionResult> UpdateStock(string medicineName, string manufacturer, DateTime productionDate,decimal newAmount)
         {
-            var medicineStock = await _context.MedicineStocks.FirstOrDefaultAsync(m => m.MedicineName == medicineName);
+            var medicineStock = await _context.MedicineStocks.FirstOrDefaultAsync(m => m.MedicineName == medicineName&&m.Manufacturer==manufacturer&&m.ProductionDate==productionDate&&m.CleanDate==null);
             if (medicineStock == null)
             {
                 return NotFound("未找到该药品");
@@ -58,7 +58,7 @@ namespace back_end.Controllers
         [HttpPost("AddStock")]//采购入库
         public async Task<IActionResult> AddStock(AddStockInputModel inputModel)
         {
-            var existingMedicineStock = await _context.MedicineStocks.FirstOrDefaultAsync(m =>
+            var existingMedicineStock = await _context.MedicineStocks.FirstOrDefaultAsync(m =>//先检查一下这个药以前有没
                 m.MedicineName == inputModel.MedicineName &&
                 m.Manufacturer == inputModel.Manufacturer &&
                 m.ProductionDate.Date == inputModel.ProductionDate.Date &&
@@ -146,15 +146,15 @@ namespace back_end.Controllers
 
             if (medicineStock == null)
             {
-                return NotFound();
+                return NotFound("未找到该药品库存");
             }
 
-            medicineStock.CleanDate = DateTime.Now;
+            medicineStock.CleanDate = DateTime.Now.Date;
             medicineStock.CleanAdministrator = administratorId;
             medicineStock.MedicineAmount = 0;
 
             var allStocks = await _context.MedicineStocks.Where(m => m.MedicineName == medicineName && m.Manufacturer == manufacturer).ToListAsync();
-            if (allStocks.All(m => m.CleanDate != null))
+            if (allStocks.All(m => m.CleanDate != null))//该厂家的同款药都被清理了，就下架
             {
                 var medicineSell = await _context.MedicineSells.FirstOrDefaultAsync(m => m.MedicineName == medicineName && m.Manufacturer == manufacturer);
                 if (medicineSell != null)
