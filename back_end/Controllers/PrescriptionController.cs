@@ -55,7 +55,8 @@ namespace back_end.Controllers
                 {
                     MedicineName = m.MedicineName,
                     MedicationInstruction = m.MedicationInstruction,
-                    MedicinePrice = m.MedicinePrice
+                    MedicinePrice = m.MedicinePrice,
+                    Quantity=m.Quantity
                 })
             };
 
