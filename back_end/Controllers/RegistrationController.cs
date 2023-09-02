@@ -462,7 +462,7 @@ namespace back_end.Controllers
             }
 
             var currentTime = DateTime.Now.TimeOfDay;
-            var period = 0;
+            var period = 10;
             if (currentTime >= new TimeSpan(8, 0, 0) && currentTime < new TimeSpan(9, 0, 0))
                 period = 1;
             else if (currentTime >= new TimeSpan(9, 0, 0) && currentTime < new TimeSpan(10, 0, 0))
