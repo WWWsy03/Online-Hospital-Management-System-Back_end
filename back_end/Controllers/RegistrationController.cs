@@ -462,7 +462,7 @@ namespace back_end.Controllers
             }
 
             var currentTime = DateTime.Now.TimeOfDay;
-            var period = 10;
+            var period = 0;//为测试方便，不限制报到时间，如要限制，将值改为大于7的数字即可
             if (currentTime >= new TimeSpan(8, 0, 0) && currentTime < new TimeSpan(9, 0, 0))
                 period = 1;
             else if (currentTime >= new TimeSpan(9, 0, 0) && currentTime < new TimeSpan(10, 0, 0))
