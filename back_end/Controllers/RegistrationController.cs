@@ -461,7 +461,7 @@ namespace back_end.Controllers
             }
 
             var currentTime = DateTime.Now.TimeOfDay;
-            var period = 0;//为测试方便，不限制报到时间，如要限制，将值改为大于7的数字即可
+            var period = 10;
             if (currentTime >= new TimeSpan(8, 0, 0) && currentTime < new TimeSpan(9, 0, 0))
                 period = 1;
             else if (currentTime >= new TimeSpan(9, 0, 0) && currentTime < new TimeSpan(10, 0, 0))
@@ -477,8 +477,9 @@ namespace back_end.Controllers
             else if (currentTime >= new TimeSpan(16, 0, 0) && currentTime < new TimeSpan(17, 0, 0))
                 period = 7;
 
-            if (inputModel.Period < period)
-                return Ok("已错过预约时间");
+            //为测试方便，不限制报到时间，如要限制，取消注释该行即可
+            //if (inputModel.Period < period)  
+            // return Ok("已错过预约时间");
 
             registration.Checkin = 1;
             await _context.SaveChangesAsync();
