@@ -186,7 +186,6 @@ namespace back_end.Controllers
         }
 
 
-
         //[HttpPut("ReorderRegistByPatientId")]
         //public IActionResult UpdateRegistOrder()
         //{

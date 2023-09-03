@@ -21,7 +21,7 @@ namespace back_end.Controllers
         {
             // 查找数据库中是否已有同样的人存在
             bool exists = await _context.Administrators.AnyAsync(r =>
-                r.AdministratorId == inputModel.AdministratorId 
+                r.AdministratorId == inputModel.administratorId 
                 //&&
                 //r.Name == inputModel.Name &&
                 //r.Gender == inputModel.Gender &&
@@ -37,12 +37,12 @@ namespace back_end.Controllers
 
             var admin = new Administrator()
             {
-                AdministratorId = inputModel.AdministratorId,
-                Name = inputModel.Name,
-                Gender = inputModel.Gender,
-                Birthdate = inputModel.Birthdate,
-                Contact=inputModel.Contact,
-                Password = inputModel.Password
+                AdministratorId = inputModel.administratorId,
+                Name = inputModel.name,
+                Gender = inputModel.gender,
+                Birthdate = inputModel.birthdate,
+                Contact=inputModel.contact,
+                Password = inputModel.password
             };
 
             //新的管理员还没有购买过药品
@@ -61,7 +61,7 @@ namespace back_end.Controllers
         {
             // 查找数据库中是否已有同样的人存在
             bool exists = await _context.Doctors.AnyAsync(r =>
-                r.DoctorId == inputModel.DoctorId 
+                r.DoctorId == inputModel.doctorId 
                 //&&
                 //r.Name == inputModel.Name &&
                 //r.Gender == inputModel.Gender &&
@@ -80,15 +80,15 @@ namespace back_end.Controllers
 
             var doctor = new Doctor()
             {
-                DoctorId = inputModel.DoctorId ,
-                Name = inputModel.Name ,
-                Gender = inputModel.Gender ,
-                Birthdate = inputModel.Birthdate ,
-                Title=inputModel.Title,
-                Contact = inputModel.Contact,
-                SecondaryDepartment=inputModel.SecondaryDepartment,
-                Photourl=inputModel.Photourl,
-                Password=inputModel.Password
+                DoctorId = inputModel.doctorId ,
+                Name = inputModel.name ,
+                Gender = inputModel.gender ,
+                Birthdate = inputModel.birthdate ,
+                Title=inputModel.title,
+                Contact = inputModel.contact,
+                SecondaryDepartment=inputModel.secondaryDepartment,
+                //Photourl=inputModel.Photourl,//毛灵俊说在个人信息页面上传照片
+                Password=inputModel.password
             };
 
             //新的管理员还没有购买过药品
@@ -107,7 +107,7 @@ namespace back_end.Controllers
         {
             // 查找数据库中是否已有同样的人存在
             bool exists = await _context.Patients.AnyAsync(r =>
-                r.PatientId == inputModel.PatientId 
+                r.PatientId == inputModel.patientId 
                 //&&
                 //r.Name == inputModel.Name &&
                 //r.Gender == inputModel.Gender &&
@@ -125,14 +125,14 @@ namespace back_end.Controllers
 
             var patient = new Patient()
             {
-                PatientId = inputModel.PatientId ,
-                Name = inputModel.Name ,
-                Gender = inputModel.Gender ,
-                BirthDate= inputModel.BirthDate ,
-                Contact = inputModel.Contact ,
-                College = inputModel.College,
-                Counsellor = inputModel.Counsellor,
-                Password= inputModel.Password
+                PatientId = inputModel.patientId ,
+                Name = inputModel.name ,
+                Gender = inputModel.gender ,
+                BirthDate= inputModel.birthDate ,
+                Contact = inputModel.contact ,
+                College = inputModel.college,
+                //Counsellor = inputModel.Counsellor,//毛灵俊是counsellor他统一在个人信息页面上传
+                Password= inputModel.password
             };
 
             //新的管理员还没有购买过药品
@@ -149,37 +149,37 @@ namespace back_end.Controllers
 
         public class AdminEnrollInputModel//用于传输数据
         {
-            public string AdministratorId { get; set; } = null!;
-            public string Name { get; set; }
-            public bool Gender { get; set; }
-            public DateTime Birthdate { get; set; }
-            public string Contact { get; set; }
-            public string Password { get; set; }
+            public string administratorId { get; set; } = null!;
+            public string name { get; set; }
+            public bool gender { get; set; }
+            public DateTime birthdate { get; set; }
+            public string contact { get; set; }
+            public string password { get; set; }
         }
 
         public class DoctorEnrollInputModel//用于传输数据
         {
-            public string DoctorId { get; set; } = null!;
-            public string Name { get; set; }
-            public bool Gender { get; set; }
-            public DateTime Birthdate { get; set; }
-            public string Title { get; set; }
-            public string Contact { get; set; }
-            public string SecondaryDepartment { get; set; }
-            public string Photourl { get; set; }
-            public string Password { get; set; }
+            public string doctorId { get; set; } = null!;
+            public string name { get; set; }
+            public bool gender { get; set; }
+            public DateTime birthdate { get; set; }
+            public string title { get; set; }
+            public string contact { get; set; }
+            public string secondaryDepartment { get; set; }
+            //public string Photourl { get; set; }
+            public string password { get; set; }
         }
 
         public class PatientEnrollInputModel//用于传输数据
         {
-            public string PatientId { get; set; } = null!;
-            public string Name { get; set; }
-            public bool Gender { get; set; }
-            public DateTime BirthDate { get; set; }
-            public string Contact { get; set; }
-            public string Password { get; set; } = null!;
-            public string College { get; set; } = null!;
-            public string Counsellor { get; set; } = null!;
+            public string patientId { get; set; } = null!;
+            public string name { get; set; }
+            public bool gender { get; set; }
+            public DateTime birthDate { get; set; }
+            public string contact { get; set; }
+            public string password { get; set; } = null!;
+            public string college { get; set; } = null!;
+            //public string Counsellor { get; set; } = null!;
         }
     }
 }
