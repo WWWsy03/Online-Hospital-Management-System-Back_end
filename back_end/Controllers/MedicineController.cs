@@ -183,7 +183,9 @@ namespace back_end.Controllers
                     MedicineName = m.MedicineName,
                     CleanDate = m.CleanDate,
                     administratorId=m.CleanAdministrator,
-                    CleanAdministrator = administrator?.Name
+                    CleanAdministrator = administrator?.Name,
+                    Manufacturer=m.Manufacturer,
+                    Prodectiondate=m.ProductionDate
                 };
             });
 
