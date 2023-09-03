@@ -25,11 +25,11 @@ namespace back_end.Controllers
         }
 
         [HttpGet("GetRegist")]
-        public async Task<ActionResult<IEnumerable<object>>> GetRegistFromDate(string doctorId,DateTime date)
+        public async Task<ActionResult<IEnumerable<object>>> GetRegistFromDate(string doctorId, DateTime date)
         {
             var registrations = await _context.Registrations
-                .Where(r => r.AppointmentTime.Date == date.Date&&
-                (r.State==1||r.State==0)&&r.DoctorId==doctorId
+                .Where(r => r.AppointmentTime.Date == date.Date &&
+                (r.State == 1 || r.State == 0) && r.DoctorId == doctorId
                 )
                 .Include(r => r.Patient) //使用Include方法来包含该导航属性获取病人的姓名
                 .Include(r => r.Doctor)
@@ -66,7 +66,7 @@ namespace back_end.Controllers
                 {
                     Period = g.Key, // 这是每个分组的 Period 值
                     Count = g.Count(),
-                    Patients = g.Select(r => new { Id = r.PatientId, Name = r.Patient.Name ,State=r.State}).ToList()
+                    Patients = g.Select(r => new { Id = r.PatientId, Name = r.Patient.Name, State = r.State }).ToList()
                 })
                 .ToList();
 
@@ -81,7 +81,7 @@ namespace back_end.Controllers
             var currentDate = DateTime.Now.Date;
             var registrations = _context.Registrations
                 .Include(r => r.Patient)
-                .Where(r => r.DoctorId == doctorId && r.AppointmentTime.Date == currentDate && r.Checkin == 1&&r.State==0)//已报道的人按顺序显示
+                .Where(r => r.DoctorId == doctorId && r.AppointmentTime.Date == currentDate && r.Checkin == 1 && r.State == 0)//已报道的人按顺序显示
                 .OrderBy(r => r.Period)
                 .ThenBy(r => r.Registorder)
                 .ToList();
@@ -118,7 +118,7 @@ namespace back_end.Controllers
                 var queueCount = _context.Registrations
                                    .Where(r => r.AppointmentTime.Date == reg.AppointmentTime.Date &&
                                    r.Period == reg.Period &&
-                                   r.DoctorId == reg.DoctorId&&
+                                   r.DoctorId == reg.DoctorId &&
                                    r.Registorder < reg.Registorder)
                                    .Count();
 
@@ -128,7 +128,7 @@ namespace back_end.Controllers
                     Patient = reg.Patient,
                     Date = reg.AppointmentTime.Date,
                     Period = reg.Period,
-                    State=reg.State,
+                    State = reg.State,
                     QueueCount = queueCount
                 };
             }).ToList();
@@ -281,19 +281,19 @@ namespace back_end.Controllers
             {
                 return Ok("8:00-9:00");
             }
-            else if(input.Period == 2)
+            else if (input.Period == 2)
             {
                 return Ok("9:00-10:00");
             }
-            else if(input.Period == 3)
+            else if (input.Period == 3)
             {
                 return Ok("10:00-11:00");
             }
-            else if(input.Period == 4)
+            else if (input.Period == 4)
             {
                 return Ok("13:00-14:00");
             }
-              else if (input.Period == 5)
+            else if (input.Period == 5)
             {
                 return Ok("14:00-15:00");
             }
@@ -305,7 +305,7 @@ namespace back_end.Controllers
             {
                 return Ok("16:00-17:00");
             }
-         //   return Ok("successful.");
+            //   return Ok("successful.");
         }
 
         [HttpPut("cancel")]
@@ -341,9 +341,9 @@ namespace back_end.Controllers
                 AppointmentTime = registration.AppointmentTime,
                 Period = registration.Period,
                 Prescriptionid = registration.Prescriptionid,
-                Registorder=registration.Registorder,
+                Registorder = registration.Registorder,
                 State = -similarRegistrationsCount
-                
+
             };
             _context.Registrations.Remove(registration);//因为State是主键不能修改，不需要先删了再插入
             await _context.SaveChangesAsync();
@@ -487,6 +487,60 @@ namespace back_end.Controllers
             return Ok("报道成功");
         }
 
+        [HttpGet("OfflineCheckin")]
+        public object GetRegistrationInfo(string patientId)
+        {
+            var today = DateTime.Today;
+            var registration = _context.Registrations
+                .Where(r => r.PatientId == patientId && r.AppointmentTime.Date == today && r.State == 0)//找到该病人今天未就诊的挂号信息
+                .FirstOrDefault();
+
+            if (registration == null)
+            {
+                return BadRequest("未找到相关挂号信息");
+            }
+
+            var doctor = _context.Doctors.FirstOrDefault(d => d.DoctorId == registration.DoctorId);
+            var patient= _context.Patients.FirstOrDefault(p=>p.PatientId ==patientId);
+            if (doctor == null)
+            {
+                return NotFound();
+            }
+
+            int registrationFee = 0;
+            switch (doctor.Title)
+            {
+                case "主任医师":
+                    registrationFee = 9;
+                    break;
+                case "副主任医师":
+                    registrationFee = 7;
+                    break;
+                case "主治医师":
+                    registrationFee = 6;
+                    break;
+                case "住院医师":
+                    registrationFee = 4;
+                    break;
+                case "医师":
+                    registrationFee = 4;
+                    break;
+                default:
+                    registrationFee = 6;
+                    break;
+            }
+
+            return new
+            {
+                PatientName=patient.Name,
+                DoctorName = doctor.Name,
+                DoctorDepartment = doctor.SecondaryDepartment,
+                AppointmentDate = registration.AppointmentTime.Date,
+                Period = registration.Period,
+                RegistrationFee = registrationFee,
+                Checkin = registration.Checkin
+            };
+        }
     }
 
     public class RegistrationInputModel//用于传输数据
