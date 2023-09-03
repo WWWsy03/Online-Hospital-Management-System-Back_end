@@ -83,14 +83,14 @@ namespace back_end.Controllers
             var OldConsult = await _context.ConsultationInfos.FirstOrDefaultAsync(r =>
                 r.DoctorId == Change.Old.DoctorId &&
                 r.ClinicName== Change.Old.ClinicName&&
-                r.DateTime == Change.Old.DateTime.Date &&
+                r.DateTime.Date == Change.Old.DateTime.Date &&
                 r.Period == Change.Old.Period
                 );
 
             var ExistedNewConsult = await _context.ConsultationInfos.FirstOrDefaultAsync(r =>
                 r.DoctorId == Change.New.DoctorId &&
                 r.ClinicName == Change.New.ClinicName &&
-                r.DateTime == Change.New.DateTime.Date &&
+                r.DateTime.Date == Change.New.DateTime.Date &&
                 r.Period == Change.New.Period
                 );
 
@@ -130,7 +130,7 @@ namespace back_end.Controllers
             // 查找匹配的挂号记录
             var target = await _context.ConsultationInfos.FirstOrDefaultAsync(r =>
                 r.DoctorId == canceled.DoctorId &&
-                r.DateTime == canceled.DateTime.Date &&
+                r.DateTime.Date == canceled.DateTime.Date &&
                 r.Period == canceled.Period
                 );
 
@@ -154,14 +154,18 @@ namespace back_end.Controllers
             var ExistConsult =  await _context.ConsultationInfos.FirstOrDefaultAsync(r =>
                 r.DoctorId == NewConsult.DoctorId &&
                 r.ClinicName == NewConsult.ClinicName &&
-                r.DateTime == NewConsult.DateTime.Date &&
+                r.DateTime.Date == NewConsult.DateTime.Date &&
                 r.Period == NewConsult.Period
                 );
 
             // 如果找不到匹配的挂号记录，返回错误信息
-            if (ExistConsult == null)
+            if (ExistConsult != null)
             {
                 return NotFound("Addede ConsultationInfo Already Exists.");
+            }
+            if (NewConsult.Period < 1 || NewConsult.Period > 7)
+            {
+                return BadRequest("Illegal Period.");
             }
 
             var TargetConsult = new ConsultationInfo()
