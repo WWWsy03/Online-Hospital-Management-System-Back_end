@@ -12,7 +12,6 @@ namespace back_end.Models
         public string? FollowUpMatters { get; set; }
         public string Diagnosedid { get; set; } = null!;
 
-        public virtual Doctor Doctor { get; set; } = null!;
-        public virtual Patient Patient { get; set; } = null!;
+        public virtual TreatmentRecord Diagnosed { get; set; } = null!;
     }
 }

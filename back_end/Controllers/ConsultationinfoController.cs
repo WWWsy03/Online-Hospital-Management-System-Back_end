@@ -48,6 +48,7 @@ namespace back_end.Controllers
                         DoctorName = doctor.Name, // 添加医生姓名
                         photoUrl = doctor.Photourl, // 添加医生照片的URL
                         title = doctor.Title,
+                        SkiledIn=doctor.Skilledin,
                         Count = g.Count(),
                         ConsultationInfos = g.Select(c => new { ClinicName = c.ClinicName, DateTime = c.DateTime, Period = c.Period }).ToList() // Select the clinic's name and consultation times
                     })

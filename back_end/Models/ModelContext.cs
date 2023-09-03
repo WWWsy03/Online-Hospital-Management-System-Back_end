@@ -224,7 +224,7 @@ namespace back_end.Models
                     .HasColumnName("PASSWORD");
 
                 entity.Property(e => e.Photourl)
-                    .HasMaxLength(200)
+                    .HasMaxLength(600)
                     .IsUnicode(false)
                     .HasColumnName("PHOTOURL");
 
@@ -232,6 +232,11 @@ namespace back_end.Models
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("SECONDARY_DEPARTMENT");
+
+                entity.Property(e => e.Skilledin)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasColumnName("SKILLEDIN");
 
                 entity.Property(e => e.Title)
                     .HasMaxLength(20)
@@ -345,7 +350,7 @@ namespace back_end.Models
                     .HasColumnName("SPECIFICATION");
 
                 entity.Property(e => e.Vulgo)
-                    .HasMaxLength(920)
+                    .HasMaxLength(200)
                     .IsUnicode(false)
                     .HasColumnName("VULGO");
             });
@@ -585,7 +590,7 @@ namespace back_end.Models
                 entity.ToTable("PRESCRIPTION");
 
                 entity.Property(e => e.PrescriptionId)
-                    .HasMaxLength(200)
+                    .HasMaxLength(40)
                     .IsUnicode(false)
                     .HasColumnName("PRESCRIPTION_ID");
 
@@ -596,7 +601,8 @@ namespace back_end.Models
 
                 entity.Property(e => e.Paystate)
                     .HasColumnType("NUMBER(38)")
-                    .HasColumnName("PAYSTATE");
+                    .HasColumnName("PAYSTATE")
+                    .HasDefaultValueSql("0 ");
 
                 entity.Property(e => e.TotalPrice)
                     .HasColumnType("NUMBER(6,2)")
@@ -605,6 +611,7 @@ namespace back_end.Models
                 entity.HasOne(d => d.Doctor)
                     .WithMany(p => p.Prescriptions)
                     .HasForeignKey(d => d.DoctorId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("PRESCRIPTION_DOCTOR_FK1");
             });
 
@@ -785,16 +792,9 @@ namespace back_end.Models
                     .HasColumnType("NUMBER(38)")
                     .HasColumnName("TREATMENT_SCORE");
 
-                entity.HasOne(d => d.Doctor)
-                    .WithMany(p => p.TreatmentFeedbacks)
-                    .HasForeignKey(d => d.DoctorId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("TREATMENT_FEEDBACK_DOCTOR_FK1");
-
-                entity.HasOne(d => d.Patient)
-                    .WithMany(p => p.TreatmentFeedbacks)
-                    .HasForeignKey(d => d.PatientId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                entity.HasOne(d => d.Diagnosed)
+                    .WithOne(p => p.TreatmentFeedback)
+                    .HasForeignKey<TreatmentFeedback>(d => d.Diagnosedid)
                     .HasConstraintName("TREATMENT_FEEDBACK_PATIEN_FK1");
             });
 
@@ -829,6 +829,12 @@ namespace back_end.Models
                     .WithMany(p => p.TreatmentRecords)
                     .HasForeignKey(d => d.DoctorId)
                     .HasConstraintName("TREATMENT_RECORD_DOCTOR_FK1");
+
+                entity.HasOne(d => d.LeaveNote)
+                    .WithMany(p => p.TreatmentRecords)
+                    .HasForeignKey(d => d.LeaveNoteId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("TREATMENT_RECORD_LEAVE_AP_FK1");
 
                 entity.HasOne(d => d.Patient)
                     .WithMany(p => p.TreatmentRecords)

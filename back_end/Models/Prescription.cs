@@ -12,10 +12,10 @@ namespace back_end.Models
 
         public string PrescriptionId { get; set; } = null!;
         public decimal TotalPrice { get; set; }
-        public string? DoctorId { get; set; }
-        public decimal? Paystate { get; set; }
+        public string DoctorId { get; set; } = null!;
+        public decimal Paystate { get; set; }
 
-        public virtual Doctor? Doctor { get; set; }
+        public virtual Doctor Doctor { get; set; } = null!;
         public virtual ICollection<Registration> Registrations { get; set; }
     }
 }
