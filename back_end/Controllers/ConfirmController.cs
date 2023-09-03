@@ -34,7 +34,7 @@ namespace back_end.Controllers
             };
             var treatmentRecord2 = new TreatmentRecord2
             {
-                DiagnoseId = diagnoseId, // 假设DiagnoseId是病人id
+                DiagnoseId = diagnoseId, 
                 DiagnoseTime = DateTime.Now,
                 Commentstate = 0,
                 Selfreported = inputModel.selfReported,
@@ -60,6 +60,7 @@ namespace back_end.Controllers
                     _context.Registrations.Remove(registration);
 
                     // 添加新的记录
+                    //因为State是主码的一部分，不可直接修改，必须先删除再插入
                     var newRegistration = new Registration
                     {
                         PatientId= inputModel.patientId,
@@ -77,17 +78,17 @@ namespace back_end.Controllers
                 _context.TreatmentRecord2s.Add(treatmentRecord2);
 
                 // 解析药品信息
-                var medicines = inputModel.medicine.Split(';');
+                var medicines = inputModel.medicine.Split(';');//；分割不同的药
                 foreach (var medicine in medicines)
                 {
-                    var medicineInfo = medicine.Split('+');
+                    var medicineInfo = medicine.Split('+');//+分割药品和注意事项
 
                     if (medicineInfo.Length != 2)
                     {
                         continue;
                     }
 
-                    var medicineNameAndQuantity = medicineInfo[0].Split('*');
+                    var medicineNameAndQuantity = medicineInfo[0].Split('*');//*分割药品名称和数量
                     if (medicineNameAndQuantity.Length != 2)
                     {
                         continue;
