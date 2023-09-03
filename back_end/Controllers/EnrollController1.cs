@@ -130,7 +130,7 @@ namespace back_end.Controllers
                 Gender = inputModel.gender ,
                 BirthDate= inputModel.birthDate ,
                 Contact = inputModel.contact ,
-                College = "Tongji University",//注册的病人学校默认为同济大学
+                College = inputModel.College,
                 //Counsellor = inputModel.Counsellor,//毛灵俊是counsellor他统一在个人信息页面上传
                 Password= inputModel.password
             };
@@ -178,7 +178,7 @@ namespace back_end.Controllers
             public DateTime birthDate { get; set; }
             public string contact { get; set; }
             public string password { get; set; } = null!;
-            //public string College { get; set; } = null!;
+            public string College { get; set; } = null!;
             //public string Counsellor { get; set; } = null!;
         }
     }
