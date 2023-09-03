@@ -185,7 +185,7 @@ namespace back_end.Controllers
                     administratorId=m.CleanAdministrator,
                     CleanAdministrator = administrator?.Name,
                     Manufacturer=m.Manufacturer,
-                    Prodectiondate=m.ProductionDate
+                    Productiondate=m.ProductionDate
                 };
             });
 
