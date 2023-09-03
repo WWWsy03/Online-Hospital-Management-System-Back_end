@@ -86,10 +86,21 @@ namespace back_end.Controllers
                 r.Period == Change.Old.Period
                 );
 
+            var ExistedNewConsult = await _context.ConsultationInfos.FirstOrDefaultAsync(r =>
+                r.DoctorId == Change.New.DoctorId &&
+                r.ClinicName == Change.New.ClinicName &&
+                r.DateTime == Change.New.DateTime.Date &&
+                r.Period == Change.New.Period
+                );
+
             // 如果找不到匹配的挂号记录，返回错误信息
             if (OldConsult == null)
             {
                 return NotFound("No Changable ConsultationInfo found.");
+            }
+            if (ExistedNewConsult != null)
+            {
+                return BadRequest("The New ConsultationInfo has existed.");
             }
 
             var NewConsult = new ConsultationInfo()
@@ -104,7 +115,7 @@ namespace back_end.Controllers
             NewConsult.Doctor = await _context.Doctors.FirstOrDefaultAsync(p => p.DoctorId == Change.New.DoctorId);
 
             _context.ConsultationInfos.Remove(OldConsult);
-            //await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
             _context.ConsultationInfos.Add(NewConsult);
             await _context.SaveChangesAsync();
 
