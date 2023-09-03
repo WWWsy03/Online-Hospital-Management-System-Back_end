@@ -83,10 +83,18 @@ namespace back_end.Controllers
                 LeaveEndDate = leaveStartDate.AddDays(leaveDays),
                 LeaveNoteRemark = "通过"
             };
-
+            var treatmentRecord = _context.TreatmentRecords.FirstOrDefault(t => t.DiagnosisRecordId == diagnosedId);
+            if(treatmentRecord == null)
+            {
+                return BadRequest("未找到相关就诊记录");
+            }
+           
             try
             {
+                
                 _context.LeaveApplications.Add(leaveApplication);
+                await _context.SaveChangesAsync();
+                treatmentRecord.LeaveNoteId = leaveNoteId;
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -102,6 +110,8 @@ namespace back_end.Controllers
         public async Task<IActionResult> RatifyLeaveApplication(string leaveNoteId, int status)
         {
             var leaveApplication = _context.LeaveApplications.FirstOrDefault(l => l.LeaveNoteId == leaveNoteId&&l.LeaveNoteRemark=="未审核");
+            var diagnosedId = leaveNoteId.Substring(0, leaveNoteId.Length - 3);
+            var treatmentRcord=_context.TreatmentRecords.FirstOrDefault(t=>t.DiagnosisRecordId==diagnosedId);
             if (leaveApplication == null)
             {
                 return NotFound("未找到该假条记录（或该假条已被审核）");
@@ -110,6 +120,7 @@ namespace back_end.Controllers
             if (status == 1)
             {
                 leaveApplication.LeaveNoteRemark = "通过";
+                treatmentRcord.LeaveNoteId = leaveNoteId;
             }
             else if (status == 0)
             {
@@ -120,7 +131,7 @@ namespace back_end.Controllers
                 return BadRequest("Invalid status value");
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok("Certificate of Approval Successful");
         }
