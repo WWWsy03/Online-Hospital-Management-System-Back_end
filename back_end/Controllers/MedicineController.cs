@@ -42,7 +42,7 @@ namespace back_end.Controllers
         [HttpPut("UpdateStock")]//更新库存
         public async Task<IActionResult> UpdateStock(string medicineName, string manufacturer, DateTime productionDate, decimal newAmount, string patientId)
         {
-            var medicineStock = await _context.MedicineStocks.FirstOrDefaultAsync(m => m.MedicineName == medicineName && m.Manufacturer == manufacturer && m.ProductionDate == productionDate && m.CleanDate == null);
+            var medicineStock = await _context.MedicineStocks.FirstOrDefaultAsync(m => m.MedicineName == medicineName && m.Manufacturer == manufacturer && m.ProductionDate.Date == productionDate.Date && m.CleanDate == null);
             if (medicineStock == null)
             {
                 return NotFound("未找到该药品");
@@ -61,7 +61,7 @@ namespace back_end.Controllers
                 Manufacturer = manufacturer,
                 ProductionDate = productionDate,
                 PurchaseAmount = purchaseAmount,
-                DeliverDate = DateTime.Now, // 当前日期
+                DeliverDate = DateTime.Now, 
                 PatientId = patientId
             };
 
@@ -210,6 +210,34 @@ namespace back_end.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("GetMedicineStatistics")]
+        public async Task<IActionResult> GetMedicineStatistics()
+        {
+            var medicineStatistics = await _context.MedicinePurchases
+                .GroupBy(mp => new { mp.MedicineName, mp.Manufacturer, mp.PurchaseDate.Year, mp.PurchaseDate.Month })
+                .Select(g => new
+                {
+                    g.Key.MedicineName,
+                    g.Key.Manufacturer,
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    PurchaseAmount = g.Sum(mp => mp.PurchaseAmount),
+                    PurchaseCost = g.Sum(mp => mp.PurchaseAmount * mp.PurchasePrice),
+                    SellAmount = _context.MedicineOuts
+                        .Where(mo => mo.MedicineName == g.Key.MedicineName && mo.Manufacturer == g.Key.Manufacturer && mo.DeliverDate.Year == g.Key.Year && mo.DeliverDate.Month == g.Key.Month)
+                        .Sum(mo => mo.PurchaseAmount),
+                    SellIncome = _context.MedicineSells
+                        .Where(ms => ms.MedicineName == g.Key.MedicineName && ms.Manufacturer == g.Key.Manufacturer)
+                        .Sum(ms => ms.SellingPrice) * _context.MedicineOuts
+                            .Where(mo => mo.MedicineName == g.Key.MedicineName && mo.Manufacturer == g.Key.Manufacturer && mo.DeliverDate.Year == g.Key.Year && mo.DeliverDate.Month == g.Key.Month)
+                            .Sum(mo => mo.PurchaseAmount)
+                })
+                .ToListAsync();
+
+            return Ok(medicineStatistics);
+        }
+
     }
 
     public class AddStockInputModel

@@ -542,6 +542,7 @@ namespace back_end.Controllers
                 result.Add(new
                 {
                     PatientName = patient.Name,
+                    DoctorId=doctor.DoctorId,
                     DoctorName = doctor.Name,
                     DoctorDepartment = doctor.SecondaryDepartment,
                     AppointmentDate = registration.AppointmentTime.Date,
