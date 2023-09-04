@@ -16,7 +16,7 @@ namespace back_end.Controllers
             _context = context;
         }
         [HttpGet("GetAllMedicinesInfo")]
-        public async Task<ActionResult<IEnumerable<object>>> GetMedicines()
+        public async Task<ActionResult<IEnumerable<object>>> GetAllMedicinesInfo()
         {
             return await _context.MedicineDescriptions
                 .Join(_context.MedicineSells,//只能查到在售的，有库存的药
@@ -40,20 +40,39 @@ namespace back_end.Controllers
         }
 
         [HttpPut("UpdateStock")]//更新库存
-        public async Task<IActionResult> UpdateStock(string medicineName, string manufacturer, DateTime productionDate,decimal newAmount)
+        public async Task<IActionResult> UpdateStock(string medicineName, string manufacturer, DateTime productionDate, decimal newAmount, string patientId)
         {
-            var medicineStock = await _context.MedicineStocks.FirstOrDefaultAsync(m => m.MedicineName == medicineName&&m.Manufacturer==manufacturer&&m.ProductionDate==productionDate&&m.CleanDate==null);
+            var medicineStock = await _context.MedicineStocks.FirstOrDefaultAsync(m => m.MedicineName == medicineName && m.Manufacturer == manufacturer && m.ProductionDate == productionDate && m.CleanDate == null);
             if (medicineStock == null)
             {
                 return NotFound("未找到该药品");
             }
 
+            // 计算购买数量
+            decimal purchaseAmount = (decimal)(medicineStock.MedicineAmount - newAmount);
+
+            // 更新药品库存
             medicineStock.MedicineAmount = newAmount;
+
+            // 创建新的MedicineOut对象
+            var medicineOut = new MedicineOut
+            {
+                MedicineName = medicineName,
+                Manufacturer = manufacturer,
+                ProductionDate = productionDate,
+                PurchaseAmount = purchaseAmount,
+                DeliverDate = DateTime.Now, // 当前日期
+                PatientId = patientId
+            };
+
+            // 将新对象添加到数据库中
+            _context.MedicineOuts.Add(medicineOut);
 
             await _context.SaveChangesAsync();
 
-            return Ok("Medicine stock updated successfully.");
+            return Ok("Medicine stock and purchase record updated successfully.");
         }
+
 
         [HttpPost("AddStock")]//采购入库
         public async Task<IActionResult> AddStock(AddStockInputModel inputModel)

@@ -460,6 +460,12 @@ namespace back_end.Controllers
                 return NotFound();
             }
 
+            if (registration.Checkin == 1)
+            {
+                return Ok("您已经报道，无需重复报道");
+
+            }
+
             var currentTime = DateTime.Now.TimeOfDay;
             var period = 10;
             if (currentTime >= new TimeSpan(8, 0, 0) && currentTime < new TimeSpan(9, 0, 0))
@@ -488,59 +494,65 @@ namespace back_end.Controllers
         }
 
         [HttpGet("OfflineCheckin")]
-        public object GetRegistrationInfo(string patientId)
+        public List<object> GetRegistrationInfo(string patientId)
         {
             var today = DateTime.Today;
-            var registration = _context.Registrations
+            var registrations = _context.Registrations
                 .Where(r => r.PatientId == patientId && r.AppointmentTime.Date == today && r.State == 0)//找到该病人今天未就诊的挂号信息
-                .FirstOrDefault();
+                .ToList();
 
-            if (registration == null)
+            if (registrations.Count == 0)
             {
-                return BadRequest("未找到相关挂号信息");
+                return new List<object>();
             }
 
-            var doctor = _context.Doctors.FirstOrDefault(d => d.DoctorId == registration.DoctorId);
-            var patient= _context.Patients.FirstOrDefault(p=>p.PatientId ==patientId);
-            if (doctor == null)
+            var result = new List<object>();
+            foreach (var registration in registrations)
             {
-                return NotFound();
-            }
+                var doctor = _context.Doctors.FirstOrDefault(d => d.DoctorId == registration.DoctorId);
+                var patient = _context.Patients.FirstOrDefault(p => p.PatientId == patientId);
+                if (doctor == null)
+                {
+                    return new List<object>();
+                }
 
-            int registrationFee = 0;
-            switch (doctor.Title)
-            {
-                case "主任医师":
-                    registrationFee = 9;
-                    break;
-                case "副主任医师":
-                    registrationFee = 7;
-                    break;
-                case "主治医师":
-                    registrationFee = 6;
-                    break;
-                case "住院医师":
-                    registrationFee = 4;
-                    break;
-                case "医师":
-                    registrationFee = 4;
-                    break;
-                default:
-                    registrationFee = 6;
-                    break;
-            }
+                int registrationFee = 0;
+                switch (doctor.Title)
+                {
+                    case "主任医师":
+                        registrationFee = 9;
+                        break;
+                    case "副主任医师":
+                        registrationFee = 7;
+                        break;
+                    case "主治医师":
+                        registrationFee = 6;
+                        break;
+                    case "住院医师":
+                        registrationFee = 4;
+                        break;
+                    case "医师":
+                        registrationFee = 4;
+                        break;
+                    default:
+                        registrationFee = 6;
+                        break;
+                }
 
-            return new
-            {
-                PatientName=patient.Name,
-                DoctorName = doctor.Name,
-                DoctorDepartment = doctor.SecondaryDepartment,
-                AppointmentDate = registration.AppointmentTime.Date,
-                Period = registration.Period,
-                RegistrationFee = registrationFee,
-                Checkin = registration.Checkin
-            };
+                result.Add(new
+                {
+                    PatientName = patient.Name,
+                    DoctorName = doctor.Name,
+                    DoctorDepartment = doctor.SecondaryDepartment,
+                    AppointmentDate = registration.AppointmentTime.Date,
+                    Period = registration.Period,
+                    RegistrationFee = registrationFee,
+                    Checkin = registration.Checkin
+                });
+            }
+            return result;
         }
+
     }
 
     public class RegistrationInputModel//用于传输数据
