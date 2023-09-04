@@ -182,10 +182,17 @@ namespace back_end.Controllers
             foreach (var leaveApplication in leaveApplications)
             {
                 var diagnoseId = leaveApplication.LeaveNoteId.Substring(0, leaveApplication.LeaveNoteId.Length - 3);
+                var patientId = diagnoseId.Substring(8, 7);
+                var patient = _context.Patients
+                    .Where(p => p.PatientId == patientId)
+                    .Select(p => new { p.Name, p.PatientId }
+                    )
+                    .FirstOrDefault();
                 var treatmentRecord = _context.TreatmentRecord2s
                     .Where(tr => tr.DiagnoseId == diagnoseId)
                     .Select(tr => new TreatmentRecord2
                     {
+                        DiagnoseId = diagnoseId,
                         DiagnoseTime = tr.DiagnoseTime,
                         Selfreported = tr.Selfreported,
                         Presenthis = tr.Presenthis,
@@ -196,11 +203,11 @@ namespace back_end.Controllers
                         Kindquantity = tr.Kindquantity
                     })
                     .FirstOrDefault();
-
                 results.Add(new
                 {
                     LeaveApplication = leaveApplication,
-                    TreatmentRecord = treatmentRecord
+                    TreatmentRecord = treatmentRecord,
+                    PatientName = patient
                 });
             }
 

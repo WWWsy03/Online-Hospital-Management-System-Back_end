@@ -214,7 +214,8 @@ namespace back_end.Controllers
         [HttpGet("GetMedicineStatistics")]
         public async Task<IActionResult> GetMedicineStatistics()
         {
-            var medicineStatistics = await _context.MedicinePurchases
+            // 在MedicinePurchase表中统计每款药的每月购买数量、购买支出
+            var purchaseStatistics = _context.MedicinePurchases
                 .GroupBy(mp => new { mp.MedicineName, mp.Manufacturer, mp.PurchaseDate.Year, mp.PurchaseDate.Month })
                 .Select(g => new
                 {
@@ -223,20 +224,45 @@ namespace back_end.Controllers
                     Year = g.Key.Year,
                     Month = g.Key.Month,
                     PurchaseAmount = g.Sum(mp => mp.PurchaseAmount),
-                    PurchaseCost = g.Sum(mp => mp.PurchaseAmount * mp.PurchasePrice),
-                    SellAmount = _context.MedicineOuts
-                        .Where(mo => mo.MedicineName == g.Key.MedicineName && mo.Manufacturer == g.Key.Manufacturer && mo.DeliverDate.Year == g.Key.Year && mo.DeliverDate.Month == g.Key.Month)
-                        .Sum(mo => mo.PurchaseAmount),
-                    SellIncome = _context.MedicineSells
-                        .Where(ms => ms.MedicineName == g.Key.MedicineName && ms.Manufacturer == g.Key.Manufacturer)
-                        .Sum(ms => ms.SellingPrice) * _context.MedicineOuts
-                            .Where(mo => mo.MedicineName == g.Key.MedicineName && mo.Manufacturer == g.Key.Manufacturer && mo.DeliverDate.Year == g.Key.Year && mo.DeliverDate.Month == g.Key.Month)
-                            .Sum(mo => mo.PurchaseAmount)
-                })
-                .ToListAsync();
+                    PurchaseCost = g.Sum(mp => mp.PurchaseAmount * mp.PurchasePrice)
+                });
 
-            return Ok(medicineStatistics);
+            // 在MedicineOut表中统计每款药的每月销售数量、销售收入
+            var sellStatistics = _context.MedicineOuts
+                .GroupBy(mo => new { mo.MedicineName, mo.Manufacturer, mo.DeliverDate.Year, mo.DeliverDate.Month })
+                .Select(g => new
+                {
+                    g.Key.MedicineName,
+                    g.Key.Manufacturer,
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    SellAmount = g.Sum(mo => mo.PurchaseAmount),
+                    SellIncome = g.Sum(mo => mo.PurchaseAmount * _context.MedicineSells.FirstOrDefault(ms => ms.MedicineName == mo.MedicineName && ms.Manufacturer == mo.Manufacturer).SellingPrice)
+                });
+
+            //// 将这两个表进行左右自然外连接，用药品名和厂家匹配，外连接时未出现在另一表中的值默认为0
+            //var statistics = purchaseStatistics.GroupJoin(sellStatistics,
+            //    ps => new { ps.MedicineName, ps.Manufacturer, ps.Year, ps.Month },
+            //    ss => new { ss.MedicineName, ss.Manufacturer, ss.Year, ss.Month },
+            //    (ps, ss) => new { ps, ss })
+            //    .SelectMany(
+            //        x => x.ss.DefaultIfEmpty(),
+            //        (x, y) => new
+            //        {
+            //            x.ps.MedicineName,
+            //            x.ps.Manufacturer,
+            //            x.ps.Year,
+            //            x.ps.Month,
+            //            PurchaseAmount = x.ps.PurchaseAmount,
+            //            PurchaseCost = x.ps.PurchaseCost,
+            //            SellAmount = (y==null)?0:y.SellAmount,
+            //            SellIncome = (y == null) ? 0 : y.SellIncome
+            //        });
+
+            return Ok(new { purchaseStatistics, sellStatistics });
+
         }
+
 
     }
 
