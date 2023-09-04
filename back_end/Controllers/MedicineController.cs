@@ -41,8 +41,10 @@ namespace back_end.Controllers
                         desc.Attention,
                         desc.Frequency
                     })
+                .Distinct()
                 .ToListAsync();
         }
+
 
         [HttpPut("UpdateStock")]//更新库存
         public async Task<IActionResult> UpdateStock(string medicineName, string manufacturer, DateTime productionDate, decimal newAmount, string patientId)
