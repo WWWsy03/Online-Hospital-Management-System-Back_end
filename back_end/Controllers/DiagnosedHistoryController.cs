@@ -102,7 +102,7 @@ namespace back_end.Controllers
             request.SetNotifyUrl("");
             //同步跳转地址，仅支持http/https
             //request.SetReturnUrl("http://124.223.143.21:4999/api/alipayReturn");
-            request.SetNotifyUrl("");
+            request.SetReturnUrl("");
 
 
             /******必传参数******/
