@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Essensoft.AspNetCore.Payment.Alipay" Version="3.3.2" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Cors" Version="5.2.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.19">
       <PrivateAssets>all</PrivateAssets>
@@ -19,7 +18,7 @@
     </PackageReference>
     <PackageReference Include="Oracle.EntityFrameworkCore" Version="6.21.90" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="AlipaySDKNet.Standard" Version="4.8.2" />
   </ItemGroup>
 
 </Project>
-  
