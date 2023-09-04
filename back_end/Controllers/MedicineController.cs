@@ -18,13 +18,20 @@ namespace back_end.Controllers
         [HttpGet("GetAllMedicinesInfo")]
         public async Task<ActionResult<IEnumerable<object>>> GetAllMedicinesInfo()
         {
-            return await _context.MedicineDescriptions
-                .Join(_context.MedicineSells,//只能查到在售的，有库存的药
+            return await _context.MedicineStocks
+                .Where(stock => stock.MedicineAmount != 0)
+                .Join(_context.MedicineSells,
+                    stock => new { stock.MedicineName, stock.Manufacturer },
+                    sell => new { sell.MedicineName, sell.Manufacturer },
+                    (stock, sell) => new { stock.MedicineName, stock.Manufacturer, sell.SellingPrice })
+                .Join(_context.MedicineDescriptions,
+                    temp => temp.MedicineName,
                     desc => desc.MedicineName,
-                    sell => sell.MedicineName,
-                    (desc, sell) => new
+                    (temp, desc) => new
                     {
-                        desc.MedicineName,
+                        temp.MedicineName,
+                        temp.Manufacturer,
+                        temp.SellingPrice,
                         desc.MedicineType,
                         desc.ApplicableSymptom,
                         desc.Vulgo,
@@ -32,9 +39,7 @@ namespace back_end.Controllers
                         desc.Singledose,
                         desc.Administration,
                         desc.Attention,
-                        desc.Frequency,
-                        sell.Manufacturer,
-                        sell.SellingPrice
+                        desc.Frequency
                     })
                 .ToListAsync();
         }

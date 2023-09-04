@@ -186,6 +186,12 @@ namespace back_end.Controllers
             return Ok("Add ConsultationInfo Successfully.");
         }
 
+        [HttpGet("GetAllRooms")]
+        public async Task<ActionResult<IEnumerable<ConsultingRoom>>> GetConsultationRooms()
+        {
+            return await _context.ConsultingRooms.ToListAsync();
+        }
+
         private string GetStartTime(int period)
         {
             switch (period)
