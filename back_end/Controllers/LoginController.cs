@@ -67,36 +67,15 @@ namespace back_end.Controllers
             return Ok(exists);
         }
 
-        public static class VerificationCodeGenerator
-        {
-            private static Random random = new Random();
-
-            public static string Generate()
-            {
-                return random.Next(100000, 999999).ToString(); // 生成一个6位数的验证码
-            }
-        }
-
-        //public interface ISmsService
-        //{
-        //    Task SendAsync(string phoneNumber, string message);
-        //}
-
-        public class MockSmsService //: ISmsService
-        {
-            public Task SendAsync(string phoneNumber, string message)
-            {
-                // 这里应该有一个实际发送短信的实现，例如使用Twilio或其他服务
-                Console.WriteLine($"Sending SMS to {phoneNumber}: {message}");
-                return Task.CompletedTask;
-            }
-        }
-
 
         //存储验证码
         private static readonly Dictionary<string, string> VerificationCodes = new Dictionary<string, string>();
         //验证码计时器，实现“过期”功能
         private static readonly Dictionary<string, DateTime> CodeGenerateTimes = new Dictionary<string, DateTime>();
+        //存储Token
+        private static readonly Dictionary<string, string> Token = new Dictionary<string, string>();
+        //Token计时器，实现“过期”功能
+        private static readonly Dictionary<string, DateTime> TokenGenerateTimes = new Dictionary<string, DateTime>();
 
         [HttpGet("generate")]
         public ActionResult<string> GenerateCode(string PhoneNumber)

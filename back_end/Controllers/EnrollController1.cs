@@ -87,8 +87,8 @@ namespace back_end.Controllers
                 Title=inputModel.title,
                 Contact = inputModel.contact,
                 SecondaryDepartment=inputModel.secondaryDepartment,
-                //Photourl=inputModel.Photourl,//毛灵俊说在个人信息页面上传照片
-                Password=inputModel.password
+                Photourl = "unknown",//毛灵俊说counsellor他统一在个人信息页面上传
+                Password =inputModel.password
             };
 
             //新的管理员还没有购买过药品
@@ -128,11 +128,11 @@ namespace back_end.Controllers
                 PatientId = inputModel.patientId ,
                 Name = inputModel.name ,
                 Gender = inputModel.gender ,
-                BirthDate= inputModel.birthDate ,
+                BirthDate= inputModel.birthDate.Date ,
                 Contact = inputModel.contact ,
                 College = inputModel.college,
-                //Counsellor = inputModel.Counsellor,//毛灵俊是counsellor他统一在个人信息页面上传
-                Password= inputModel.password
+                Counsellor = "unknown",//毛灵俊说counsellor他统一在个人信息页面上传
+                Password = inputModel.password
             };
 
             //新的管理员还没有购买过药品
