@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using back_end.Models;
+using back_end.Controllers;
 using System.Web.Http.Cors;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using System;
 using System.Text;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Aop.Api.Domain;
 
 
 namespace back_end.Controllers
@@ -129,33 +131,6 @@ namespace back_end.Controllers
             return token;
         }
 
-        private async Task<bool> SendSmsAsync(string PhoneNumber, string code)
-        {
-            using (HttpClient httpClient = new HttpClient())
-            {
-                //创建链接到SMS API的链接
-                string account = "C58169395";
-                string password = "776f675d18a48ed284eaf032364e06f0";
-                string mobile = PhoneNumber;
-                string content = $"您的验证码是：{code}。请不要把验证码泄露给其他人。";
-                string url = "http://106.ihuyi.com/webservice/sms.php?method=Submit";
-                string post = string.Format("&account={0}&password={1}&mobile={2}&content={3}", account, password, mobile, content);
-                string request = url + post;
-                HttpResponseMessage response = await httpClient.GetAsync(request);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    string responseBody = await response.Content.ReadAsStringAsync();
-                    // 此处添加处理响应内容的逻辑，比如将responseBody转为int判断是否成功
-                    return true;
-                }
-                else
-                {
-                    // 请求失败，添加相应的错误处理逻辑
-                    return false;
-                }
-            }
-        }
 
         [HttpGet("generateVerifyCode")]
         public async Task<ActionResult<string>> GenerateVerifyCode(string PhoneNumber)
@@ -165,7 +140,8 @@ namespace back_end.Controllers
             var code = random.Next(100000, 999999).ToString();
 
             //发送验证码到手机
-            Task<bool> task = SendSmsAsync(PhoneNumber, code);
+            string context= $"您的验证码是：{code}。请不要把验证码泄露给其他人。";
+            Task<bool> task = MessageSender.SendSmsAsync(PhoneNumber, context);
             bool isSuccess = await task;
 
             if (isSuccess)

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json;
 using back_end.Models;
+using back_end.Controllers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -288,35 +289,18 @@ namespace back_end.Controllers
 
             _context.Registrations.Add(registration);
             await _context.SaveChangesAsync();
-            if (input.Period == 1)
-            {
-                return Ok("8:00-9:00");
-            }
-            else if (input.Period == 2)
-            {
-                return Ok("9:00-10:00");
-            }
-            else if (input.Period == 3)
-            {
-                return Ok("10:00-11:00");
-            }
-            else if (input.Period == 4)
-            {
-                return Ok("13:00-14:00");
-            }
-            else if (input.Period == 5)
-            {
-                return Ok("14:00-15:00");
-            }
-            else if (input.Period == 6)
-            {
-                return Ok("15:00-16:00");
-            }
-            else
-            {
-                return Ok("16:00-17:00");
-            }
-            //   return Ok("successful.");
+
+            string DoctorName = registration.Doctor.Name;
+            string Date= registration.AppointmentTime.Date.ToString("yyyy-MM-dd");
+            string Clock = period2clock(input.Period);
+            string Qrcodeurl = input.QRCodeUrl;
+            string PhoneNumber = registration.Patient.Contact;
+            string messageContext = $"您预约的{DoctorName}医生 {Date} {Clock} 已预约成功，" +
+                $"您的预约二维码地址为：{Qrcodeurl}，" +
+                $"请在预约时间前携带二维码于报到处进行报到";
+            MessageSender.SendSmsAsync(PhoneNumber,messageContext);
+
+            return Ok(Clock);
         }
 
         [HttpPut("cancel")]
@@ -566,6 +550,35 @@ namespace back_end.Controllers
             return result;
         }
 
+        private string period2clock(int period)
+        {
+            string clock = "";
+            switch (period)
+            {
+                case 1:
+                    clock = "8:00-9:00";
+                    break;
+                case 2:
+                    clock = "9:00-10:00";
+                    break;
+                case 3:
+                    clock = "10:00-11:00";
+                    break;
+                case 4:
+                    clock = "13:00-14:00";
+                    break;
+                case 5:
+                    clock = "14:00-15:00";
+                    break;
+                case 6:
+                    clock = "15:00-16:00";
+                    break;
+                case 7:
+                    clock = "16:00-17:00";
+                    break;
+            }
+            return clock;
+        }
     }
 
     public class RegistrationInputModel//用于传输数据
