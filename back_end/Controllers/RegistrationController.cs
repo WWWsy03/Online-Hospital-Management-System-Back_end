@@ -353,6 +353,7 @@ namespace back_end.Controllers
                 Period = registration.Period,
                 Prescriptionid = registration.Prescriptionid,
                 Registorder = registration.Registorder,
+                Qrcodeurl = registration.Qrcodeurl,
                 State = -similarRegistrationsCount
 
             };
