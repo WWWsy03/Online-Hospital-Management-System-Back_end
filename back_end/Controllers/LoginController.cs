@@ -3,6 +3,9 @@ using back_end.Models;
 using System.Web.Http.Cors;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System;
+using System.Text;
 
 namespace back_end.Controllers
 {
@@ -67,79 +70,87 @@ namespace back_end.Controllers
             return Ok(exists);
         }
 
-        public static class VerificationCodeGenerator
-        {
-            private static Random random = new Random();
-
-            public static string Generate()
-            {
-                return random.Next(100000, 999999).ToString(); // 生成一个6位数的验证码
-            }
-        }
-
-        //public interface ISmsService
-        //{
-        //    Task SendAsync(string phoneNumber, string message);
-        //}
-
-        public class MockSmsService //: ISmsService
-        {
-            public Task SendAsync(string phoneNumber, string message)
-            {
-                // 这里应该有一个实际发送短信的实现，例如使用Twilio或其他服务
-                Console.WriteLine($"Sending SMS to {phoneNumber}: {message}");
-                return Task.CompletedTask;
-            }
-        }
-
 
         //存储验证码
         private static readonly Dictionary<string, string> VerificationCodes = new Dictionary<string, string>();
         //验证码计时器，实现“过期”功能
         private static readonly Dictionary<string, DateTime> CodeGenerateTimes = new Dictionary<string, DateTime>();
+        //存储Token
+        private static readonly List<string> Tokens = new List<string>();
+        //Token计时器，实现“过期”功能
+        private static readonly Dictionary<string, DateTime> TokenGenerateTimes = new Dictionary<string, DateTime>();
+        // 定义字符集
+        private static string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-        [HttpGet("generate")]
-        public ActionResult<string> GenerateCode(string PhoneNumber)
+
+        [HttpGet("generateVerifyCode")]
+        public ActionResult<string> GenerateVerifyCode(string PhoneNumber)
         {
-            var currentTime = DateTime.Now;
-
-            // Remove expired codes
-            foreach (var entry in CodeGenerateTimes.Where(entry => (currentTime - entry.Value).TotalSeconds > 60).ToList())
-            {
-                VerificationCodes.Remove(entry.Key);
-                CodeGenerateTimes.Remove(entry.Key);
-            }
-
+            //生成验证码
             var random = new Random();
             var code = random.Next(100000, 999999).ToString();
 
             // Store the code and generation time
+            var currentTime = DateTime.Now;
             VerificationCodes[PhoneNumber] = code;
             CodeGenerateTimes[PhoneNumber] = currentTime;
 
             return Ok(code);
         }
 
+        [HttpGet("verifyToken")]
+        public ActionResult<bool> VerifyToken(string token)
+        {
+            //先删除所有过期的token
+            var currentTime = DateTime.Now;
+            foreach (var entry in TokenGenerateTimes.Where(entry => (currentTime - entry.Value).TotalDays > 3).ToList())
+            {
+                Tokens.Remove(entry.Key);
+                TokenGenerateTimes.Remove(entry.Key);
+            }
 
-        [HttpGet("verify")]
+            if (Tokens.Contains(token))
+            {
+                TokenGenerateTimes[token] = DateTime.Now;//更新Token时间
+                return Ok();
+            }
+            return BadRequest("Token not found.");
+        }
+
+        [HttpGet("verifyCode")]
         public ActionResult<bool> VerifyCode(string PhoneNumber,string Code)
         {
-            if (VerificationCodes.TryGetValue(PhoneNumber, out var storedCode))
+            //先删除所有过期的验证码
+            var currentTime = DateTime.Now;
+            foreach (var entry in CodeGenerateTimes.Where(entry => (currentTime - entry.Value).TotalSeconds > 60).ToList())
             {
-                var generatedTime= CodeGenerateTimes.GetValueOrDefault(PhoneNumber);
-                if ((DateTime.Now - generatedTime).TotalSeconds <= 60)
-                {
-                    return Ok(storedCode == Code);
-                }
-                else
-                {
-                    // Remove expired code
-                    VerificationCodes.Remove(PhoneNumber);
-                    CodeGenerateTimes.Remove(PhoneNumber);
-                    return BadRequest("Code expired.");
-                }
+                VerificationCodes.Remove(entry.Key);
+                CodeGenerateTimes.Remove(entry.Key);
             }
-            return BadRequest("Phone number not found.");
+            //然后开始验证
+            if (VerificationCodes.ContainsKey(PhoneNumber) && VerificationCodes[PhoneNumber]==Code)
+            {
+                //生成token
+                var random = new Random();
+                int length = 20;
+                StringBuilder tokenBuilder = new StringBuilder();
+                do
+                {
+                    for (int i = 0; i < length; i++)
+                    {
+                        // 随机选择一个字符并添加到StringBuilder对象中
+                        char c = chars[random.Next(chars.Length)];
+                        tokenBuilder.Append(c);
+                    }
+                } while (Tokens.Contains(tokenBuilder.ToString()));
+                //存储token
+                string token= tokenBuilder.ToString();
+                Tokens.Append(token);
+                TokenGenerateTimes[token] = DateTime.Now;//初始化Token时间
+
+                return Ok(token);//返回Token
+            }
+            return BadRequest("VerificationCode not found.");
         }
 
     }
