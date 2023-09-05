@@ -104,7 +104,9 @@ namespace back_end.Controllers
             //异步接收地址
             request.SetNotifyUrl("http://124.223.143.21:4999/api/alipayNotify");
             //同步跳转地址
-            request.SetReturnUrl("http://124.223.143.21:4999/api/alipayReturn");
+            //request.SetReturnUrl("http://124.223.143.21:4999/api/alipayReturn");
+            request.SetReturnUrl("");
+
 
             /******必传参数******/
             Dictionary<string, object> bizContent = new Dictionary<string, object>();
