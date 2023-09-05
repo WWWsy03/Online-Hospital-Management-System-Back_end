@@ -35,6 +35,7 @@ namespace back_end.Models
         public virtual DbSet<PrescriptionMedicine> PrescriptionMedicines { get; set; } = null!;
         public virtual DbSet<Referral> Referrals { get; set; } = null!;
         public virtual DbSet<Registration> Registrations { get; set; } = null!;
+        public virtual DbSet<Subsequentvisit> Subsequentvisits { get; set; } = null!;
         public virtual DbSet<TreatmentFeedback> TreatmentFeedbacks { get; set; } = null!;
         public virtual DbSet<TreatmentRecord> TreatmentRecords { get; set; } = null!;
         public virtual DbSet<TreatmentRecord2> TreatmentRecord2s { get; set; } = null!;
@@ -357,7 +358,7 @@ namespace back_end.Models
 
             modelBuilder.Entity<MedicineOut>(entity =>
             {
-                entity.HasKey(e => new { e.MedicineName, e.Manufacturer })
+                entity.HasKey(e => new { e.MedicineName, e.Manufacturer, e.ProductionDate, e.PurchaseAmount, e.DeliverDate, e.PatientId })
                     .HasName("MEDICINE_OUT_PK");
 
                 entity.ToTable("MEDICINE_OUT");
@@ -374,17 +375,6 @@ namespace back_end.Models
                     .ValueGeneratedOnAdd()
                     .HasColumnName("MANUFACTURER");
 
-                entity.Property(e => e.DeliverDate)
-                    .HasColumnType("DATE")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnName("DELIVER_DATE");
-
-                entity.Property(e => e.PatientId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .ValueGeneratedOnAdd()
-                    .HasColumnName("PATIENT_ID");
-
                 entity.Property(e => e.ProductionDate)
                     .HasColumnType("DATE")
                     .ValueGeneratedOnAdd()
@@ -395,9 +385,21 @@ namespace back_end.Models
                     .ValueGeneratedOnAdd()
                     .HasColumnName("PURCHASE_AMOUNT");
 
+                entity.Property(e => e.DeliverDate)
+                    .HasPrecision(0)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("DELIVER_DATE");
+
+                entity.Property(e => e.PatientId)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("PATIENT_ID");
+
                 entity.HasOne(d => d.Patient)
                     .WithMany(p => p.MedicineOuts)
                     .HasForeignKey(d => d.PatientId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("MEDICINE_OUT_PATIENT_FK1");
             });
 
@@ -414,7 +416,7 @@ namespace back_end.Models
                     .HasColumnName("MEDICINE_NAME");
 
                 entity.Property(e => e.Manufacturer)
-                    .HasMaxLength(40)
+                    .HasMaxLength(460)
                     .IsUnicode(false)
                     .HasColumnName("MANUFACTURER");
 
@@ -523,7 +525,7 @@ namespace back_end.Models
                 entity.ToTable("OUTPATIENT_ORDER");
 
                 entity.Property(e => e.OrderId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .IsUnicode(false)
                     .HasColumnName("ORDER_ID");
 
@@ -651,6 +653,11 @@ namespace back_end.Models
                     .HasForeignKey(d => d.MedicineName)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("PRESCRIPTION_MEDICINE_MED_FK1");
+
+                entity.HasOne(d => d.Prescription)
+                    .WithMany(p => p.PrescriptionMedicines)
+                    .HasForeignKey(d => d.PrescriptionId)
+                    .HasConstraintName("PRESCRIPTION_MEDICINE_PRE_FK1");
             });
 
             modelBuilder.Entity<Referral>(entity =>
@@ -754,6 +761,27 @@ namespace back_end.Models
                     .WithMany(p => p.Registrations)
                     .HasForeignKey(d => d.Prescriptionid)
                     .HasConstraintName("REGISTRATION_PRESCRIPTION_FK1");
+            });
+
+            modelBuilder.Entity<Subsequentvisit>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToTable("SUBSEQUENTVISIT");
+
+                entity.Property(e => e.Chattingrecords)
+                    .IsUnicode(false)
+                    .HasColumnName("CHATTINGRECORDS");
+
+                entity.Property(e => e.Diagnosedid)
+                    .HasMaxLength(40)
+                    .IsUnicode(false)
+                    .HasColumnName("DIAGNOSEDID");
+
+                entity.HasOne(d => d.Diagnosed)
+                    .WithMany()
+                    .HasForeignKey(d => d.Diagnosedid)
+                    .HasConstraintName("SUBSEQUENTVISIT_TREATMENT_FK1");
             });
 
             modelBuilder.Entity<TreatmentFeedback>(entity =>

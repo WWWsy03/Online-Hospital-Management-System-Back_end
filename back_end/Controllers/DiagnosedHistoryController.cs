@@ -84,14 +84,16 @@ namespace back_end.Controllers
             request.BizContent = Contentjson;
             //AlipayTradePagePayResponse response = client.pageExecute(request);
             AlipayTradePagePayResponse response = await Task.Run(() => client.pageExecute(request)); // 使用Task.Run转为异步
-                                                                                                     // 在OutpatientOrder表中插入一行记录
-            var order = new OutpatientOrder
-            {
-                OrderId = prescriptionId,
-                PatientId = treatment.PatientId,
-                OrderTime = DateTime.Now
-            };
-            _context.OutpatientOrders.Add(order);
+              
+   
+            //// 在OutpatientOrder表中插入一行记录
+            //var order = new OutpatientOrder
+            //{
+            //    OrderId = prescriptionId,
+            //    PatientId = treatment.PatientId,
+            //    OrderTime = DateTime.Now
+            //};
+            //_context.OutpatientOrders.Add(order);
             await _context.SaveChangesAsync();
             return Content(response.Body, "text/html");
         }
