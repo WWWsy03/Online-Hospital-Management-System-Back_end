@@ -51,8 +51,15 @@ namespace back_end.Controllers
         {
             bool exists = await _context.Administrators.AnyAsync(
                 admin => admin.AdministratorId == ID && admin.Password == password);
-
-            return Ok(exists);
+            if (exists)
+            {
+                string token = GenerateTokenAsync("Administrator");
+                return Ok("The token is: " + token);
+            }
+            else
+            {
+                return BadRequest("Wrong acount or password");
+            }
         }
 
         [HttpGet("PatientLogin")]
@@ -60,8 +67,15 @@ namespace back_end.Controllers
         {
             bool exists = await _context.Patients.AnyAsync(
                 patient => patient.PatientId == ID && patient.Password == password);
-
-            return Ok(exists);
+            if (exists)
+            {
+                string token = GenerateTokenAsync("Patient");
+                return Ok("The token is: " + token);
+            }
+            else
+            {
+                return BadRequest("Wrong acount or password");
+            }
         }
 
         [HttpGet("DoctorLogin")]
@@ -69,8 +83,15 @@ namespace back_end.Controllers
         {
             bool exists = await _context.Doctors.AnyAsync(
                 doctor => doctor.DoctorId== ID && doctor.Password == password);
-
-            return Ok(exists);
+            if (exists)
+            {
+                string token = GenerateTokenAsync("Doctor");
+                return Ok("The token is: "+token);
+            }
+            else
+            {
+                return BadRequest("Wrong acount or password");
+            }            
         }
 
 
@@ -85,18 +106,41 @@ namespace back_end.Controllers
         // 定义字符集
         private static string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+        private string GenerateTokenAsync(string User)
+        {
+            //生成token
+            var random = new Random();
+            int length = 20;
+            StringBuilder tokenBuilder = new StringBuilder();
+            do
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    // 随机选择一个字符并添加到StringBuilder对象中
+                    char c = chars[random.Next(chars.Length)];
+                    tokenBuilder.Append(c);
+                }
+            } while (Tokens.Contains(User+"_"+tokenBuilder.ToString()));
+            //存储token
+            string token = tokenBuilder.ToString();
+            Tokens.Add(User+"_"+token);
+            TokenGenerateTimes[User + "_" + token] = DateTime.Now;//初始化Token时间
+
+            return token;
+        }
+
         private async Task<bool> SendSmsAsync(string PhoneNumber, string code)
         {
             using (HttpClient httpClient = new HttpClient())
             {
                 //创建链接到SMS API的链接
-                string Uid = "JieChu";
-                string key = "A6680534D182D0450B51BDF759C6477C";
-                string smsMob = PhoneNumber;
-                string smsText = "登录验证码：" + code;
-                string url = "http://utf8.api.smschinese.cn/";
-                string post = string.Format("Uid={0}&key={1}&smsMob={2}&smsText={3}", Uid, key, smsMob, smsText);
-                string request = url + "?" + post;
+                string account = "C58169395";
+                string password = "776f675d18a48ed284eaf032364e06f0";
+                string mobile = PhoneNumber;
+                string content = $"您的验证码是：{code}。请不要把验证码泄露给其他人。";
+                string url = "http://106.ihuyi.com/webservice/sms.php?method=Submit";
+                string post = string.Format("&account={0}&password={1}&mobile={2}&content={3}", account, password, mobile, content);
+                string request = url + post;
                 HttpResponseMessage response = await httpClient.GetAsync(request);
 
                 if (response.IsSuccessStatusCode)
@@ -143,8 +187,9 @@ namespace back_end.Controllers
         }
 
         [HttpGet("verifyToken")]
-        public ActionResult<bool> VerifyToken(string token)
+        public ActionResult<bool> VerifyToken(string User, string token)
         {
+            token = User + "_" + token;
             //先删除所有过期的token
             var currentTime = DateTime.Now;
             foreach (var entry in TokenGenerateTimes.Where(entry => (currentTime - entry.Value).TotalDays > 3).ToList())
@@ -152,13 +197,13 @@ namespace back_end.Controllers
                 Tokens.Remove(entry.Key);
                 TokenGenerateTimes.Remove(entry.Key);
             }
-
             if (Tokens.Contains(token))
             {
                 TokenGenerateTimes[token] = DateTime.Now;//更新Token时间
-                return Ok();
+                return Ok("Token Verify succeed.");
             }
-            return BadRequest("Token not found.");
+            //return BadRequest("Token not found.");
+            return BadRequest(Tokens);
         }
 
         [HttpGet("verifyCode")]
@@ -174,25 +219,7 @@ namespace back_end.Controllers
             //然后开始验证
             if (VerificationCodes.ContainsKey(PhoneNumber) && VerificationCodes[PhoneNumber]==Code)
             {
-                //生成token
-                var random = new Random();
-                int length = 20;
-                StringBuilder tokenBuilder = new StringBuilder();
-                do
-                {
-                    for (int i = 0; i < length; i++)
-                    {
-                        // 随机选择一个字符并添加到StringBuilder对象中
-                        char c = chars[random.Next(chars.Length)];
-                        tokenBuilder.Append(c);
-                    }
-                } while (Tokens.Contains(tokenBuilder.ToString()));
-                //存储token
-                string token= tokenBuilder.ToString();
-                Tokens.Append(token);
-                TokenGenerateTimes[token] = DateTime.Now;//初始化Token时间
-
-                return Ok(token);//返回Token
+                return Ok("VerificationCode verify succeed.");
             }
             return BadRequest("VerificationCode not found.");
         }

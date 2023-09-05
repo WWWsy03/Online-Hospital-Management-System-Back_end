@@ -43,15 +43,30 @@ namespace back_end.Controllers
         [HttpGet("alipayNotify")]
         public IActionResult NotifyUrl([FromQuery] Dictionary<string, string> parameters)
         {
-            // 在这里处理支付网关发来的通知。
-            // 可能需要验证签名、更新订单状态等。
-
             Console.WriteLine("Received notification");
             foreach (var parameter in parameters)
             {
                 Console.WriteLine($"{parameter.Key}: {parameter.Value}");
             }
 
+            // 根据返回的支付成功的订单号，来让某个订单的状态改为支付成功
+            if (parameters.TryGetValue("out_trade_no", out string outTradeNo))
+            {
+                // 获取病人信息
+                var prescriptionId = outTradeNo;
+                string diagnosedId = prescriptionId.Remove(8, 3);
+                var treatment = _context.TreatmentRecords.FirstOrDefault(t => t.DiagnosisRecordId == diagnosedId);
+
+                // 在OutpatientOrder表中插入一行记录
+                var order = new OutpatientOrder
+                {
+                    OrderId = prescriptionId,
+                    PatientId = treatment.PatientId,
+                    OrderTime = DateTime.Now
+                };
+
+                _context.OutpatientOrders.Add(order);
+            }
             // 返回给支付网关一个确认消息
             return Ok("Notification received");
         }
@@ -60,15 +75,6 @@ namespace back_end.Controllers
         [HttpGet("alipayReturn")]
         public IActionResult ReturnUrl([FromQuery] Dictionary<string, string> parameters)
         {
-            // 在这里处理用户完成支付后的逻辑
-            // 可能需要更新订单状态、重定向用户到一个确认页面等
-
-            Console.WriteLine("User returned from payment gateway");
-            foreach (var parameter in parameters)
-            {
-                Console.WriteLine($"{parameter.Key}: {parameter.Value}");
-            }
-
             // 重定向用户到一个订单完成或确认页面
             return Redirect("localhost:8080");
         }
@@ -85,25 +91,20 @@ namespace back_end.Controllers
             {
                 return NotFound("未找到相关处方信息");
             }
-
             // 判断支付状态
             if (prescription.Paystate != 0)
             {
                 return BadRequest("该订单已支付");
             }
-
             // 获取TotalPrice
             decimal totalPrice = prescription.TotalPrice;
 
             IAopClient client = new DefaultAopClient("https://openapi-sandbox.dl.alipaydev.com/gateway.do", "9021000126614589", "MIIEowIBAAKCAQEAhveBahIvn61hab5cDfFfE+8ma04lShyeLcYEpb6u038h/7NQ9vv+AxRkcMdgbfSOHHWVT1QdJOalUyZ3PnIl0QvLaY+pZlIN2z51z0sOs6n5YZOJTmrC7GYYK92dZQWodG0YsmF+XsPKgq46M6VSTZhIPg0S8Q2v1Gb23Z/i4H8Ac/7WPjmEtFFDOfjJhUZsovoIlnfF4VrsrDjP7t06bO16ZwpC3bdagx5MIX6LAtHIhh2rkiEY823/OnmK2BPIVrF9YjF1fvKn3QxkYfkappD3/cM9uWh8AMyEkznLS8uwcieCbuNv3H2c+5c7k0t73fBT5SmvCXreMGabvWn4FQIDAQABAoIBAC/0hWEg8Rb1TeV6o864cqXslWQPMiSxImr1LvWNWSUAyR3Hov7+7nQ9rKp9zP+Eo3HtPY4gPvK7mQaAZmIjwNgULsRlLTWT9iRufwGWk7S2sks/VswsFvJUHEaJycD5T69+jAXlqjcVrkDckwWCukmj0BdsIczQpib8Jr78bmqBa+JKfehHHGAEYJep+MAV9PVuUWR/rkUXHoheJZbERde1nqwSXijD9sYt51WLXNEzsjuf1hlraGe7ozqjuIINeBiFyocYFM6f0svymoFG8mNO0CgkU3BxWPB6m5fvOmkbvqyrui84iadx9oBLVZVl/vTAF3XbnlUvEIi0Ld3GCEECgYEA+TVLgUYSSjY/0PrjTWJgoJZWWluEkDXHDdeYx1A+ti2Xm09ofE887ENqpVaY0/h0Sh2+q4xySXpxHnbQrIHl2gj7NdyBOFjXms9Qt1UvPYW8Uj9R75KVlq/m+xbs6Kqyi+fOZNc5BJZvApobJsWEkqBwGHdIciOx1gi7HGUXp0kCgYEAiqUob1iI+kEy1qmmpD2mCz+BG3R6u14UGv5wFFnSbBr5XbMSZJFmtoUhdlaZFbC3eQGZ13EH8xRqrDuzY0wcAmwT9NbyiDpv6C7llD/ZdOIFcYkB/MSCXMw6sZWv0zZejz2yBgLvQI1d2LDAVOlEFPFvTKr+PLwgK9fY+7Tjzm0CgYB+PrFxW74IOlM52t8rZJruvzofrB0LsTKVoJKU5eHfCFm1JBUaZEnIpp5wA96IA2Vl5oug/BUphA2qESbFPUjjm4knT/1mPht7IWsSdOTplcZBJDKt2uRM4e9xY7vAYjjxBw1XqHAKEutJtifrDESMwxoGSuc4azy74NBpIg1JgQKBgFmxIKhvsSWcWiQu2kQ0MZ/jNEWro95krUMNSTqRJSSUiq/IMeTnf3giRhSFT0GN8hORKpIKaGcj1SKY+KMLUK9sdbiV+Y6Rp2WgORsf9zC7K2RYivWXtvILmQjbWkScTq4B7pIfAeJT0dtl9Pa5dTbLPgJuOEzYM0PJvnCPhDQ9AoGBAMag8PMI/jsGf+dZ3pd56mVPMLP1PLab0m1PO5/iLvt5nezVB18JmQfFBt+J63Wv2P/nDXh/09FnlOQ108/3ikgFFSILBLq+nXhikXqVYL9GmSZTBEKzXqfw4G3fjZo1eTglMt4u7dbFnAF+10l7g+Wr3kGyViBXBOvu4ITulscI", "json", "1.0", "RSA2", "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApzj6PN6aFQTBN6MRHyt+nd7O+OjkIwXP6jmKQlgkGetdntvFvpb2q3cwe7w0uwlwoBc51gw2zUDea/8IYke8ck9UCiXH37kVCNX3bOivpykSTB2NR2xo9ALF1XkLr32xXv9Vo3/5qVkITsJN9xCpizLm+9FoBM/SKxp84Kqyg/O5ELkZ+pqlQPIqPYqEEMWyLAXNzZN02u97Y5RLCqsomW25iQphjqI1717vWc9MSEGr+qZNMrx4i7YI651h8ktrl+aRe+tC44P4tyRmpARGPkBGX9EldTGrk6PVgFYAFbmXpuengqNpzsXP3HvyLucy/e/o03sl4X7eFXW/k1RASwIDAQAB", "utf-8", false);
             AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
-            //异步接收地址，仅支持http/https，公网可访问
-            //request.SetNotifyUrl("http://124.223.143.21:4999/api/alipayNotify");
-            request.SetNotifyUrl("");
-            //同步跳转地址，仅支持http/https
-            //request.SetReturnUrl("http://124.223.143.21:4999/api/alipayReturn");
-            request.SetReturnUrl("");
-
+            //异步接收地址
+            request.SetNotifyUrl("http://124.223.143.21:4999/api/alipayNotify");
+            //同步跳转地址
+            request.SetReturnUrl("http://124.223.143.21:4999/api/alipayReturn");
 
             /******必传参数******/
             Dictionary<string, object> bizContent = new Dictionary<string, object>();
@@ -121,15 +122,6 @@ namespace back_end.Controllers
             //AlipayTradePagePayResponse response = client.pageExecute(request);
             AlipayTradePagePayResponse response = await Task.Run(() => client.pageExecute(request)); // 使用Task.Run转为异步
               
-   
-            //// 在OutpatientOrder表中插入一行记录
-            //var order = new OutpatientOrder
-            //{
-            //    OrderId = prescriptionId,
-            //    PatientId = treatment.PatientId,
-            //    OrderTime = DateTime.Now
-            //};
-            //_context.OutpatientOrders.Add(order);
             await _context.SaveChangesAsync();
             return Content(response.Body, "text/html");
         }
