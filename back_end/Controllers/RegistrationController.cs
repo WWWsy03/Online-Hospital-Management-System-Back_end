@@ -256,6 +256,16 @@ namespace back_end.Controllers
             {
                 return BadRequest("invalid period");
             }
+
+            var sameRecordNun = _context.Registrations.
+                Where(r => r.DoctorId == input.DoctorId &&
+                r.AppointmentTime.Date == input.Time.Date &&
+                r.Period == input.Period && r.PatientId == input.PatientId && r.State == 0)
+                .Count();
+            if(sameRecordNun != 0) 
+            {
+                return BadRequest("您已经挂号，无需重复挂号");
+            }
             // 获取当前最大的 Registorder 值
             var maxOrder = _context.Registrations
                 .Where(r => r.DoctorId == input.DoctorId && r.AppointmentTime.Date == input.Time.Date && r.Period == input.Period)
