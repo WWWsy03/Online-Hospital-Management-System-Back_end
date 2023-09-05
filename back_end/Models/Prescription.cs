@@ -7,6 +7,7 @@ namespace back_end.Models
     {
         public Prescription()
         {
+            PrescriptionMedicines = new HashSet<PrescriptionMedicine>();
             Registrations = new HashSet<Registration>();
         }
 
@@ -16,6 +17,7 @@ namespace back_end.Models
         public decimal Paystate { get; set; }
 
         public virtual Doctor Doctor { get; set; } = null!;
+        public virtual ICollection<PrescriptionMedicine> PrescriptionMedicines { get; set; }
         public virtual ICollection<Registration> Registrations { get; set; }
     }
 }

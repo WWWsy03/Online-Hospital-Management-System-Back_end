@@ -12,5 +12,6 @@ namespace back_end.Models
         public decimal Quantity { get; set; }
 
         public virtual MedicineDescription MedicineNameNavigation { get; set; } = null!;
+        public virtual Prescription Prescription { get; set; } = null!;
     }
 }
