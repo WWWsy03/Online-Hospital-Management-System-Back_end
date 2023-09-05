@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System;
 using System.Text;
+using System.Net.Http;
+using System.Threading.Tasks;
+
 
 namespace back_end.Controllers
 {
@@ -82,19 +85,60 @@ namespace back_end.Controllers
         // 定义字符集
         private static string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+        private async Task<bool> SendSmsAsync(string PhoneNumber, string code)
+        {
+            using (HttpClient httpClient = new HttpClient())
+            {
+                //创建链接到SMS API的链接
+                string Uid = "JieChu";
+                string key = "A6680534D182D0450B51BDF759C6477C";
+                string smsMob = PhoneNumber;
+                string smsText = "登录验证码：" + code;
+                string url = "http://utf8.api.smschinese.cn/";
+                string post = string.Format("Uid={0}&key={1}&smsMob={2}&smsText={3}", Uid, key, smsMob, smsText);
+                string request = url + "?" + post;
+                HttpResponseMessage response = await httpClient.GetAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    // 此处添加处理响应内容的逻辑，比如将responseBody转为int判断是否成功
+                    return true;
+                }
+                else
+                {
+                    // 请求失败，添加相应的错误处理逻辑
+                    return false;
+                }
+            }
+        }
 
         [HttpGet("generateVerifyCode")]
-        public ActionResult<string> GenerateVerifyCode(string PhoneNumber)
+        public async Task<ActionResult<string>> GenerateVerifyCode(string PhoneNumber)
         {
             //生成验证码
             var random = new Random();
             var code = random.Next(100000, 999999).ToString();
+
+            //发送验证码到手机
+            Task<bool> task = SendSmsAsync(PhoneNumber, code);
+            bool isSuccess = await task;
+
+            if (isSuccess)
+            {
+                Console.WriteLine("VeificationCode sent successfully！");
+            }
+            else
+            {
+                Console.WriteLine("VeificationCode sent failed！");
+            }
 
             // Store the code and generation time
             var currentTime = DateTime.Now;
             VerificationCodes[PhoneNumber] = code;
             CodeGenerateTimes[PhoneNumber] = currentTime;
 
+            //Console.WriteLine("hello world!");
             return Ok(code);
         }
 
