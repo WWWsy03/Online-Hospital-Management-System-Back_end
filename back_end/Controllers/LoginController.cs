@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System;
+using System.Text;
 
 namespace back_end.Controllers
 {
@@ -131,18 +132,19 @@ namespace back_end.Controllers
             {
                 //生成token
                 var random = new Random();
-                int length = 10;
-                string token = "";
+                int length = 20;
+                StringBuilder tokenBuilder = new StringBuilder();
                 do
                 {
                     for (int i = 0; i < length; i++)
                     {
                         // 随机选择一个字符并添加到StringBuilder对象中
                         char c = chars[random.Next(chars.Length)];
-                        token.Append(c);
+                        tokenBuilder.Append(c);
                     }
-                } while (Tokens.Contains(token));
+                } while (Tokens.Contains(tokenBuilder.ToString()));
                 //存储token
+                string token= tokenBuilder.ToString();
                 Tokens.Append(token);
                 TokenGenerateTimes[token] = DateTime.Now;//初始化Token时间
 
