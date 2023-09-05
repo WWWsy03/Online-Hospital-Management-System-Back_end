@@ -90,13 +90,13 @@ namespace back_end.Controllers
             using (HttpClient httpClient = new HttpClient())
             {
                 //创建链接到SMS API的链接
-                string Uid = "JieChu";
-                string key = "A6680534D182D0450B51BDF759C6477C";
-                string smsMob = PhoneNumber;
-                string smsText = "登录验证码：" + code;
-                string url = "http://utf8.api.smschinese.cn/";
-                string post = string.Format("Uid={0}&key={1}&smsMob={2}&smsText={3}", Uid, key, smsMob, smsText);
-                string request = url + "?" + post;
+                string account = "C58169395";
+                string password = "776f675d18a48ed284eaf032364e06f0";
+                string mobile = PhoneNumber;
+                string content = $"您的验证码是：{code}。请不要把验证码泄露给其他人。";
+                string url = "http://106.ihuyi.com/webservice/sms.php?method=Submit";
+                string post = string.Format("&account={0}&password={1}&mobile={2}&content={3}", account, password, mobile, content);
+                string request = url + post;
                 HttpResponseMessage response = await httpClient.GetAsync(request);
 
                 if (response.IsSuccessStatusCode)
