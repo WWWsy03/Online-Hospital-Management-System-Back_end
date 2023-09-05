@@ -33,6 +33,37 @@ namespace back_end.Controllers
             return Ok(records);
         }
 
+        [HttpGet("GetAllFeedbacks")]//获取所有反馈信息
+        public async Task<IActionResult> GetAllFeedbacks()
+        {
+            var result = await _context.TreatmentFeedbacks.Select(t=>new { t.Diagnosedid, t.PatientId, t.DoctorId,t.TreatmentScore ,t.Evaluation})
+                .ToListAsync();
+            return Ok(result);
+        }
+
+
+        [HttpDelete("DeleteFeedback")]
+        public async Task<ActionResult> DeleteFeedback(string diagnosedId)
+        {
+            var record = await _context.TreatmentFeedbacks.FirstOrDefaultAsync(r => r.Diagnosedid == diagnosedId);
+            if (record == null)
+            {
+                return NotFound("未找到相关评价记录");
+            }
+            var treatmentRcord = await _context.TreatmentRecord2s.FirstOrDefaultAsync(t => t.DiagnoseId == diagnosedId);
+            if (treatmentRcord == null)
+            {
+                return BadRequest("无对应诊断记录");
+
+            }
+            treatmentRcord.Commentstate = 0;//删除反馈之后对应诊断记录改为未评价
+            _context.TreatmentFeedbacks.Remove(record);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+
 
         [HttpPost]//评价信息
         public async Task<IActionResult> CreateFeedback(string diagnoseId, decimal treatmentScore, string evaluation)

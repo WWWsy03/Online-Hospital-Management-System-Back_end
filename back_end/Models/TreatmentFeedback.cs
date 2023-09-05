@@ -9,7 +9,6 @@ namespace back_end.Models
         public string DoctorId { get; set; } = null!;
         public decimal? TreatmentScore { get; set; }
         public string? Evaluation { get; set; }
-        public string? FollowUpMatters { get; set; }
         public string Diagnosedid { get; set; } = null!;
 
         public virtual TreatmentRecord Diagnosed { get; set; } = null!;

@@ -806,11 +806,6 @@ namespace back_end.Models
                     .IsUnicode(false)
                     .HasColumnName("EVALUATION");
 
-                entity.Property(e => e.FollowUpMatters)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("FOLLOW_UP_MATTERS");
-
                 entity.Property(e => e.PatientId)
                     .HasMaxLength(20)
                     .IsUnicode(false)
@@ -823,7 +818,7 @@ namespace back_end.Models
                 entity.HasOne(d => d.Diagnosed)
                     .WithOne(p => p.TreatmentFeedback)
                     .HasForeignKey<TreatmentFeedback>(d => d.Diagnosedid)
-                    .HasConstraintName("TREATMENT_FEEDBACK_PATIEN_FK1");
+                    .HasConstraintName("TREATMENT_FEEDBACK_TREATM_FK1");
             });
 
             modelBuilder.Entity<TreatmentRecord>(entity =>
