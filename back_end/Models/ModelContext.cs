@@ -743,6 +743,11 @@ namespace back_end.Models
                     .IsUnicode(false)
                     .HasColumnName("PRESCRIPTIONID");
 
+                entity.Property(e => e.Qrcodeurl)
+                    .HasMaxLength(2000)
+                    .IsUnicode(false)
+                    .HasColumnName("QRCODEURL");
+
                 entity.Property(e => e.Registorder)
                     .HasColumnType("NUMBER(38)")
                     .HasColumnName("REGISTORDER");

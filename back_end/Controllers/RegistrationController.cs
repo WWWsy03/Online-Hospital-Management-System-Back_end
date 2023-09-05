@@ -257,12 +257,12 @@ namespace back_end.Controllers
                 return BadRequest("invalid period");
             }
 
-            var sameRecordNun = _context.Registrations.
+            var sameRecordNum = _context.Registrations.
                 Where(r => r.DoctorId == input.DoctorId &&
                 r.AppointmentTime.Date == input.Time.Date &&
                 r.Period == input.Period && r.PatientId == input.PatientId && r.State == 0)
                 .Count();
-            if(sameRecordNun != 0) 
+            if(sameRecordNum != 0) 
             {
                 return BadRequest("您已经挂号，无需重复挂号");
             }
@@ -277,9 +277,10 @@ namespace back_end.Controllers
                 DoctorId = input.DoctorId,
                 AppointmentTime = input.Time,
                 Period = input.Period,
-
+                Qrcodeurl=input.QRCodeUrl,
                 State = 0,
                 Registorder = maxOrder + 1  // 设置 Registorder 为当前最大值加1
+                
             };
 
             registration.Doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == input.DoctorId);
@@ -572,6 +573,7 @@ namespace back_end.Controllers
         public string DoctorId { get; set; }
         public DateTime Time { get; set; }
         public int Period { get; set; }
+        public string QRCodeUrl { get; set; }
     }
 
     public class NewRegistInputModel
