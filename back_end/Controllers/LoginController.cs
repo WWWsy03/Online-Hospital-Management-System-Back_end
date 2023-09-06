@@ -191,8 +191,8 @@ namespace back_end.Controllers
             return BadRequest("VerificationCode not found.");
         }
 
-        [HttpGet("resetAdminPassword")]
-        public async Task<ActionResult<Boolean>> resetAdminPassword(string ID, string NewPassword)
+        [HttpPut("resetAdminPassword")]
+        public async Task<ActionResult<string>> resetAdminPassword(string ID, string NewPassword)
         {
             var User = await _context.Administrators.FirstOrDefaultAsync(d => d.AdministratorId == ID);
             if (User == null)
@@ -203,8 +203,8 @@ namespace back_end.Controllers
             await _context.SaveChangesAsync();
             return Ok("Administrator Password reset successfully");
         }
-        [HttpGet("resetDoctorPassword")]
-        public async Task<ActionResult<Boolean>> resetDoctorPassword(string ID, string NewPassword)
+        [HttpPut("resetDoctorPassword")]
+        public async Task<ActionResult<string>> resetDoctorPassword(string ID, string NewPassword)
         {
             var User = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == ID);
             if (User == null)
@@ -215,8 +215,8 @@ namespace back_end.Controllers
             await _context.SaveChangesAsync();
             return Ok("Doctor Password reset successfully");
         }
-        [HttpGet("resetPatientPassword")]
-        public async Task<ActionResult<Boolean>> resetPatientPassword(string ID, string NewPassword)
+        [HttpPut("resetPatientPassword")]
+        public async Task<ActionResult<string>> resetPatientPassword(string ID, string NewPassword)
         {
             var User = await _context.Patients.FirstOrDefaultAsync(d => d.PatientId == ID);
             if (User == null)
