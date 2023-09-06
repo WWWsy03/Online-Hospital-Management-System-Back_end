@@ -50,6 +50,25 @@ namespace back_end.Controllers
             }
 
             // 处理业务逻辑
+            return Ok("success"); // 返回给支付网关一个确认消息
+        }
+
+
+        [HttpGet("alipayReturn")]
+        public async Task<IActionResult> ReturnUrl([FromQuery] Dictionary<string, string> parameters)
+        {
+            // 记录参数到record.txt
+            string recordPath = "record.txt"; // 你可以指定一个路径
+            using (StreamWriter sw = new StreamWriter(recordPath, true)) // true表示如果文件存在则在尾部追加文本
+            {
+                sw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                foreach (var param in parameters)
+                {
+                    sw.WriteLine($"{param.Key}: {param.Value}");
+                }
+                sw.WriteLine("------------");
+            }
+
             if (parameters.ContainsKey("out_trade_no"))
             {
                 var prescriptionId = parameters["out_trade_no"];
@@ -72,25 +91,6 @@ namespace back_end.Controllers
                     await _context.OutpatientOrders.AddAsync(order);
                     await _context.SaveChangesAsync();
                 }
-            }
-
-            return Ok("success"); // 返回给支付网关一个确认消息
-        }
-
-
-        [HttpGet("alipayReturn")]
-        public IActionResult ReturnUrl([FromQuery] Dictionary<string, string> parameters)
-        {
-            // 记录参数到record.txt
-            string recordPath = "record.txt"; // 你可以指定一个路径
-            using (StreamWriter sw = new StreamWriter(recordPath, true)) // true表示如果文件存在则在尾部追加文本
-            {
-                sw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                foreach (var param in parameters)
-                {
-                    sw.WriteLine($"{param.Key}: {param.Value}");
-                }
-                sw.WriteLine("------------");
             }
 
             // 重定向用户到一个订单完成或确认页面
