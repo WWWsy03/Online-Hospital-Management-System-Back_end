@@ -43,43 +43,6 @@ namespace back_end.Controllers
         [HttpPost("alipayNotify")]
         public async Task<IActionResult> NotifyUrl([FromForm] Dictionary<string, string> parameters)
         {
-            Console.WriteLine("Received notification");
-            foreach (var parameter in parameters)
-            {
-                Console.WriteLine($"{parameter.Key}: {parameter.Value}");
-            }
-
-            // 处理业务逻辑
-            return Ok("success"); // 返回给支付网关一个确认消息
-        }
-
-
-        [HttpGet("alipayReturn")]
-        public async Task<IActionResult> ReturnUrl(
-            string charset,
-            string out_trade_no,
-            string method,
-            decimal total_amount,
-            string sign,
-            string trade_no,
-            string auth_app_id,
-            string version,
-            string app_id,
-            string sign_type,
-            string seller_id,
-            string timestamp)
-        {
-            // 记录参数到record.txt
-            string recordPath = "record.txt"; // 你可以指定一个路径
-            using (StreamWriter sw = new StreamWriter(recordPath, true)) // true表示如果文件存在则在尾部追加文本
-            {
-                sw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                foreach (var param in parameters)
-                {
-                    sw.WriteLine($"{param.Key}: {param.Value}");
-                }
-                sw.WriteLine("------------");
-            }
 
             if (parameters.ContainsKey("out_trade_no"))
             {
@@ -105,17 +68,59 @@ namespace back_end.Controllers
                 }
             }
 
-            // 重定向用户到一个订单完成或确认页面
-            string htmlContent = @"
-            <html>
-            <head>
-                <title>Payment Complete</title>
-            </head>
-            <body>
-                <h1>已付款，请关闭</h1>
-            </body>
-            </html>";
-            return Content(htmlContent, "text/html");
+            // 处理业务逻辑
+            return Ok("success"); // 返回给支付网关一个确认消息
+        }
+
+
+        [HttpGet("alipayReturn")]
+        public async Task<IActionResult> ReturnUrl([FromQuery] Dictionary<string, string> parameters)
+        {
+
+            if (parameters.ContainsKey("out_trade_no"))
+            {
+                var prescriptionId = parameters["out_trade_no"];
+                string diagnosedId = prescriptionId.Remove(8, 3);
+                // 在数据库中获取诊断信息
+                var treatment = _context.TreatmentRecords.FirstOrDefault(t => t.DiagnosisRecordId == diagnosedId);
+                var prescription = _context.Prescriptions.FirstOrDefault(p => p.PrescriptionId == prescriptionId);
+                prescription.Paystate = 1;  // 修改状态值，表示已经支付
+                var existingOrder = await _context.OutpatientOrders.FirstOrDefaultAsync(o => o.OrderId == prescriptionId);
+
+                if (existingOrder == null)
+                {
+                    var order = new OutpatientOrder
+                    {
+                        OrderId = prescriptionId,
+                        PatientId = treatment.PatientId,
+                        OrderTime = DateTime.Now
+                    };
+
+                    await _context.OutpatientOrders.AddAsync(order);
+                    await _context.SaveChangesAsync();
+                }
+                string htmlContent = @"
+                <html>
+                <head>
+                    <title>Payment Complete</title>
+                </head>
+                <body>
+                    <h1>已付款，请关闭</h1>
+                    <p>订单号: " + prescriptionId + @"</p>
+                    <p>PatientId: " + treatment.PatientId + @"</p>
+                    <p>OrderTime: " + DateTime.Now.ToString() + @"</p>
+                    <script>
+                        // 使用JavaScript在页面加载后自动关闭窗口
+                        window.onload = function() {
+                            window.setTimeout(function() {
+                                window.close();
+                            }, 5000); // 5000毫秒（5秒）后关闭窗口，您可以根据需要更改此时间
+                        };
+                    </script>
+                </body>
+                </html>";
+                return Content(htmlContent, "text/html");
+            }
         }
 
 
@@ -141,9 +146,9 @@ namespace back_end.Controllers
             IAopClient client = new DefaultAopClient("https://openapi-sandbox.dl.alipaydev.com/gateway.do", "9021000126614589", "MIIEowIBAAKCAQEAhveBahIvn61hab5cDfFfE+8ma04lShyeLcYEpb6u038h/7NQ9vv+AxRkcMdgbfSOHHWVT1QdJOalUyZ3PnIl0QvLaY+pZlIN2z51z0sOs6n5YZOJTmrC7GYYK92dZQWodG0YsmF+XsPKgq46M6VSTZhIPg0S8Q2v1Gb23Z/i4H8Ac/7WPjmEtFFDOfjJhUZsovoIlnfF4VrsrDjP7t06bO16ZwpC3bdagx5MIX6LAtHIhh2rkiEY823/OnmK2BPIVrF9YjF1fvKn3QxkYfkappD3/cM9uWh8AMyEkznLS8uwcieCbuNv3H2c+5c7k0t73fBT5SmvCXreMGabvWn4FQIDAQABAoIBAC/0hWEg8Rb1TeV6o864cqXslWQPMiSxImr1LvWNWSUAyR3Hov7+7nQ9rKp9zP+Eo3HtPY4gPvK7mQaAZmIjwNgULsRlLTWT9iRufwGWk7S2sks/VswsFvJUHEaJycD5T69+jAXlqjcVrkDckwWCukmj0BdsIczQpib8Jr78bmqBa+JKfehHHGAEYJep+MAV9PVuUWR/rkUXHoheJZbERde1nqwSXijD9sYt51WLXNEzsjuf1hlraGe7ozqjuIINeBiFyocYFM6f0svymoFG8mNO0CgkU3BxWPB6m5fvOmkbvqyrui84iadx9oBLVZVl/vTAF3XbnlUvEIi0Ld3GCEECgYEA+TVLgUYSSjY/0PrjTWJgoJZWWluEkDXHDdeYx1A+ti2Xm09ofE887ENqpVaY0/h0Sh2+q4xySXpxHnbQrIHl2gj7NdyBOFjXms9Qt1UvPYW8Uj9R75KVlq/m+xbs6Kqyi+fOZNc5BJZvApobJsWEkqBwGHdIciOx1gi7HGUXp0kCgYEAiqUob1iI+kEy1qmmpD2mCz+BG3R6u14UGv5wFFnSbBr5XbMSZJFmtoUhdlaZFbC3eQGZ13EH8xRqrDuzY0wcAmwT9NbyiDpv6C7llD/ZdOIFcYkB/MSCXMw6sZWv0zZejz2yBgLvQI1d2LDAVOlEFPFvTKr+PLwgK9fY+7Tjzm0CgYB+PrFxW74IOlM52t8rZJruvzofrB0LsTKVoJKU5eHfCFm1JBUaZEnIpp5wA96IA2Vl5oug/BUphA2qESbFPUjjm4knT/1mPht7IWsSdOTplcZBJDKt2uRM4e9xY7vAYjjxBw1XqHAKEutJtifrDESMwxoGSuc4azy74NBpIg1JgQKBgFmxIKhvsSWcWiQu2kQ0MZ/jNEWro95krUMNSTqRJSSUiq/IMeTnf3giRhSFT0GN8hORKpIKaGcj1SKY+KMLUK9sdbiV+Y6Rp2WgORsf9zC7K2RYivWXtvILmQjbWkScTq4B7pIfAeJT0dtl9Pa5dTbLPgJuOEzYM0PJvnCPhDQ9AoGBAMag8PMI/jsGf+dZ3pd56mVPMLP1PLab0m1PO5/iLvt5nezVB18JmQfFBt+J63Wv2P/nDXh/09FnlOQ108/3ikgFFSILBLq+nXhikXqVYL9GmSZTBEKzXqfw4G3fjZo1eTglMt4u7dbFnAF+10l7g+Wr3kGyViBXBOvu4ITulscI", "json", "1.0", "RSA2", "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApzj6PN6aFQTBN6MRHyt+nd7O+OjkIwXP6jmKQlgkGetdntvFvpb2q3cwe7w0uwlwoBc51gw2zUDea/8IYke8ck9UCiXH37kVCNX3bOivpykSTB2NR2xo9ALF1XkLr32xXv9Vo3/5qVkITsJN9xCpizLm+9FoBM/SKxp84Kqyg/O5ELkZ+pqlQPIqPYqEEMWyLAXNzZN02u97Y5RLCqsomW25iQphjqI1717vWc9MSEGr+qZNMrx4i7YI651h8ktrl+aRe+tC44P4tyRmpARGPkBGX9EldTGrk6PVgFYAFbmXpuengqNpzsXP3HvyLucy/e/o03sl4X7eFXW/k1RASwIDAQAB", "utf-8", false);
             AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
             //异步接收地址
-            request.SetNotifyUrl("http://124.223.143.21:4999/api/alipayNotify");
+            request.SetNotifyUrl("http://124.223.143.21:4999/api/DiagnosedHistory/alipayNotify");
             //同步跳转地址
-            request.SetReturnUrl("http://124.223.143.21:4999/api/alipayReturn");
+            request.SetReturnUrl("http://124.223.143.21:4999/api/DiagnosedHistory/alipayReturn");
 
 
             /******必传参数******/
