@@ -51,7 +51,7 @@ namespace back_end.Controllers
                 // 在数据库中获取诊断信息
                 var treatment = _context.TreatmentRecords.FirstOrDefault(t => t.DiagnosisRecordId == diagnosedId);
                 var prescription = _context.Prescriptions.FirstOrDefault(p => p.PrescriptionId == prescriptionId);
-                prescription.Paystate = 1;  // 修改状态值，表示已经支付
+                prescription.Paystate = 1;  // 修改状态值，表示已经支付了
                 var existingOrder = await _context.OutpatientOrders.FirstOrDefaultAsync(o => o.OrderId == prescriptionId);
 
                 if (existingOrder == null)
@@ -191,6 +191,21 @@ namespace back_end.Controllers
 
             await _context.SaveChangesAsync();
             return Content(response.Body, "text/html");
+        }
+
+        [HttpGet("GetPaystate")]//订单支付
+        public async Task<IActionResult> GetPaystate(string diagnosedId)
+        {
+            string prescriptionId = diagnosedId.Insert(8, "000");
+            var prescription = await _context.Prescriptions.FirstOrDefaultAsync(p => p.PrescriptionId == prescriptionId);
+            if (prescription == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(prescription.Paystate);
+            }
         }
 
         [HttpGet("GetDetailPre")]
