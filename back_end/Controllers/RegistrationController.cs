@@ -304,7 +304,7 @@ namespace back_end.Controllers
         }
 
         [HttpPut("cancel")]
-        public async Task<IActionResult> CancelRegistration([FromBody] RegistrationInputModel inputModel)
+        public async Task<IActionResult> CancelRegistration([FromBody] RegistrationInputModel2 inputModel)
         {
             // 查找匹配的挂号记录
             var registration = await _context.Registrations.FirstOrDefaultAsync(r =>
@@ -447,7 +447,7 @@ namespace back_end.Controllers
         }
 
         [HttpPut("Checkin")]
-        public async Task<IActionResult> UpdateCheckin([FromBody] RegistrationInputModel inputModel)
+        public async Task<IActionResult> UpdateCheckin([FromBody] RegistrationInputModel2 inputModel)
         {
             var registration = await _context.Registrations.FirstOrDefaultAsync(r => r.PatientId == inputModel.PatientId &&
             r.DoctorId == inputModel.DoctorId && r.AppointmentTime == inputModel.Time && r.Period == inputModel.Period && r.State == 0);
@@ -588,6 +588,14 @@ namespace back_end.Controllers
         public DateTime Time { get; set; }
         public int Period { get; set; }
         public string QRCodeUrl { get; set; }
+    }
+
+    public class RegistrationInputModel2//用于传输数据
+    {
+        public string PatientId { get; set; }
+        public string DoctorId { get; set; }
+        public DateTime Time { get; set; }
+        public int Period { get; set; }
     }
 
     public class NewRegistInputModel
