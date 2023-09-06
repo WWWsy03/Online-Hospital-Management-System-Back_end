@@ -221,7 +221,7 @@ namespace back_end.Controllers
             var User = await _context.Patients.FirstOrDefaultAsync(d => d.PatientId == ID);
             if (User == null)
             {
-                return BadRequest("PatientID not found");
+                return NotFound("PatientID not found");
             }
             User.Password = NewPassword;
             await _context.SaveChangesAsync();
@@ -234,7 +234,7 @@ namespace back_end.Controllers
             var User = await _context.Patients.FirstOrDefaultAsync(d => d.PatientId == ID);
             if (User == null)
             {
-                return BadRequest("PatientID not found");
+                return NotFound("PatientID not found");
             }
             User.Password = NewPassword;
             await _context.SaveChangesAsync();
