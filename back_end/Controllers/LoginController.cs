@@ -191,7 +191,7 @@ namespace back_end.Controllers
             return BadRequest("VerificationCode not found.");
         }
 
-        [HttpPost("resetAdminPassword")]
+        [HttpPut("resetAdminPassword")]
         public async Task<ActionResult<Boolean>> resetAdminPassword(string ID, string NewPassword)
         {
             var User = await _context.Administrators.FirstOrDefaultAsync(d => d.AdministratorId == ID);
@@ -203,7 +203,7 @@ namespace back_end.Controllers
             await _context.SaveChangesAsync();
             return Ok("Administrator Password reset successfully");
         }
-        [HttpPost("resetDoctorPassword")]
+        [HttpPut("resetDoctorPassword")]
         public async Task<ActionResult<Boolean>> resetDoctorPassword(string ID, string NewPassword)
         {
             var User = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == ID);
@@ -215,7 +215,7 @@ namespace back_end.Controllers
             await _context.SaveChangesAsync();
             return Ok("Doctor Password reset successfully");
         }
-        [HttpPost("resetPatientPassword")]
+        [HttpPut("resetPatientPassword")]
         public async Task<ActionResult<Boolean>> resetPatientPassword(string ID, string NewPassword)
         {
             var User = await _context.Patients.FirstOrDefaultAsync(d => d.PatientId == ID);

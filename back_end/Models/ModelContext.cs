@@ -17,6 +17,7 @@ namespace back_end.Models
         }
 
         public virtual DbSet<Administrator> Administrators { get; set; } = null!;
+        public virtual DbSet<Chatrecord> Chatrecords { get; set; } = null!;
         public virtual DbSet<ConsultationInfo> ConsultationInfos { get; set; } = null!;
         public virtual DbSet<ConsultingRoom> ConsultingRooms { get; set; } = null!;
         public virtual DbSet<Department2> Department2s { get; set; } = null!;
@@ -84,6 +85,47 @@ namespace back_end.Models
                     .HasMaxLength(200)
                     .IsUnicode(false)
                     .HasColumnName("PASSWORD");
+            });
+
+            modelBuilder.Entity<Chatrecord>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToTable("CHATRECORD");
+
+                entity.Property(e => e.Column4)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("COLUMN4");
+
+                entity.Property(e => e.Column5)
+                    .HasPrecision(6)
+                    .HasColumnName("COLUMN5");
+
+                entity.Property(e => e.DoctorId)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("DOCTOR_ID");
+
+                entity.Property(e => e.Id)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("ID");
+
+                entity.Property(e => e.Message)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("MESSAGE");
+
+                entity.Property(e => e.PatientId)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("PATIENT_ID");
+
+                entity.Property(e => e.ReadStatus)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("READ_STATUS");
             });
 
             modelBuilder.Entity<ConsultationInfo>(entity =>
