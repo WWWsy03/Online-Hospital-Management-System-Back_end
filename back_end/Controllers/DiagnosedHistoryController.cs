@@ -121,6 +121,28 @@ namespace back_end.Controllers
                 </html>";
                 return Content(htmlContent, "text/html");
             }
+            else
+            {
+                string htmlContent = @"
+                <html>
+                <head>
+                    <title>Payment Complete</title>
+                </head>
+                <body>
+                    <h1>已付款，请关闭</h1>
+                    <p>查询失败</p>
+                    <script>
+                        // 使用JavaScript在页面加载后自动关闭窗口
+                        window.onload = function() {
+                            window.setTimeout(function() {
+                                window.close();
+                            }, 5000); // 5000毫秒（5秒）后关闭窗口，您可以根据需要更改此时间
+                        };
+                    </script>
+                </body>
+                </html>";
+                return Content(htmlContent, "text/html");
+            }
         }
 
 
