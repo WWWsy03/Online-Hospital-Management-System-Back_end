@@ -8,6 +8,7 @@ namespace back_end.Models
     {
         public Patient()
         {
+            Chatrecords = new HashSet<Chatrecord>();
             MedicineOuts = new HashSet<MedicineOut>();
             OutpatientOrders = new HashSet<OutpatientOrder>();
             Referrals = new HashSet<Referral>();
@@ -24,6 +25,7 @@ namespace back_end.Models
         public string College { get; set; } = null!;
         public string Counsellor { get; set; } = null!;
 
+        public virtual ICollection<Chatrecord> Chatrecords { get; set; }
         public virtual ICollection<MedicineOut> MedicineOuts { get; set; }
         public virtual ICollection<OutpatientOrder> OutpatientOrders { get; set; }
         public virtual ICollection<Referral> Referrals { get; set; }
