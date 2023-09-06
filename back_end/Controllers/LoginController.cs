@@ -49,7 +49,7 @@ namespace back_end.Controllers
         }
 
         [HttpGet("AdminLogin")]
-        public async Task<ActionResult<bool>> CheckAdminCredentials(string ID,string password)
+        public async Task<ActionResult<bool>> CheckAdminCredentials(string ID, string password)
         {
             bool exists = await _context.Administrators.AnyAsync(
                 admin => admin.AdministratorId == ID && admin.Password == password);
@@ -84,16 +84,16 @@ namespace back_end.Controllers
         public async Task<ActionResult<bool>> CheckDoctorCredentials(string ID, string password)
         {
             bool exists = await _context.Doctors.AnyAsync(
-                doctor => doctor.DoctorId== ID && doctor.Password == password);
+                doctor => doctor.DoctorId == ID && doctor.Password == password);
             if (exists)
             {
                 string token = GenerateTokenAsync("Doctor");
-                return Ok("The token is: "+token);
+                return Ok("The token is: " + token);
             }
             else
             {
                 return BadRequest("Wrong acount or password");
-            }            
+            }
         }
 
 
@@ -122,10 +122,10 @@ namespace back_end.Controllers
                     char c = chars[random.Next(chars.Length)];
                     tokenBuilder.Append(c);
                 }
-            } while (Tokens.Contains(User+"_"+tokenBuilder.ToString()));
+            } while (Tokens.Contains(User + "_" + tokenBuilder.ToString()));
             //存储token
             string token = tokenBuilder.ToString();
-            Tokens.Add(User+"_"+token);
+            Tokens.Add(User + "_" + token);
             TokenGenerateTimes[User + "_" + token] = DateTime.Now;//初始化Token时间
 
             return token;
@@ -140,7 +140,7 @@ namespace back_end.Controllers
             var code = random.Next(100000, 999999).ToString();
 
             //发送验证码到手机
-            string context= $"您的验证码是：{code}。请不要把验证码泄露给其他人。";
+            string context = $"您的验证码是：{code}。请不要把验证码泄露给其他人。";
             Task<bool> task = MessageSender.SendSmsAsync(PhoneNumber, context);
             bool isSuccess = await task;
 
@@ -183,7 +183,7 @@ namespace back_end.Controllers
         }
 
         [HttpGet("verifyCode")]
-        public ActionResult<bool> VerifyCode(string PhoneNumber,string Code)
+        public ActionResult<bool> VerifyCode(string PhoneNumber, string Code)
         {
             //先删除所有过期的验证码
             var currentTime = DateTime.Now;
@@ -193,13 +193,49 @@ namespace back_end.Controllers
                 CodeGenerateTimes.Remove(entry.Key);
             }
             //然后开始验证
-            if (VerificationCodes.ContainsKey(PhoneNumber) && VerificationCodes[PhoneNumber]==Code)
+            if (VerificationCodes.ContainsKey(PhoneNumber) && VerificationCodes[PhoneNumber] == Code)
             {
                 return Ok("VerificationCode verify succeed.");
             }
             return BadRequest("VerificationCode not found.");
         }
 
+        [HttpPost("resetAdminPassword")]
+        public async Task<ActionResult<Boolean>> resetAdminPassword(string ID, string NewPassword)
+        {
+            var User = await _context.Administrators.FirstOrDefaultAsync(d => d.AdministratorId == ID);
+            if (User == null)
+            {
+                return BadRequest("AdministratorID not found");
+            }
+            User.Password = NewPassword;
+            await _context.SaveChangesAsync();
+            return Ok("Administrator Password reset successfully");
+        }
+        [HttpPost("resetDoctorPassword")]
+        public async Task<ActionResult<Boolean>> resetDoctorPassword(string ID, string NewPassword)
+        {
+            var User = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == ID);
+            if (User == null)
+            {
+                return BadRequest("DoctorID not found");
+            }
+            User.Password = NewPassword;
+            await _context.SaveChangesAsync();
+            return Ok("Doctor Password reset successfully");
+        }
+        [HttpPost("resetPatientPassword")]
+        public async Task<ActionResult<Boolean>> resetPatientPassword(string ID, string NewPassword)
+        {
+            var User = await _context.Patients.FirstOrDefaultAsync(d => d.PatientId == ID);
+            if (User == null)
+            {
+                return BadRequest("PatientID not found");
+            }
+            User.Password = NewPassword;
+            await _context.SaveChangesAsync();
+            return Ok("Patient Password reset successfully");
+        }
     }
 
 }
