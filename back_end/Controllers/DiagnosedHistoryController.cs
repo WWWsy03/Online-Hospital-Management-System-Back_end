@@ -81,21 +81,30 @@ namespace back_end.Controllers
         [HttpGet("alipayReturn")]
         public IActionResult ReturnUrl([FromQuery] Dictionary<string, string> parameters)
         {
+            // 记录参数到record.txt
+            string recordPath = "record.txt"; // 你可以指定一个路径
+            using (StreamWriter sw = new StreamWriter(recordPath, true)) // true表示如果文件存在则在尾部追加文本
+            {
+                sw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                foreach (var param in parameters)
+                {
+                    sw.WriteLine($"{param.Key}: {param.Value}");
+                }
+                sw.WriteLine("------------");
+            }
+
             // 重定向用户到一个订单完成或确认页面
-            string returnUrl = "http://localhost:8080"; // 注意添加协议（如http或https）
+            string htmlContent = @"
+            <html>
+            <head>
+                <title>Payment Complete</title>
+            </head>
+            <body>
+                <h1>已付款，请关闭</h1>
+            </body>
+            </html>";
 
-            // 构造重定向的JavaScript代码
-            string javascriptCode = $@"
-                <script>
-                    setTimeout(function() {{
-                        window.location.href = '{returnUrl}';
-                        setTimeout(function() {{
-                            window.close();
-                        }}, 3000); // 3秒后关闭窗口
-                    }}, 1000); // 1秒后重定向
-                </script>";
-
-            return Content(javascriptCode, "text/html");
+            return Content(htmlContent, "text/html");
         }
 
         [HttpGet("payBill")]
