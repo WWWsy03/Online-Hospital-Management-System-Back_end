@@ -76,7 +76,6 @@ namespace back_end.Controllers
         [HttpGet("alipayReturn")]
         public async Task<IActionResult> ReturnUrl([FromQuery] Dictionary<string, string> parameters)
         {
-
             if (parameters.ContainsKey("out_trade_no"))
             {
                 var prescriptionId = parameters["out_trade_no"];
@@ -84,7 +83,7 @@ namespace back_end.Controllers
                 // 在数据库中获取诊断信息
                 var treatment = _context.TreatmentRecords.FirstOrDefault(t => t.DiagnosisRecordId == diagnosedId);
                 var prescription = _context.Prescriptions.FirstOrDefault(p => p.PrescriptionId == prescriptionId);
-                prescription.Paystate = 1;  // 修改状态值，表示已经支付
+                // prescription.Paystate = 1;  // 修改状态值，表示已经支付
                 var existingOrder = await _context.OutpatientOrders.FirstOrDefaultAsync(o => o.OrderId == prescriptionId);
 
                 if (existingOrder == null)
@@ -96,10 +95,11 @@ namespace back_end.Controllers
                         OrderTime = DateTime.Now
                     };
 
-                    await _context.OutpatientOrders.AddAsync(order);
-                    await _context.SaveChangesAsync();
+                    //await _context.OutpatientOrders.AddAsync(order);
+                    //await _context.SaveChangesAsync();
                 }
                 string htmlContent = @"
+                <meta charset=""UTF-8"">
                 <html>
                 <head>
                     <title>Payment Complete</title>
@@ -124,6 +124,7 @@ namespace back_end.Controllers
             else
             {
                 string htmlContent = @"
+                <meta charset=""UTF-8"">
                 <html>
                 <head>
                     <title>Payment Complete</title>
