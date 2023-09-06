@@ -7,15 +7,16 @@
             using (HttpClient httpClient = new HttpClient())
             {
                 //创建链接到SMS API的链接
-                string account = "C58169395";
-                string password = "776f675d18a48ed284eaf032364e06f0";
-                string mobile = PhoneNumber;
-                string content = context;
-                string url = "http://106.ihuyi.com/webservice/sms.php?method=Submit";
-                string post = string.Format("&account={0}&password={1}&mobile={2}&content={3}", account, password, mobile, content);
+                string Uid = "JieChu";
+                string Key = "A6680534D182D0450B51BDF759C6477C";
+                string smsMob = PhoneNumber;
+                string smsText = context;
+                string url = "http://utf8.api.smschinese.cn/";
+                string post = string.Format($"?Uid={Uid}&Key={Key}&smsMob={smsMob}&smsText={smsText}");
                 string request = url + post;
+                //Console.WriteLine(request);
                 HttpResponseMessage response = await httpClient.GetAsync(request);
-
+                //Console.WriteLine(response);
                 if (response.IsSuccessStatusCode)
                 {
                     string responseBody = await response.Content.ReadAsStringAsync();

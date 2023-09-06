@@ -144,15 +144,6 @@ namespace back_end.Controllers
             Task<bool> task = MessageSender.SendSmsAsync(PhoneNumber, context);
             bool isSuccess = await task;
 
-            if (isSuccess)
-            {
-                Console.WriteLine("VeificationCode sent successfully！");
-            }
-            else
-            {
-                Console.WriteLine("VeificationCode sent failed！");
-            }
-
             // Store the code and generation time
             var currentTime = DateTime.Now;
             VerificationCodes[PhoneNumber] = code;
@@ -187,7 +178,7 @@ namespace back_end.Controllers
         {
             //先删除所有过期的验证码
             var currentTime = DateTime.Now;
-            foreach (var entry in CodeGenerateTimes.Where(entry => (currentTime - entry.Value).TotalSeconds > 60).ToList())
+            foreach (var entry in CodeGenerateTimes.Where(entry => (currentTime - entry.Value).TotalSeconds > 180).ToList())
             {
                 VerificationCodes.Remove(entry.Key);
                 CodeGenerateTimes.Remove(entry.Key);
