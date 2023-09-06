@@ -227,6 +227,19 @@ namespace back_end.Controllers
             await _context.SaveChangesAsync();
             return Ok("Patient Password reset successfully!");
         }
+
+        [HttpPut("resetPPTest")]
+        public async Task<ActionResult<string>> resetPPTest(string ID, string NewPassword)
+        {
+            var User = await _context.Patients.FirstOrDefaultAsync(d => d.PatientId == ID);
+            if (User == null)
+            {
+                return BadRequest("PatientID not found");
+            }
+            User.Password = NewPassword;
+            await _context.SaveChangesAsync();
+            return Ok("Patient Password reset successfully!");
+        }
     }
 
 }

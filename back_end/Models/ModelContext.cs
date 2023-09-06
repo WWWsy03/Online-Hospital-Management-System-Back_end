@@ -89,43 +89,54 @@ namespace back_end.Models
 
             modelBuilder.Entity<Chatrecord>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => new { e.DoctorId, e.PatientId, e.Timestamp })
+                    .HasName("CHATRECORD_PK");
 
                 entity.ToTable("CHATRECORD");
-
-                entity.Property(e => e.Column4)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("COLUMN4");
-
-                entity.Property(e => e.Column5)
-                    .HasPrecision(6)
-                    .HasColumnName("COLUMN5");
 
                 entity.Property(e => e.DoctorId)
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("DOCTOR_ID");
 
-                entity.Property(e => e.Id)
+                entity.Property(e => e.PatientId)
                     .HasMaxLength(20)
                     .IsUnicode(false)
-                    .HasColumnName("ID");
+                    .HasColumnName("PATIENT_ID");
+
+                entity.Property(e => e.Timestamp)
+                    .HasPrecision(6)
+                    .HasColumnName("TIMESTAMP");
 
                 entity.Property(e => e.Message)
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("MESSAGE");
 
-                entity.Property(e => e.PatientId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("PATIENT_ID");
-
                 entity.Property(e => e.ReadStatus)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
+                    .HasColumnType("NUMBER")
                     .HasColumnName("READ_STATUS");
+
+                entity.Property(e => e.Recordid)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("RECORDID");
+
+                entity.Property(e => e.SenderType)
+                    .HasColumnType("NUMBER")
+                    .HasColumnName("SENDER_TYPE");
+
+                entity.HasOne(d => d.Doctor)
+                    .WithMany(p => p.Chatrecords)
+                    .HasForeignKey(d => d.DoctorId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("CHATRECORD_FK1");
+
+                entity.HasOne(d => d.Patient)
+                    .WithMany(p => p.Chatrecords)
+                    .HasForeignKey(d => d.PatientId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("CHATRECORD_FK2");
             });
 
             modelBuilder.Entity<ConsultationInfo>(entity =>

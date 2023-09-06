@@ -8,6 +8,7 @@ namespace back_end.Models
     {
         public Doctor()
         {
+            Chatrecords = new HashSet<Chatrecord>();
             ConsultationInfos = new HashSet<ConsultationInfo>();
             Prescriptions = new HashSet<Prescription>();
             Referrals = new HashSet<Referral>();
@@ -25,8 +26,11 @@ namespace back_end.Models
         public string? Photourl { get; set; }
         public string Password { get; set; } = null!;
         public string? Skilledin { get; set; }
+
+        public virtual ICollection<Chatrecord> Chatrecords { get; set; }
         [JsonIgnore]//防止序列化器尝试序列化这个集合，从而避免了循环引用的问题。
         public virtual ICollection<ConsultationInfo> ConsultationInfos { get; set; }
+        [JsonIgnore]//防止序列化器尝试序列化这个集合，从而避免了循环引用的问题。
         public virtual ICollection<Prescription> Prescriptions { get; set; }
         public virtual ICollection<Referral> Referrals { get; set; }
         [JsonIgnore]//防止序列化器尝试序列化这个集合，从而避免了循环引用的问题。

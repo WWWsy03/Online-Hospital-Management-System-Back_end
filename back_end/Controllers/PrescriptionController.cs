@@ -76,8 +76,8 @@ namespace back_end.Controllers
                 return new
                 {
                     PrescriptionId = p.PrescriptionId,
-                    DiagnoseTime = treatmentRecord.DiagnoseTime,
-                    PatientId = diagnose.PatientId,
+                    DiagnoseTime = treatmentRecord?.DiagnoseTime,
+                    PatientId = diagnose?.PatientId,
                     TotalPrice = p.TotalPrice,
                     Paystate = p.Paystate,
                     DoctorId = p.DoctorId
