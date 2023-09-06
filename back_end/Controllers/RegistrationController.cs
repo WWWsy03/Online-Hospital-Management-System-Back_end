@@ -132,7 +132,7 @@ namespace back_end.Controllers
             var registrations = await _context.Registrations
                                         .Include(r => r.Doctor)
                                         .Include(r => r.Patient)
-                                        .Where(r => r.DoctorId == ID)
+                                        .Where(r => r.DoctorId == ID && r.State==1)
                                         .ToListAsync();
 
             if (!registrations.Any())
