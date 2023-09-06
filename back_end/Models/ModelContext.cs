@@ -118,7 +118,7 @@ namespace back_end.Models
                     .HasColumnName("READ_STATUS");
 
                 entity.Property(e => e.Recordid)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .IsUnicode(false)
                     .HasColumnName("RECORDID");
 

@@ -122,7 +122,7 @@ namespace back_end.Controllers
                                    r.DoctorId == reg.DoctorId &&
                                    r.Registorder < reg.Registorder)
                                    .Count();
-
+                var payState = _context.Prescriptions.FirstOrDefault(p => p.PrescriptionId == reg.Prescriptionid)?.Paystate;
                 return new
                 {
                     Doctor = reg.Doctor,
@@ -130,6 +130,7 @@ namespace back_end.Controllers
                     Date = reg.AppointmentTime.Date,
                     Period = reg.Period,
                     State = reg.State,
+                    PayState = payState,
                     QueueCount = queueCount
                 };
             }).ToList();

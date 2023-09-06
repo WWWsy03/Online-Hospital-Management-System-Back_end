@@ -1,0 +1,59 @@
+# database中放数据库、初始数据以及数据库附加到Oracle的说明文档
+
+## 基础环境
+- 首先得有一台服务器，腾讯云或阿里云都可以，我们组采用腾讯云的一个2核2G的linux云服务器，使用新人优惠购买一年有效期可以将价格控制在100以内。
+- 需要注意的是，linux的操作系统也存在不同的发行版，如Centos、Ubuntu、AliCloud等等。不同的类别会内置一些不同的**安装工具包**，如yum、apt、wget等等。
+- 由于腾和阿里打折优惠的力度可能不同或时间上错开，可以博观而约取，选个最便宜的。
+
+## 数据库部署
+- 数据库版本采用Oracle12c，使用[Docker](https://www.docker.com/)部署
+1. 首先在服务器上安装好docker，oracle的环境配置极为复杂（本人在自己电脑上配了12c后卸载再装19c，可能注册表误删，导致整个系统重装了），使用docker容器是绝对的省力～，安装好了可以使用`docker -v`查看版本。
+2. 使用docker拉取oracle镜像
+      -  搜索oracle镜像
+	```
+	# docker search oracle  
+	NAME                                 DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED  
+	oraclelinux                          Official Docker builds of Oracle Linux.         903       [OK]   
+	oracleinanutshell/oracle-xe-11g                                                      226   
+	wnameless/oracle-xe-11g-r2           Oracle Express Edition 11g Release 2 on Ubun…   84   
+	gvenzl/oracle-xe                     Oracle Database XE (21c, 18c, 11g) for every…   80   
+	truevoly/oracle-12c                  Copy of sath89/oracle-12c image (https://git…   45   
+	quillbuilduser/oracle-18-xe          Oracle 18c XE Image for Quill Testing Purpos…   27   
+	oracledb19c/oracle.19.3.0-ee                                                         13   
+	iamseth/oracledb_exporter            A Prometheus exporter for Oracle modeled aft…   5   
+	oraclecoherence/coherence-ce         Coherence Community Edition                     4   
+	18fgsa/oracle-client                 Hosted version of the Oracle Container Image…   2   
+	kasmweb/oracle-8-desktop             Oracle Linux 8 desktop for Kasm Workspaces      1   
+	dokken/oraclelinux-8                                                                 0   
+	bitnami/oraclelinux-extras           Oracle Linux base images                        0                    [OK]  
+	dokken/oraclelinux-6                 Oracle Linux 6 image for kitchen-dokken         0   
+	oracledemo1/hello-world              Test docker build from github                   0                    [OK]  
+	kasmweb/oracle-7-desktop             Oracle Linux 7 desktop for Kasm Workspaces      0   
+	oraclejmx/docker_jmx                                                                 0   
+	dokken/oraclelinux-7                 Oracle Linux 7 image for kitchen-dokken         0   
+	kasmweb/core-oracle-7                Oracle Linux 7 base image for Kasm Workspace…   0   
+	kasmweb/core-oracle-8                Oracle Linux 8 base image for Kasm Workspace…   0   
+	bitnami/oraclelinux-extras-base                                                      0   
+	oraclejp/weather-collector                                                           0   
+	oraclejp/paasdocs-preview                                                            0   
+	bitnami/oraclelinux-base-buildpack   Oracle Linux bitnami-base-buildpack             0   
+	bitnami/oraclelinux-runtimes         Oracle Linux runtime-optimized images           0                    [OK]
+	```
+	-   根据学长的经验我们选择了`truevoly/oracle-12c`镜像
+	```
+	# docker pull truevoly/oracle-12c  
+	Using default tag: latest  
+	latest: Pulling from truevoly/oracle-12c  
+	863735b9fd15: Pull complete   
+	4fbaa2f403df: Pull complete   
+	44be94a95984: Pull complete   
+	a3ed95caeb02: Pull complete   
+	b8bc6e8767ee: Pull complete   
+	c918da326197: Pull complete   
+	448e1619a038: Pull complete   
+	faadd00cf98e: Downloading [========>                                          ]    463MB/2.768GB  
+	197958b982b1: Download complete   
+	1d3ee67a57bb: Download complete
+	```
+
+

@@ -17,7 +17,7 @@ namespace back_end.Controllers
         [HttpGet("getChatRecord")]
         public async Task<ActionResult<IEnumerable<Chatrecord>>> getChatRecord(string RecordId)
         {
-            var chatRecords = _context.Chatrecords.Where(r => r.Recordid == RecordId).ToArray();
+            var chatRecords = _context.Chatrecords.Where(r => r.Recordid == RecordId).OrderBy(r => r.Timestamp).ToArray();
             if (chatRecords == null || !chatRecords.Any())
             {
                 return NotFound("No records found.");
