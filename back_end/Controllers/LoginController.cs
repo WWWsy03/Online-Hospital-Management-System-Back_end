@@ -201,7 +201,7 @@ namespace back_end.Controllers
             }
             User.Password = NewPassword;
             await _context.SaveChangesAsync();
-            return Ok("Administrator Password reset successfully");
+            return Ok("Administrator Password reset successfully!");
         }
         [HttpPut("resetDoctorPassword")]
         public async Task<ActionResult<string>> resetDoctorPassword(string ID, string NewPassword)
@@ -213,7 +213,7 @@ namespace back_end.Controllers
             }
             User.Password = NewPassword;
             await _context.SaveChangesAsync();
-            return Ok("Doctor Password reset successfully");
+            return Ok("Doctor Password reset successfully!");
         }
         [HttpPut("resetPatientPassword")]
         public async Task<ActionResult<string>> resetPatientPassword(string ID, string NewPassword)
@@ -225,7 +225,7 @@ namespace back_end.Controllers
             }
             User.Password = NewPassword;
             await _context.SaveChangesAsync();
-            return Ok("Patient Password reset successfully");
+            return Ok("Patient Password reset successfully!");
         }
     }
 
