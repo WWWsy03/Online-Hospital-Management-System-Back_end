@@ -55,7 +55,19 @@ namespace back_end.Controllers
 
 
         [HttpGet("alipayReturn")]
-        public async Task<IActionResult> ReturnUrl([FromQuery] Dictionary<string, string> parameters)
+        public async Task<IActionResult> ReturnUrl(
+            string charset,
+            string out_trade_no,
+            string method,
+            decimal total_amount,
+            string sign,
+            string trade_no,
+            string auth_app_id,
+            string version,
+            string app_id,
+            string sign_type,
+            string seller_id,
+            string timestamp)
         {
             // 记录参数到record.txt
             string recordPath = "record.txt"; // 你可以指定一个路径
@@ -103,9 +115,9 @@ namespace back_end.Controllers
                 <h1>已付款，请关闭</h1>
             </body>
             </html>";
-
             return Content(htmlContent, "text/html");
         }
+
 
         [HttpGet("payBill")]
         public async Task<IActionResult> PayBill(string diagnosedId)      /*这里后续要改成接收一个diagnoseId的参数*/
