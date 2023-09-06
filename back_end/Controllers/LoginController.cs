@@ -191,45 +191,34 @@ namespace back_end.Controllers
             return BadRequest("VerificationCode not found.");
         }
 
-        [HttpGet("resetAdminPassword")]
-        public async Task<ActionResult<string>> resetAdminPassword(string ID, string NewPassword)
+
+        [HttpPut("resetAdminPassword")]
+        public async Task<ActionResult<string>> resetAdminPassword(resetPasswordInputModel adaptInfo)
         {
-            var User = await _context.Administrators.FirstOrDefaultAsync(d => d.AdministratorId == ID);
+            var User = await _context.Administrators.FirstOrDefaultAsync(d => d.AdministratorId== adaptInfo.ID);
             if (User == null)
             {
-                return BadRequest("AdministratorID not found");
+                return NotFound("AdministratorID not found");
             }
-            User.Password = NewPassword;
+            User.Password = adaptInfo.NewPassword;
             await _context.SaveChangesAsync();
             return Ok("Administrator Password reset successfully!");
         }
-        [HttpGet("resetDoctorPassword")]
-        public async Task<ActionResult<string>> resetDoctorPassword(string ID, string NewPassword)
+        [HttpPut("resetDoctorPassword")]
+        public async Task<ActionResult<string>> resetDoctorPassword(resetPasswordInputModel adaptInfo)
         {
-            var User = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == ID);
+            var User = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == adaptInfo.ID);
             if (User == null)
             {
-                return BadRequest("DoctorID not found");
+                return NotFound("DoctorID not found");
             }
-            User.Password = NewPassword;
+            User.Password = adaptInfo.NewPassword;
             await _context.SaveChangesAsync();
             return Ok("Doctor Password reset successfully!");
         }
-        [HttpGet("resetPatientPassword")]
-        public async Task<ActionResult<string>> resetPatientPassword(string ID, string NewPassword)
-        {
-            var User = await _context.Patients.FirstOrDefaultAsync(d => d.PatientId == ID);
-            if (User == null)
-            {
-                return NotFound("PatientID not found");
-            }
-            User.Password = NewPassword;
-            await _context.SaveChangesAsync();
-            return Ok("Patient Password reset successfully!");
-        }
 
-        [HttpPut("resetPPTest")]
-        public async Task<ActionResult<string>> resetPPTest(resetPasswordInputModel adaptInfo)
+        [HttpPut("resetPatientPassword")]
+        public async Task<ActionResult<string>> resetPatientPassword(resetPasswordInputModel adaptInfo)
         {
             var User = await _context.Patients.FirstOrDefaultAsync(d => d.PatientId == adaptInfo.ID);
             if (User == null)
