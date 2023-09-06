@@ -40,8 +40,8 @@ namespace back_end.Controllers
             return Ok(patientRecords);
         }
 
-        [HttpGet("alipayNotify")]
-        public IActionResult NotifyUrl([FromQuery] Dictionary<string, string> parameters)
+        [HttpPost("alipayNotify")]
+        public async Task<IActionResult> NotifyUrl([FromForm] Dictionary<string, string> parameters)
         {
             Console.WriteLine("Received notification");
             foreach (var parameter in parameters)
@@ -49,26 +49,34 @@ namespace back_end.Controllers
                 Console.WriteLine($"{parameter.Key}: {parameter.Value}");
             }
 
-            // 根据返回的支付成功的订单号，来让某个订单的状态改为支付成功
-            if (parameters.TryGetValue("out_trade_no", out string outTradeNo))
+            // 处理业务逻辑
+            if (parameters.ContainsKey("out_trade_no"))
             {
-                var prescriptionId = outTradeNo;
-                string diagnoseId = prescriptionId.Remove(8, 3);
-                //var treatment = _context.TreatmentRecords.FirstOrDefault(t => t.DiagnosisRecordId == diagnoseId);
+                var prescriptionId = parameters["out_trade_no"];
+                string diagnosedId = prescriptionId.Remove(8, 3);
+                // 在数据库中获取诊断信息
+                var treatment = _context.TreatmentRecords.FirstOrDefault(t => t.DiagnosisRecordId == diagnosedId);
+                var prescription = _context.Prescriptions.FirstOrDefault(p => p.PrescriptionId == prescriptionId);
+                prescription.Paystate = 1;  // 修改状态值，表示已经支付
+                var existingOrder = await _context.OutpatientOrders.FirstOrDefaultAsync(o => o.OrderId == prescriptionId);
 
-                var order = new OutpatientOrder
+                if (existingOrder == null)
                 {
-                    OrderId = prescriptionId,
-                    PatientId = "2152896",
-                    OrderTime = DateTime.Now
-                };
+                    var order = new OutpatientOrder
+                    {
+                        OrderId = prescriptionId,
+                        PatientId = treatment.PatientId,
+                        OrderTime = DateTime.Now
+                    };
 
-                _context.OutpatientOrders.Add(order);
+                    await _context.OutpatientOrders.AddAsync(order);
+                    await _context.SaveChangesAsync();
+                }
             }
 
-            // 返回给支付网关一个确认消息
-            return Ok("Notification received");
+            return Ok("success"); // 返回给支付网关一个确认消息
         }
+
 
         [HttpGet("alipayReturn")]
         public IActionResult ReturnUrl([FromQuery] Dictionary<string, string> parameters)
@@ -95,7 +103,6 @@ namespace back_end.Controllers
         {
             // 根据diagnoseId生成订单号
             string prescriptionId = diagnosedId.Insert(8, "000");
-            var treatment = _context.TreatmentRecords.FirstOrDefault(t => t.DiagnosisRecordId == diagnosedId);
             // 在Prescription表中查找对应记录
             var prescription = _context.Prescriptions.FirstOrDefault(p => p.PrescriptionId == prescriptionId);
             if (prescription == null)
