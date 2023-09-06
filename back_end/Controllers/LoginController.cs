@@ -229,19 +229,24 @@ namespace back_end.Controllers
         }
 
         [HttpPut("resetPPTest")]
-        public async Task<ActionResult<string>> resetPPTest(string ID, string NewPassword)
+        public async Task<ActionResult<string>> resetPPTest(resetPasswordInputModel adaptInfo)
         {
-            var User = await _context.Patients.FirstOrDefaultAsync(d => d.PatientId == ID);
+            var User = await _context.Patients.FirstOrDefaultAsync(d => d.PatientId == adaptInfo.ID);
             if (User == null)
             {
                 return NotFound("PatientID not found");
             }
-            User.Password = NewPassword;
+            User.Password = adaptInfo.NewPassword;
             await _context.SaveChangesAsync();
             return Ok("Patient Password reset successfully!");
         }
     }
 
+    public class resetPasswordInputModel
+    {
+        public string ID { get; set; } 
+        public string NewPassword { get; set; }
+    }
 }
 
 
