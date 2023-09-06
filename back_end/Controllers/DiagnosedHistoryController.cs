@@ -52,31 +52,42 @@ namespace back_end.Controllers
             // 根据返回的支付成功的订单号，来让某个订单的状态改为支付成功
             if (parameters.TryGetValue("out_trade_no", out string outTradeNo))
             {
-                // 获取病人信息
                 var prescriptionId = outTradeNo;
-                string diagnosedId = prescriptionId.Remove(8, 3);
-                var treatment = _context.TreatmentRecords.FirstOrDefault(t => t.DiagnosisRecordId == diagnosedId);
+                string diagnoseId = prescriptionId.Remove(8, 3);
+                //var treatment = _context.TreatmentRecords.FirstOrDefault(t => t.DiagnosisRecordId == diagnoseId);
 
-                // 在OutpatientOrder表中插入一行记录
                 var order = new OutpatientOrder
                 {
                     OrderId = prescriptionId,
-                    PatientId = treatment.PatientId,
+                    PatientId = "2152896",
                     OrderTime = DateTime.Now
                 };
 
                 _context.OutpatientOrders.Add(order);
             }
+
             // 返回给支付网关一个确认消息
             return Ok("Notification received");
         }
 
-        // 用于处理returnUrl的HttpGet方法
         [HttpGet("alipayReturn")]
         public IActionResult ReturnUrl([FromQuery] Dictionary<string, string> parameters)
         {
             // 重定向用户到一个订单完成或确认页面
-            return Redirect("localhost:8080");
+            string returnUrl = "http://localhost:8080"; // 注意添加协议（如http或https）
+
+            // 构造重定向的JavaScript代码
+            string javascriptCode = $@"
+                <script>
+                    setTimeout(function() {{
+                        window.location.href = '{returnUrl}';
+                        setTimeout(function() {{
+                            window.close();
+                        }}, 3000); // 3秒后关闭窗口
+                    }}, 1000); // 1秒后重定向
+                </script>";
+
+            return Content(javascriptCode, "text/html");
         }
 
         [HttpGet("payBill")]
@@ -104,8 +115,7 @@ namespace back_end.Controllers
             //异步接收地址
             request.SetNotifyUrl("http://124.223.143.21:4999/api/alipayNotify");
             //同步跳转地址
-            //request.SetReturnUrl("http://124.223.143.21:4999/api/alipayReturn");
-            request.SetReturnUrl("");
+            request.SetReturnUrl("http://124.223.143.21:4999/api/alipayReturn");
 
 
             /******必传参数******/
@@ -121,9 +131,8 @@ namespace back_end.Controllers
 
             string Contentjson = JsonConvert.SerializeObject(bizContent);
             request.BizContent = Contentjson;
-            //AlipayTradePagePayResponse response = client.pageExecute(request);
             AlipayTradePagePayResponse response = await Task.Run(() => client.pageExecute(request)); // 使用Task.Run转为异步
-              
+
             await _context.SaveChangesAsync();
             return Content(response.Body, "text/html");
         }
