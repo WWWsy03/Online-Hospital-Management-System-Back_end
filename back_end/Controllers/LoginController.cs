@@ -195,7 +195,7 @@ namespace back_end.Controllers
         [HttpPut("resetAdminPassword")]
         public async Task<ActionResult<string>> resetAdminPassword(resetPasswordInputModel adaptInfo)
         {
-            var User = await _context.Administrators.FirstOrDefaultAsync(d => d.AdministratorId== adaptInfo.ID);
+            var User = await _context.Administrators.FirstOrDefaultAsync(d => d.AdministratorId == adaptInfo.ID);
             if (User == null)
             {
                 return NotFound("AdministratorID not found");
@@ -228,6 +228,44 @@ namespace back_end.Controllers
             User.Password = adaptInfo.NewPassword;
             await _context.SaveChangesAsync();
             return Ok("Patient Password reset successfully!");
+        }
+
+        [HttpGet("judgeAdminPhoneID")]
+        public async Task<ActionResult<string>> judgeAdminPhoneID(string PhoneNumber, string ID)
+        {
+            bool exist = await _context.Administrators.AnyAsync(d => d.Contact == PhoneNumber & d.AdministratorId == ID);
+            if (exist) {
+                return Ok("Qualified Administrator Found.");
+            }
+            else {
+                return NotFound("No Qaulified Administrator found!");
+            }
+        }
+        [HttpGet("judgeDoctorPhoneID")]
+        public async Task<ActionResult<string>> judgeDoctorPhoneID(string PhoneNumber, string ID)
+        {
+            bool exist = await _context.Doctors.AnyAsync(d => d.Contact == PhoneNumber & d.DoctorId== ID);
+            if (exist)
+            {
+                return Ok("Qualified Doctor Found.");
+            }
+            else
+            {
+                return NotFound("No Qaulified Doctor found!");
+            }
+        }
+        [HttpGet("judgePatientPhoneID")]
+        public async Task<ActionResult<string>> judgePatientPhoneID(string PhoneNumber, string ID)
+        {
+            bool exist = await _context.Patients.AnyAsync(d => d.Contact == PhoneNumber & d.PatientId== ID);
+            if (exist)
+            {
+                return Ok("Qualified Patient Found.");
+            }
+            else
+            {
+                return NotFound("No Qaulified Patient found!");
+            }
         }
     }
 
