@@ -81,23 +81,8 @@ namespace back_end.Controllers
                 var prescriptionId = parameters["out_trade_no"];
                 string diagnosedId = prescriptionId.Remove(8, 3);
                 // 在数据库中获取诊断信息
-                var treatment = _context.TreatmentRecords.FirstOrDefault(t => t.DiagnosisRecordId == diagnosedId);
                 var prescription = _context.Prescriptions.FirstOrDefault(p => p.PrescriptionId == prescriptionId);
-                // prescription.Paystate = 1;  // 修改状态值，表示已经支付
-                var existingOrder = await _context.OutpatientOrders.FirstOrDefaultAsync(o => o.OrderId == prescriptionId);
 
-                if (existingOrder == null)
-                {
-                    var order = new OutpatientOrder
-                    {
-                        OrderId = prescriptionId,
-                        PatientId = treatment.PatientId,
-                        OrderTime = DateTime.Now
-                    };
-
-                    //await _context.OutpatientOrders.AddAsync(order);
-                    //await _context.SaveChangesAsync();
-                }
                 string htmlContent = @"
                 <meta charset=""UTF-8"">
                 <html>
@@ -105,10 +90,8 @@ namespace back_end.Controllers
                     <title>Payment Complete</title>
                 </head>
                 <body>
-                    <h1>已付款，请关闭</h1>
+                    <h1>已付款，窗口将自动关闭</h1>
                     <p>订单号: " + prescriptionId + @"</p>
-                    <p>PatientId: " + treatment.PatientId + @"</p>
-                    <p>OrderTime: " + DateTime.Now.ToString() + @"</p>
                     <script>
                         // 使用JavaScript在页面加载后自动关闭窗口
                         window.onload = function() {
@@ -130,8 +113,7 @@ namespace back_end.Controllers
                     <title>Payment Complete</title>
                 </head>
                 <body>
-                    <h1>已付款，请关闭</h1>
-                    <p>查询失败</p>
+                    <h1>查询失败</h1>
                     <script>
                         // 使用JavaScript在页面加载后自动关闭窗口
                         window.onload = function() {
