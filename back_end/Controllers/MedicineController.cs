@@ -293,7 +293,5 @@ namespace back_end.Controllers
         public string Frequency { get; set; }
         public double Sellingprice { get; set; }
     }
-
-
 }
 
