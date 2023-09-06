@@ -144,7 +144,9 @@ namespace back_end.Controllers
                 {
                     PatientID=reg.Patient.PatientId,
                     PatientName = reg.Patient.Name,
-                    PatientGender=reg.Patient.Gender
+                    PatientGender=reg.Patient.Gender,
+                    AppointmentDate= reg.AppointmentTime.Date,
+                    Period=reg.Period
                 };
             }).ToList();
 
