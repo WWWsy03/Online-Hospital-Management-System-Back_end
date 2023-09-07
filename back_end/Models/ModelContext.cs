@@ -23,7 +23,6 @@ namespace back_end.Models
         public virtual DbSet<Department2> Department2s { get; set; } = null!;
         public virtual DbSet<Disease> Diseases { get; set; } = null!;
         public virtual DbSet<Doctor> Doctors { get; set; } = null!;
-        public virtual DbSet<Equipment> Equipment { get; set; } = null!;
         public virtual DbSet<LeaveApplication> LeaveApplications { get; set; } = null!;
         public virtual DbSet<MedicineDescription> MedicineDescriptions { get; set; } = null!;
         public virtual DbSet<MedicineOut> MedicineOuts { get; set; } = null!;
@@ -34,9 +33,8 @@ namespace back_end.Models
         public virtual DbSet<Patient> Patients { get; set; } = null!;
         public virtual DbSet<Prescription> Prescriptions { get; set; } = null!;
         public virtual DbSet<PrescriptionMedicine> PrescriptionMedicines { get; set; } = null!;
-        public virtual DbSet<Referral> Referrals { get; set; } = null!;
         public virtual DbSet<Registration> Registrations { get; set; } = null!;
-        public virtual DbSet<Subsequentvisit> Subsequentvisits { get; set; } = null!;
+        public virtual DbSet<Template> Templates { get; set; } = null!;
         public virtual DbSet<TreatmentFeedback> TreatmentFeedbacks { get; set; } = null!;
         public virtual DbSet<TreatmentRecord> TreatmentRecords { get; set; } = null!;
         public virtual DbSet<TreatmentRecord2> TreatmentRecord2s { get; set; } = null!;
@@ -109,7 +107,7 @@ namespace back_end.Models
                     .HasColumnName("TIMESTAMP");
 
                 entity.Property(e => e.Message)
-                    .HasMaxLength(20)
+                    .HasMaxLength(2000)
                     .IsUnicode(false)
                     .HasColumnName("MESSAGE");
 
@@ -296,34 +294,6 @@ namespace back_end.Models
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("TITLE");
-            });
-
-            modelBuilder.Entity<Equipment>(entity =>
-            {
-                entity.HasKey(e => new { e.ConsultingRoomName, e.EquipmentType })
-                    .HasName("EQUIPMENT_PK");
-
-                entity.ToTable("EQUIPMENT");
-
-                entity.Property(e => e.ConsultingRoomName)
-                    .HasMaxLength(8)
-                    .IsUnicode(false)
-                    .HasColumnName("CONSULTING_ROOM_NAME");
-
-                entity.Property(e => e.EquipmentType)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("EQUIPMENT_TYPE");
-
-                entity.Property(e => e.EquipmentAmount)
-                    .HasColumnType("NUMBER(38)")
-                    .HasColumnName("EQUIPMENT_AMOUNT");
-
-                entity.HasOne(d => d.ConsultingRoomNameNavigation)
-                    .WithMany(p => p.Equipment)
-                    .HasForeignKey(d => d.ConsultingRoomName)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("EQUIPMENT_CONSULTING_ROOM_FK1");
             });
 
             modelBuilder.Entity<LeaveApplication>(entity =>
@@ -713,50 +683,6 @@ namespace back_end.Models
                     .HasConstraintName("PRESCRIPTION_MEDICINE_PRE_FK1");
             });
 
-            modelBuilder.Entity<Referral>(entity =>
-            {
-                entity.HasKey(e => new { e.DoctorId, e.PatientId })
-                    .HasName("REFERRAL_PK");
-
-                entity.ToTable("REFERRAL");
-
-                entity.Property(e => e.DoctorId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("DOCTOR_ID");
-
-                entity.Property(e => e.PatientId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("PATIENT_ID");
-
-                entity.Property(e => e.Disease)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("DISEASE");
-
-                entity.Property(e => e.ReferralHospital)
-                    .HasMaxLength(10)
-                    .IsUnicode(false)
-                    .HasColumnName("REFERRAL_HOSPITAL");
-
-                entity.Property(e => e.ReferralTime)
-                    .HasColumnType("DATE")
-                    .HasColumnName("REFERRAL_TIME");
-
-                entity.HasOne(d => d.Doctor)
-                    .WithMany(p => p.Referrals)
-                    .HasForeignKey(d => d.DoctorId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("REFERRAL_DOCTOR_FK1");
-
-                entity.HasOne(d => d.Patient)
-                    .WithMany(p => p.Referrals)
-                    .HasForeignKey(d => d.PatientId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("REFERRAL_PATIENT_FK1");
-            });
-
             modelBuilder.Entity<Registration>(entity =>
             {
                 entity.HasKey(e => new { e.PatientId, e.DoctorId, e.AppointmentTime, e.State, e.Period })
@@ -821,25 +747,52 @@ namespace back_end.Models
                     .HasConstraintName("REGISTRATION_PRESCRIPTION_FK1");
             });
 
-            modelBuilder.Entity<Subsequentvisit>(entity =>
+            modelBuilder.Entity<Template>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.Name)
+                    .HasName("TEMPLATE_PK");
 
-                entity.ToTable("SUBSEQUENTVISIT");
+                entity.ToTable("TEMPLATE");
 
-                entity.Property(e => e.Chattingrecords)
-                    .IsUnicode(false)
-                    .HasColumnName("CHATTINGRECORDS");
-
-                entity.Property(e => e.Diagnosedid)
+                entity.Property(e => e.Name)
                     .HasMaxLength(40)
                     .IsUnicode(false)
-                    .HasColumnName("DIAGNOSEDID");
+                    .HasColumnName("NAME");
 
-                entity.HasOne(d => d.Diagnosed)
-                    .WithMany()
-                    .HasForeignKey(d => d.Diagnosedid)
-                    .HasConstraintName("SUBSEQUENTVISIT_TREATMENT_FK1");
+                entity.Property(e => e.Column1)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("COLUMN1");
+
+                entity.Property(e => e.Diagnose)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("DIAGNOSE");
+
+                entity.Property(e => e.Illness)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("ILLNESS");
+
+                entity.Property(e => e.Medicine)
+                    .HasMaxLength(70)
+                    .IsUnicode(false)
+                    .HasColumnName("MEDICINE");
+
+                entity.Property(e => e.Prescription)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("PRESCRIPTION");
+
+                entity.Property(e => e.Problem)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("PROBLEM");
+
+                entity.Property(e => e.Symptom)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("SYMPTOM");
             });
 
             modelBuilder.Entity<TreatmentFeedback>(entity =>
