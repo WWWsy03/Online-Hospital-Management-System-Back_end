@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace back_end.Models
 {
@@ -26,8 +27,11 @@ namespace back_end.Models
         public string? Skilledin { get; set; }
 
         public virtual ICollection<Chatrecord> Chatrecords { get; set; }
+        [JsonIgnore]//防止序列化器尝试序列化这个集合，从而避免了循环引用的问题。
         public virtual ICollection<ConsultationInfo> ConsultationInfos { get; set; }
+        [JsonIgnore]//防止序列化器尝试序列化这个集合，从而避免了循环引用的问题。
         public virtual ICollection<Prescription> Prescriptions { get; set; }
+        [JsonIgnore]//防止序列化器尝试序列化这个集合，从而避免了循环引用的问题。
         public virtual ICollection<Registration> Registrations { get; set; }
         public virtual ICollection<TreatmentRecord> TreatmentRecords { get; set; }
     }
