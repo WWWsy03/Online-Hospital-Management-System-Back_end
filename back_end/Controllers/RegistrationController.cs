@@ -91,15 +91,66 @@ namespace back_end.Controllers
 
 
         [HttpGet("Doctor/{ID}")]
-        public IActionResult GetRegistFromDoctorId(string ID)
+        public async Task<IActionResult> GetRegistFromDoctorId(string ID)
         {
-            var registrations = _context.Registrations
-                .Include(r => r.Patient)
-                .Include(r => r.Doctor)
-                .Where(r => r.DoctorId == ID)
-                .ToList();
+            var registrations = await _context.Registrations
+                                        .Include(r => r.Doctor)
+                                        .Include(r => r.Patient)
+                                        .Where(r => r.DoctorId == ID)
+                                        .ToListAsync();
 
-            return Ok(registrations);
+            if (!registrations.Any())
+                return NotFound("No Doctor Found!");
+
+            var results = registrations.Select(reg =>
+            {
+                var queueCount = _context.Registrations
+                                   .Where(r => r.AppointmentTime.Date == reg.AppointmentTime.Date &&
+                                   r.Period == reg.Period &&
+                                   r.DoctorId == reg.DoctorId &&
+                                   r.Registorder < reg.Registorder)
+                                   .Count();
+                var payState = _context.Prescriptions.FirstOrDefault(p => p.PrescriptionId == reg.Prescriptionid)?.Paystate;
+                return new
+                {
+                    Doctor = reg.Doctor,
+                    Patient = reg.Patient,
+                    Date = reg.AppointmentTime.Date,
+                    Period = reg.Period,
+                    State = reg.State,
+                    PayState = payState,
+                    QueueCount = queueCount
+                };
+            }).ToList();
+
+            return Ok(results);
+        }
+
+        [HttpGet("GetPatientInfoByDoctorID/{ID}")]
+        public async Task<IActionResult> GetPatientInfoByDoctorID(string ID)
+        {
+            var registrations = await _context.Registrations
+                                        .Include(r => r.Doctor)
+                                        .Include(r => r.Patient)
+                                        .Where(r => r.DoctorId == ID && r.State==1)
+                                        .ToListAsync();
+
+            if (!registrations.Any())
+                return NotFound("No Doctor Found!");
+
+            var results = registrations.Select(reg =>
+            {
+                return new
+                {
+                    PatientID=reg.Patient.PatientId,
+                    PatientName = reg.Patient.Name,
+                    PatientGender=reg.Patient.Gender,
+                    AppointmentDate= reg.AppointmentTime.Date,
+                    Period=reg.Period
+                };
+            }).ToList();
+
+            return Ok(results);
         }
 
         [HttpGet("Patient/{ID}")]
@@ -112,7 +163,7 @@ namespace back_end.Controllers
                                         .ToListAsync();
 
             if (!registrations.Any())
-                return NotFound();
+                return NotFound("No Patient Found");
 
             var results = registrations.Select(reg =>
             {
@@ -139,53 +190,53 @@ namespace back_end.Controllers
         }
 
 
-        [HttpGet("MedicalHistory/{patientId}")]
-        public async Task<ActionResult<object>> GetMedicalHistory(string patientId)
-        {
-            // 首先，获取Registrations与Prescriptions的左外连接数据
-            var registWithPrescripts = await (from r in _context.Registrations
-                                              where r.PatientId == patientId
-                                              join p in _context.Prescriptions on r.Prescriptionid equals p.PrescriptionId into grouping
-                                              from g in grouping.DefaultIfEmpty()
-                                              select new
-                                              {
-                                                  r.PatientId,
-                                                  r.DoctorId,
-                                                  AppointmentDate = r.AppointmentTime.Date,
-                                                  r.Period,
-                                                  r.State,
-                                                  TotalPrice = g == null ? default(decimal) : g.TotalPrice,
-                                                  PrescriptionId = g.PrescriptionId,
-                                                  PayState = g.Paystate
-                                              }).ToArrayAsync();
+        //[HttpGet("MedicalHistory/{DoctorId}")]
+        //public async Task<ActionResult<object>> GetMedicalHistory(string doctorId)
+        //{
+        //    // 首先，获取Registrations与Prescriptions的左外连接数据
+        //    var registWithPrescripts = await (from r in _context.Registrations
+        //                                      where r.DoctorId == doctorId
+        //                                      join p in _context.Prescriptions on r.Prescriptionid equals p.PrescriptionId into grouping
+        //                                      from g in grouping.DefaultIfEmpty()
+        //                                      select new
+        //                                      {
+        //                                          r.PatientId,
+        //                                          r.DoctorId,
+        //                                          AppointmentDate = r.AppointmentTime.Date,
+        //                                          r.Period,
+        //                                          r.State,
+        //                                          TotalPrice = g == null ? default(decimal) : g.TotalPrice,
+        //                                          PrescriptionId = g.PrescriptionId,
+        //                                          PayState = g.Paystate
+        //                                      }).ToArrayAsync();
 
-            // 然后，基于上述结果与PrescriptionMedicines进行左外连接
-            var result = from r in registWithPrescripts
-                         join pm in _context.PrescriptionMedicines on r.PrescriptionId equals pm.PrescriptionId into medicineGrouping
-                         from mg in medicineGrouping.DefaultIfEmpty()
-                         select new
-                         {
-                             r.PatientId,
-                             r.DoctorId,
-                             r.AppointmentDate,
-                             r.Period,
-                             r.State,
-                             r.PrescriptionId,
-                             r.TotalPrice,
-                             r.PayState,
-                             MedicineName = mg?.MedicineName,
-                             MedicationInstruction = mg?.MedicationInstruction,
-                             MedicinePrice = mg?.MedicinePrice ?? 0
-                         };
+        //    // 然后，基于上述结果与PrescriptionMedicines进行左外连接
+        //    var result = from r in registWithPrescripts
+        //                 join pm in _context.PrescriptionMedicines on r.PrescriptionId equals pm.PrescriptionId into medicineGrouping
+        //                 from mg in medicineGrouping.DefaultIfEmpty()
+        //                 select new
+        //                 {
+        //                     r.PatientId,
+        //                     r.DoctorId,
+        //                     r.AppointmentDate,
+        //                     r.Period,
+        //                     r.State,
+        //                     r.PrescriptionId,
+        //                     r.TotalPrice,
+        //                     r.PayState,
+        //                     MedicineName = mg?.MedicineName,
+        //                     MedicationInstruction = mg?.MedicationInstruction,
+        //                     MedicinePrice = mg?.MedicinePrice ?? 0
+        //                 };
 
-            // 最后，返回结果
-            if (!result.Any())
-            {
-                return NotFound();
-            }
+        //    // 最后，返回结果
+        //    if (!registWithPrescripts.Any())
+        //    {
+        //        return NotFound("Medical History NotFound!");
+        //    }
 
-            return Ok(result);
-        }
+        //    return Ok(registWithPrescripts);
+        //}
 
 
         //[HttpPut("ReorderRegistByPatientId")]

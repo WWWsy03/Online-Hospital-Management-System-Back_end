@@ -191,57 +191,89 @@ namespace back_end.Controllers
             return BadRequest("VerificationCode not found.");
         }
 
-        [HttpGet("resetAdminPassword")]
-        public async Task<ActionResult<string>> resetAdminPassword(string ID, string NewPassword)
+
+        [HttpPut("resetAdminPassword")]
+        public async Task<ActionResult<string>> resetAdminPassword(resetPasswordInputModel adaptInfo)
         {
-            var User = await _context.Administrators.FirstOrDefaultAsync(d => d.AdministratorId == ID);
+            var User = await _context.Administrators.FirstOrDefaultAsync(d => d.AdministratorId == adaptInfo.ID);
             if (User == null)
             {
-                return BadRequest("AdministratorID not found");
+                return NotFound("AdministratorID not found");
             }
-            User.Password = NewPassword;
+            User.Password = adaptInfo.NewPassword;
             await _context.SaveChangesAsync();
             return Ok("Administrator Password reset successfully!");
         }
-        [HttpGet("resetDoctorPassword")]
-        public async Task<ActionResult<string>> resetDoctorPassword(string ID, string NewPassword)
+        [HttpPut("resetDoctorPassword")]
+        public async Task<ActionResult<string>> resetDoctorPassword(resetPasswordInputModel adaptInfo)
         {
-            var User = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == ID);
+            var User = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == adaptInfo.ID);
             if (User == null)
             {
-                return BadRequest("DoctorID not found");
+                return NotFound("DoctorID not found");
             }
-            User.Password = NewPassword;
+            User.Password = adaptInfo.NewPassword;
             await _context.SaveChangesAsync();
             return Ok("Doctor Password reset successfully!");
         }
-        [HttpGet("resetPatientPassword")]
-        public async Task<ActionResult<string>> resetPatientPassword(string ID, string NewPassword)
+
+        [HttpPut("resetPatientPassword")]
+        public async Task<ActionResult<string>> resetPatientPassword(resetPasswordInputModel adaptInfo)
         {
-            var User = await _context.Patients.FirstOrDefaultAsync(d => d.PatientId == ID);
+            var User = await _context.Patients.FirstOrDefaultAsync(d => d.PatientId == adaptInfo.ID);
             if (User == null)
             {
-                return BadRequest("PatientID not found");
+                return NotFound("PatientID not found");
             }
-            User.Password = NewPassword;
+            User.Password = adaptInfo.NewPassword;
             await _context.SaveChangesAsync();
             return Ok("Patient Password reset successfully!");
         }
 
-        [HttpPut("resetPPTest")]
-        public async Task<ActionResult<string>> resetPPTest(string ID, string NewPassword)
+        [HttpGet("judgeAdminPhoneID")]
+        public async Task<ActionResult<string>> judgeAdminPhoneID(string PhoneNumber, string ID)
         {
-            var User = await _context.Patients.FirstOrDefaultAsync(d => d.PatientId == ID);
-            if (User == null)
-            {
-                return BadRequest("PatientID not found");
+            bool exist = await _context.Administrators.AnyAsync(d => d.Contact == PhoneNumber & d.AdministratorId == ID);
+            if (exist) {
+                return Ok("Qualified Administrator Found.");
             }
-            User.Password = NewPassword;
-            await _context.SaveChangesAsync();
-            return Ok("Patient Password reset successfully!");
+            else {
+                return NotFound("No Qaulified Administrator found!");
+            }
+        }
+        [HttpGet("judgeDoctorPhoneID")]
+        public async Task<ActionResult<string>> judgeDoctorPhoneID(string PhoneNumber, string ID)
+        {
+            bool exist = await _context.Doctors.AnyAsync(d => d.Contact == PhoneNumber & d.DoctorId== ID);
+            if (exist)
+            {
+                return Ok("Qualified Doctor Found.");
+            }
+            else
+            {
+                return NotFound("No Qaulified Doctor found!");
+            }
+        }
+        [HttpGet("judgePatientPhoneID")]
+        public async Task<ActionResult<string>> judgePatientPhoneID(string PhoneNumber, string ID)
+        {
+            bool exist = await _context.Patients.AnyAsync(d => d.Contact == PhoneNumber & d.PatientId== ID);
+            if (exist)
+            {
+                return Ok("Qualified Patient Found.");
+            }
+            else
+            {
+                return NotFound("No Qaulified Patient found!");
+            }
         }
     }
 
+    public class resetPasswordInputModel
+    {
+        public string ID { get; set; } 
+        public string NewPassword { get; set; }
+    }
 }
 
 
