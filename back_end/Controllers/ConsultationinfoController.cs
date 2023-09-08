@@ -64,17 +64,21 @@ namespace back_end.Controllers
         [HttpGet("AllConsultInfo")]
         public async Task<ActionResult<IEnumerable<object>>> GetAllConsultInfo()
         {
-            var periods = await _context.ConsultationInfos.ToListAsync();
-            var result = periods.Select(p => new
-            {
-                DoctorId = p.DoctorId,
-                ClinicName = p.ClinicName,
-                Date = p.DateTime.Date,
-                StartTime = GetStartTime((int)p.Period),
-                EndTime = GetEndTime((int)p.Period)
-            });
+            var result = await (from p in _context.ConsultationInfos
+                                join d in _context.Doctors on p.DoctorId equals d.DoctorId
+                                select new
+                                {
+                                    DoctorId = p.DoctorId,
+                                    DoctorName = d.Name,
+                                    ClinicName = p.ClinicName,
+                                    Date = p.DateTime.Date,
+                                    StartTime = GetStartTime((int)p.Period),
+                                    EndTime = GetEndTime((int)p.Period)
+                                }).ToListAsync();
+
             return Ok(result);
         }
+
 
         [HttpPut("ChangeConsult")]
         public async Task<IActionResult> ChangeConsultInfo([FromBody] ChangeConsultInputModel Change)
@@ -192,7 +196,7 @@ namespace back_end.Controllers
             return await _context.ConsultingRooms.ToListAsync();
         }
 
-        private string GetStartTime(int period)
+        private static string GetStartTime(int period)
         {
             switch (period)
             {
@@ -215,7 +219,7 @@ namespace back_end.Controllers
             }
         }
 
-        private string GetEndTime(int period)
+        private static string GetEndTime(int period)
         {
             switch (period)
             {
