@@ -178,6 +178,7 @@ namespace back_end.Controllers
                 {
                     Doctor = reg.Doctor,
                     Patient = reg.Patient,
+                    //OrderTime=reg.OrderTime,
                     Date = reg.AppointmentTime.Date,
                     Period = reg.Period,
                     State = reg.State,
@@ -188,118 +189,6 @@ namespace back_end.Controllers
 
             return Ok(results);
         }
-
-
-        //[HttpGet("MedicalHistory/{DoctorId}")]
-        //public async Task<ActionResult<object>> GetMedicalHistory(string doctorId)
-        //{
-        //    // 首先，获取Registrations与Prescriptions的左外连接数据
-        //    var registWithPrescripts = await (from r in _context.Registrations
-        //                                      where r.DoctorId == doctorId
-        //                                      join p in _context.Prescriptions on r.Prescriptionid equals p.PrescriptionId into grouping
-        //                                      from g in grouping.DefaultIfEmpty()
-        //                                      select new
-        //                                      {
-        //                                          r.PatientId,
-        //                                          r.DoctorId,
-        //                                          AppointmentDate = r.AppointmentTime.Date,
-        //                                          r.Period,
-        //                                          r.State,
-        //                                          TotalPrice = g == null ? default(decimal) : g.TotalPrice,
-        //                                          PrescriptionId = g.PrescriptionId,
-        //                                          PayState = g.Paystate
-        //                                      }).ToArrayAsync();
-
-        //    // 然后，基于上述结果与PrescriptionMedicines进行左外连接
-        //    var result = from r in registWithPrescripts
-        //                 join pm in _context.PrescriptionMedicines on r.PrescriptionId equals pm.PrescriptionId into medicineGrouping
-        //                 from mg in medicineGrouping.DefaultIfEmpty()
-        //                 select new
-        //                 {
-        //                     r.PatientId,
-        //                     r.DoctorId,
-        //                     r.AppointmentDate,
-        //                     r.Period,
-        //                     r.State,
-        //                     r.PrescriptionId,
-        //                     r.TotalPrice,
-        //                     r.PayState,
-        //                     MedicineName = mg?.MedicineName,
-        //                     MedicationInstruction = mg?.MedicationInstruction,
-        //                     MedicinePrice = mg?.MedicinePrice ?? 0
-        //                 };
-
-        //    // 最后，返回结果
-        //    if (!registWithPrescripts.Any())
-        //    {
-        //        return NotFound("Medical History NotFound!");
-        //    }
-
-        //    return Ok(registWithPrescripts);
-        //}
-
-
-        //[HttpPut("ReorderRegistByPatientId")]
-        //public IActionResult UpdateRegistOrder()
-        //{
-        //    // 之前的功能代码：
-        //    var registrations = _context.Registrations
-        //                    .OrderBy(r => r.AppointmentTime)
-        //                    .ThenBy(r => r.PatientId)
-        //                    .ToList();
-
-        //    var groupedRecords = registrations.GroupBy(r => new
-        //    {
-        //        Date = r.AppointmentTime.Date,
-        //        r.Period,
-        //        r.DoctorId
-        //    }).ToList();
-
-        //    foreach (var group in groupedRecords)
-        //    {
-        //        int order = 1;
-        //        foreach (var record in group)
-        //        {
-        //            record.Registorder = order;
-        //            order++;
-        //        }
-        //    }
-
-        //    _context.SaveChanges();
-
-        //    return Ok("Records updated successfully!");
-        //}
-
-        //[HttpPut("JieChu_update-state")]
-        //public async Task<IActionResult> UpdateAllRegistState()
-        //{
-        //    var regists = _context.Registrations.ToList();
-        //    Console.WriteLine(regists.GetType().Name);
-
-        //    foreach (var regist in regists)
-        //    {
-        //        regist.State = GenerateState(regist);
-        //    }
-
-        //    await _context.SaveChangesAsync();
-
-        //    return Ok("States updated successfully.");
-        //}
-
-        //// 生成随机state的辅助方法
-        //private int GenerateState(Registration regist)
-        //{
-        //    var random = new Random();
-        //    int totalWeight = 4;
-        //    int randomVal = random.Next(totalWeight);
-
-        //    if (randomVal < 1)
-        //        return -1;
-        //    else if (randomVal < 3)
-        //        return 0;
-        //    else
-        //        return 1;
-        //}
 
 
         [HttpPost("regist")]
