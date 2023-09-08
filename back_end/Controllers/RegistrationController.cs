@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace back_end.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("[controller]")]
     public class RegistrationController : ControllerBase
     {
         private readonly ModelContext _context;

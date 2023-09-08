@@ -97,7 +97,7 @@ namespace back_end.Controllers
                         window.onload = function() {
                             window.setTimeout(function() {
                                 window.close();
-                            }, 5000); // 5000毫秒（5秒）后关闭窗口，您可以根据需要更改此时间
+                            }, 2000); // 2000毫秒（5秒）后关闭窗口，您可以根据需要更改此时间
                         };
                     </script>
                 </body>
@@ -119,7 +119,7 @@ namespace back_end.Controllers
                         window.onload = function() {
                             window.setTimeout(function() {
                                 window.close();
-                            }, 5000); // 5000毫秒（5秒）后关闭窗口，您可以根据需要更改此时间
+                            }, 2000); // 2000毫秒（5秒）后关闭窗口，您可以根据需要更改此时间
                         };
                     </script>
                 </body>
