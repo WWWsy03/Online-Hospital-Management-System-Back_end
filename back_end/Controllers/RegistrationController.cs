@@ -171,7 +171,8 @@ namespace back_end.Controllers
                                    .Where(r => r.AppointmentTime.Date == reg.AppointmentTime.Date &&
                                    r.Period == reg.Period &&
                                    r.DoctorId == reg.DoctorId &&
-                                   r.Registorder < reg.Registorder)
+                                   r.Registorder < reg.Registorder&&
+                                   r.State==0)
                                    .Count();
                 var payState = _context.Prescriptions.FirstOrDefault(p => p.PrescriptionId == reg.Prescriptionid)?.Paystate;
                 return new
@@ -239,7 +240,7 @@ namespace back_end.Controllers
             string messageContext = $"您预约的{DoctorName}医生 {Date} {Clock} 已预约成功，" +
                 $"您的预约二维码地址为：{Qrcodeurl}，" +
                 $"请在预约时间前携带二维码于报到处进行报到";
-            MessageSender.SendSmsAsync(PhoneNumber,messageContext);
+            //MessageSender.SendSmsAsync(PhoneNumber,messageContext);
 
             return Ok(Clock);
         }
