@@ -402,7 +402,7 @@ namespace back_end.Controllers
 
             if (registration.Checkin == 1)
             {
-                return Ok("您已经报道，无需重复报道");
+                return Ok("您已经报到，无需重复报道");
 
             }
 
@@ -430,7 +430,7 @@ namespace back_end.Controllers
             registration.Checkin = 1;
             await _context.SaveChangesAsync();
 
-            return Ok("报道成功");
+            return Ok("报到成功");
         }
 
         [HttpGet("OfflineCheckin")]
