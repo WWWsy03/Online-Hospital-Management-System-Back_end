@@ -220,7 +220,7 @@ namespace back_end.Controllers
                 AppointmentTime = input.Time,
                 Period = input.Period,
                 Qrcodeurl=input.QRCodeUrl,
-                Ordertime = input.Ordertime,
+                Ordertime = DateTime.Now,
                 State = 0,
                 Registorder = maxOrder + 1  // 设置 Registorder 为当前最大值加1
             };
@@ -372,7 +372,7 @@ namespace back_end.Controllers
                 DoctorId = Change.New.DoctorId,
                 AppointmentTime = Change.New.Time,
                 Period = Change.New.Period,
-                Ordertime = Change.New.Ordertime,
+                Ordertime = DateTime.Now,
                 State = 0,
                 Registorder = maxOrder + 1  // 设置 Registorder 为当前最大值加1
             };
@@ -529,7 +529,6 @@ namespace back_end.Controllers
         public DateTime Time { get; set; }
         public int Period { get; set; }
         public string QRCodeUrl { get; set; }
-        public DateTime Ordertime { get; set; }
     }
 
     public class RegistrationInputModel2//用于传输数据
@@ -545,7 +544,6 @@ namespace back_end.Controllers
         public string DoctorId { get; set; }
         public DateTime Time { get; set; }
         public int Period { get; set; }
-        public DateTime Ordertime{ get; set; }
     }
 
     public class ChangeAppointmentInputModel
