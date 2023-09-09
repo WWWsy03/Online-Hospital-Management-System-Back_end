@@ -402,7 +402,7 @@ namespace back_end.Controllers
 
             if (registration.Checkin == 1)
             {
-                return Ok("您已经报到，无需重复报道");
+                return Ok("您已经报到，无需重复报到");
 
             }
 
