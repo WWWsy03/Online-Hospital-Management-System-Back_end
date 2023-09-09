@@ -140,8 +140,9 @@ namespace back_end.Controllers
             var code = random.Next(100000, 999999).ToString();
 
             //发送验证码到手机
-            string context = $"您的验证码是：{code}。请不要把验证码泄露给其他人。";
-            Task<bool> task = MessageSender.SendSmsAsync(PhoneNumber, context);
+            //string context = $"您的验证码是：{code}。请不要把验证码泄露给其他人。";
+            string context = $"{code}";
+            Task<bool> task = MessageSender.SendSmsAsync4VC(PhoneNumber, context);
             bool isSuccess = await task;
 
             // Store the code and generation time
