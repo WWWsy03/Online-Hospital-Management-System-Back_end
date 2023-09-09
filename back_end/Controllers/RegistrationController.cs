@@ -178,7 +178,7 @@ namespace back_end.Controllers
                 {
                     Doctor = reg.Doctor,
                     Patient = reg.Patient,
-                    //OrderTime=reg.OrderTime,
+                    OrderTime = reg.Ordertime,
                     Date = reg.AppointmentTime.Date,
                     Period = reg.Period,
                     State = reg.State,
@@ -220,9 +220,9 @@ namespace back_end.Controllers
                 AppointmentTime = input.Time,
                 Period = input.Period,
                 Qrcodeurl=input.QRCodeUrl,
+                Ordertime = input.Ordertime,
                 State = 0,
                 Registorder = maxOrder + 1  // 设置 Registorder 为当前最大值加1
-                
             };
 
             registration.Doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.DoctorId == input.DoctorId);
@@ -279,8 +279,8 @@ namespace back_end.Controllers
                 Prescriptionid = registration.Prescriptionid,
                 Registorder = registration.Registorder,
                 Qrcodeurl = registration.Qrcodeurl,
+                Ordertime = registration.Ordertime,
                 State = -similarRegistrationsCount
-
             };
             _context.Registrations.Remove(registration);//因为State是主键不能修改，不需要先删了再插入
             await _context.SaveChangesAsync();
@@ -372,7 +372,7 @@ namespace back_end.Controllers
                 DoctorId = Change.New.DoctorId,
                 AppointmentTime = Change.New.Time,
                 Period = Change.New.Period,
-
+                Ordertime = Change.New.Ordertime,
                 State = 0,
                 Registorder = maxOrder + 1  // 设置 Registorder 为当前最大值加1
             };
@@ -529,6 +529,7 @@ namespace back_end.Controllers
         public DateTime Time { get; set; }
         public int Period { get; set; }
         public string QRCodeUrl { get; set; }
+        public DateTime Ordertime { get; set; }
     }
 
     public class RegistrationInputModel2//用于传输数据
@@ -544,6 +545,7 @@ namespace back_end.Controllers
         public string DoctorId { get; set; }
         public DateTime Time { get; set; }
         public int Period { get; set; }
+        public DateTime Ordertime{ get; set; }
     }
 
     public class ChangeAppointmentInputModel
