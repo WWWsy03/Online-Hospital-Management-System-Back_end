@@ -174,6 +174,8 @@ namespace back_end.Controllers
                                    r.Registorder < reg.Registorder&&
                                    r.State==0)
                                    .Count();
+                if (reg.State == 1 || reg.State == -1)
+                    queueCount = 0;
                 var payState = _context.Prescriptions.FirstOrDefault(p => p.PrescriptionId == reg.Prescriptionid)?.Paystate;
                 return new
                 {
