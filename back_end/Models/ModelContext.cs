@@ -21,7 +21,6 @@ namespace back_end.Models
         public virtual DbSet<ConsultationInfo> ConsultationInfos { get; set; } = null!;
         public virtual DbSet<ConsultingRoom> ConsultingRooms { get; set; } = null!;
         public virtual DbSet<Department2> Department2s { get; set; } = null!;
-        public virtual DbSet<Disease> Diseases { get; set; } = null!;
         public virtual DbSet<Doctor> Doctors { get; set; } = null!;
         public virtual DbSet<LeaveApplication> LeaveApplications { get; set; } = null!;
         public virtual DbSet<MedicineDescription> MedicineDescriptions { get; set; } = null!;
@@ -207,40 +206,6 @@ namespace back_end.Models
                     .HasMaxLength(800)
                     .IsUnicode(false)
                     .HasColumnName("DEPARTMENT_DESCRIPTION");
-            });
-
-            modelBuilder.Entity<Disease>(entity =>
-            {
-                entity.HasKey(e => e.DiseaseName)
-                    .HasName("DISEASE_PK");
-
-                entity.ToTable("DISEASE");
-
-                entity.Property(e => e.DiseaseName)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("DISEASE_NAME");
-
-                entity.Property(e => e.CureMethod)
-                    .HasMaxLength(100)
-                    .IsUnicode(false)
-                    .HasColumnName("CURE_METHOD");
-
-                entity.Property(e => e.SecondaryDepartmentId)
-                    .HasMaxLength(8)
-                    .IsUnicode(false)
-                    .HasColumnName("SECONDARY_DEPARTMENT_ID");
-
-                entity.Property(e => e.Symptom)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("SYMPTOM");
-
-                entity.HasOne(d => d.DiseaseNameNavigation)
-                    .WithOne(p => p.Disease)
-                    .HasForeignKey<Disease>(d => d.DiseaseName)
-                    .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("DISEASE_DEPARTMENT2_FK1");
             });
 
             modelBuilder.Entity<Doctor>(entity =>
@@ -716,6 +681,10 @@ namespace back_end.Models
                     .HasColumnType("NUMBER(38)")
                     .HasColumnName("CHECKIN")
                     .HasDefaultValueSql("0 ");
+
+                entity.Property(e => e.Ordertime)
+                    .HasPrecision(0)
+                    .HasColumnName("ORDERTIME");
 
                 entity.Property(e => e.Prescriptionid)
                     .HasMaxLength(200)

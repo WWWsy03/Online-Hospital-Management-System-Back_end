@@ -14,6 +14,7 @@ namespace back_end.Models
         public string? Prescriptionid { get; set; }
         public decimal Checkin { get; set; }
         public string? Qrcodeurl { get; set; }
+        public DateTime? Ordertime { get; set; }
 
         public virtual Doctor Doctor { get; set; } = null!;
         public virtual Patient Patient { get; set; } = null!;

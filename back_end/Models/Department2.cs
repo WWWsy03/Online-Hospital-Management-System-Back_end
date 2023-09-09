@@ -7,7 +7,5 @@ namespace back_end.Models
     {
         public string DepartmentName { get; set; } = null!;
         public string? DepartmentDescription { get; set; }
-
-        public virtual Disease? Disease { get; set; }
     }
 }
