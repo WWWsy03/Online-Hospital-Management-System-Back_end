@@ -71,7 +71,8 @@ namespace back_end.Controllers
                         State = 1,//挂号表中改成已就诊
                         Prescriptionid = prescriptionId,//加入处方编号
                         Checkin=1,
-                        Qrcodeurl=registration.Qrcodeurl
+                        Qrcodeurl=registration.Qrcodeurl,
+                        Ordertime = registration.Ordertime
                     };
 
 
