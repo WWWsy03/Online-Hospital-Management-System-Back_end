@@ -153,12 +153,28 @@ namespace back_end.Controllers
             return Ok(leaveApplications);
         }
 
-        [HttpGet("diagnosis")]
+        [HttpGet("diagnosis")]//根据病人ID返回申请过假条的诊断记录ID
         public async Task<IActionResult> GetDiagnosedId(string patientId)
         {
             var leaveApplications = await _context.LeaveApplications
                 .Where(l => l.LeaveNoteId.Substring(8, 7) == patientId)
                 .Select(l => l.LeaveNoteId.Substring(0, l.LeaveNoteId.Length - 1))
+                .ToListAsync();
+
+            if (leaveApplications.Count == 0)
+            {
+                return Ok("该病人未申请过假条");
+            }
+
+            return Ok(leaveApplications);
+        }
+
+        [HttpGet("audited")]//根据病人ID返回通过的假条ID
+        public async Task<IActionResult> GetAuditedLeaveNoteId(string patientId)
+        {
+            var leaveApplications = await _context.LeaveApplications
+                .Where(l => l.LeaveNoteId.Substring(8, 7) == patientId&&l.LeaveNoteRemark=="通过")
+                .Select(l => l.LeaveNoteId)
                 .ToListAsync();
 
             if (leaveApplications.Count == 0)

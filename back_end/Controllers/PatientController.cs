@@ -14,7 +14,7 @@ namespace back_end.Controllers
             _context = context;
         }
 
-        //插入医生信息
+        //插入就诊信息
         [HttpPost("PostTreatmentRord1")]
         public async Task<ActionResult<Models.TreatmentRecord>> PostTreatmentRecord(Models.TreatmentRecord row)
         {
