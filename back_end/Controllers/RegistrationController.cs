@@ -242,7 +242,7 @@ namespace back_end.Controllers
             string messageContext = $"您预约的{DoctorName}医生 {Date} {Clock} 已预约成功，" +
                 $"您的预约二维码地址为：{Qrcodeurl}，" +
                 $"请在预约时间前携带二维码于报到处进行报到";
-            //MessageSender.SendSmsAsync(PhoneNumber,messageContext);
+            MessageSender.SendSmsAsync(PhoneNumber, messageContext);
 
             return Ok(Clock);
         }
